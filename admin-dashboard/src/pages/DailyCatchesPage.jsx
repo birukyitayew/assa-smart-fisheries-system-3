@@ -1,0 +1,117 @@
+import { useState, useCallback } from 'react'
+import api from '../services/api'
+import { usePolling } from '../hooks/usePolling'
+import CatchesTable from '../components/tables/CatchesTable'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+const TABS = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED']
+
+export default function DailyCatchesPage() {
+  const [catches, setCatches] = useState([])
+  const [total, setTotal] = useState(0)
+  const [activeTab, setActiveTab] = useState('PENDING')
+  const [search, setSearch] = useState('')
+  const [date, setDate] = useState('')
+  const [page, setPage] = useState(1)
+
+  const fetchCatches = useCallback(async () => {
+    try {
+      const params = new URLSearchParams({ page, limit: 20 })
+      if (activeTab !== 'ALL') params.set('status', activeTab)
+      if (search) params.set('search', search)
+      if (date) params.set('date', date)
+      const res = await api.get(`/admin/catches?${params}`)
+      setCatches(res.data.catches)
+      setTotal(res.data.total)
+    } catch (err) {
+      console.error(err)
+    }
+  }, [activeTab, search, date, page])
+
+  usePolling(fetchCatches, 10000)
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h2 className="text-xl font-bold text-foreground">Daily Catches</h2>
+        <p className="text-sm text-muted-foreground">Review and process catch submissions</p>
+      </div>
+
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-3 items-center">
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setPage(1) }}>
+              <TabsList>
+                {TABS.map((tab) => (
+                  <TabsTrigger key={tab} value={tab} className="text-xs">
+                    {tab.charAt(0) + tab.slice(1).toLowerCase()}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+
+            <Input
+              type="text"
+              placeholder="Search fisher, species, reference..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+              className="flex-1 min-w-[200px]"
+            />
+
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => { setDate(e.target.value); setPage(1) }}
+              className="w-auto"
+            />
+
+            {(search || date) && (
+              <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setDate(''); setPage(1) }}>
+                Clear
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden">
+        <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">
+            {total} result{total !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        <CatchesTable catches={catches} />
+
+        {total > 20 && (
+          <div className="px-5 py-3 border-t border-border flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+              Page {page} of {Math.ceil(total / 20)}
+            </span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+              >
+                ← Prev
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page >= Math.ceil(total / 20)}
+              >
+                Next →
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
+    </div>
+  )
+}

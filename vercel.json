@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://REPLACE_WITH_BACKEND_HOST/api/$1"
+    },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
+    { "source": "/fisher", "destination": "/fisher/index.html" },
+    { "source": "/fisher/(.*)", "destination": "/fisher/index.html" },
+    { "source": "/market", "destination": "/market/index.html" },
+    { "source": "/market/(.*)", "destination": "/market/index.html" }
+  ]
+}
+

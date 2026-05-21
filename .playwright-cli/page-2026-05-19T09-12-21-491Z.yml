@@ -1,0 +1,570 @@
+- generic [ref=e593]:
+  - banner [ref=e594]:
+    - generic [ref=e595]:
+      - link "🐟 ASSAFish Market" [ref=e596] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e597]: 🐟
+        - generic [ref=e598]: ASSAFish Market
+      - navigation [ref=e599]:
+        - link "Home" [ref=e600] [cursor=pointer]:
+          - /url: /
+        - link "Marketplace" [ref=e601] [cursor=pointer]:
+          - /url: /browse
+        - link "My Orders" [ref=e602] [cursor=pointer]:
+          - /url: /my-orders
+      - generic [ref=e604]:
+        - generic [ref=e605]: Hi, Mesfin
+        - button "Sign out" [ref=e606] [cursor=pointer]
+  - main [ref=e607]:
+    - generic [ref=e608]:
+      - generic [ref=e609]:
+        - generic [ref=e610]:
+          - generic [ref=e611]: All fish are legally caught & ASSA verified
+          - heading "Fresh. Legal. Verified." [level=1] [ref=e613]
+          - paragraph [ref=e614]: Buy quality fish, support sustainable fishing in Lake Tana.
+          - generic [ref=e615]:
+            - textbox "Search fish, species, seller..." [ref=e616]
+            - button "Search" [ref=e617] [cursor=pointer]
+        - generic [ref=e618]: 🐟
+      - generic [ref=e619]:
+        - generic [ref=e620]: ✅ Verified Legal Catch
+        - generic [ref=e621]: 🌊 Fresh & Quality
+        - generic [ref=e622]: 💰 Fair Price
+        - generic [ref=e623]: 🔒 Secure
+        - generic [ref=e624]: 🚚 Fast Delivery
+      - generic [ref=e625]:
+        - complementary [ref=e626]:
+          - generic [ref=e627]:
+            - heading "Categories" [level=3] [ref=e628]
+            - generic [ref=e629]:
+              - button "🐟 All Fish" [ref=e630] [cursor=pointer]
+              - button "🐟 Tilapia" [ref=e631] [cursor=pointer]
+              - button "🐡 Nile Perch" [ref=e632] [cursor=pointer]
+              - button "🐠 Catfish" [ref=e633] [cursor=pointer]
+              - button "🐠 Barbus (Ganfo)" [ref=e634] [cursor=pointer]
+              - button "🐟 Carp" [ref=e635] [cursor=pointer]
+          - generic [ref=e636]:
+            - heading "Price Range (ETB/kg)" [level=3] [ref=e637]
+            - generic [ref=e638]:
+              - slider [ref=e639]: "300"
+              - generic [ref=e640]:
+                - generic [ref=e641]: ETB 0
+                - generic [ref=e642]: ETB 300
+        - generic [ref=e643]:
+          - heading "Featured Listings(21 available)" [level=2] [ref=e645]:
+            - text: Featured Listings
+            - generic [ref=e646]: (21 available)
+          - generic [ref=e647]:
+            - link "Tilapia catch FRESH ASSA Verified Tilapia Verified 📍 Lake Tana – East Zone (Woreta) ETB 140/kg 21.1 kg left ✓ Abebe Girma CATCH-2026-05-18-0020" [ref=e648] [cursor=pointer]:
+              - /url: /listing/19
+              - generic [ref=e649]:
+                - img "Tilapia catch" [ref=e650]
+                - generic [ref=e653]: FRESH
+                - generic [ref=e654]: ASSA Verified
+              - generic [ref=e655]:
+                - generic [ref=e656]:
+                  - heading "Tilapia" [level=3] [ref=e657]
+                  - generic [ref=e658]: Verified
+                - generic [ref=e659]:
+                  - generic [ref=e660]: 📍
+                  - generic [ref=e661]: Lake Tana – East Zone (Woreta)
+                - generic [ref=e662]:
+                  - generic [ref=e663]:
+                    - generic [ref=e664]: ETB 140
+                    - text: /kg
+                  - generic [ref=e665]: 21.1 kg left
+                - generic [ref=e666]:
+                  - generic [ref=e667]: ✓
+                  - generic [ref=e668]: Abebe Girma
+                  - generic [ref=e669]: CATCH-2026-05-18-0020
+            - link "Carp catch FRESH ASSA Verified Carp Verified 📍 Lake Tana – South Zone (Bahir Dar) ETB 95/kg 13.6 kg left ✓ Mulugeta Worku CATCH-2026-05-18-0021" [ref=e670] [cursor=pointer]:
+              - /url: /listing/20
+              - generic [ref=e671]:
+                - img "Carp catch" [ref=e672]
+                - generic [ref=e675]: FRESH
+                - generic [ref=e676]: ASSA Verified
+              - generic [ref=e677]:
+                - generic [ref=e678]:
+                  - heading "Carp" [level=3] [ref=e679]
+                  - generic [ref=e680]: Verified
+                - generic [ref=e681]:
+                  - generic [ref=e682]: 📍
+                  - generic [ref=e683]: Lake Tana – South Zone (Bahir Dar)
+                - generic [ref=e684]:
+                  - generic [ref=e685]:
+                    - generic [ref=e686]: ETB 95
+                    - text: /kg
+                  - generic [ref=e687]: 13.6 kg left
+                - generic [ref=e688]:
+                  - generic [ref=e689]: ✓
+                  - generic [ref=e690]: Mulugeta Worku
+                  - generic [ref=e691]: CATCH-2026-05-18-0021
+            - link "Catfish catch FRESH ASSA Verified Catfish Verified 📍 Lake Tana – North Zone (Gorgora) ETB 130/kg 14.6 kg left ✓ Amare Yilma CATCH-2026-05-18-0022" [ref=e692] [cursor=pointer]:
+              - /url: /listing/21
+              - generic [ref=e693]:
+                - img "Catfish catch" [ref=e694]
+                - generic [ref=e697]: FRESH
+                - generic [ref=e698]: ASSA Verified
+              - generic [ref=e699]:
+                - generic [ref=e700]:
+                  - heading "Catfish" [level=3] [ref=e701]
+                  - generic [ref=e702]: Verified
+                - generic [ref=e703]:
+                  - generic [ref=e704]: 📍
+                  - generic [ref=e705]: Lake Tana – North Zone (Gorgora)
+                - generic [ref=e706]:
+                  - generic [ref=e707]:
+                    - generic [ref=e708]: ETB 130
+                    - text: /kg
+                  - generic [ref=e709]: 14.6 kg left
+                - generic [ref=e710]:
+                  - generic [ref=e711]: ✓
+                  - generic [ref=e712]: Amare Yilma
+                  - generic [ref=e713]: CATCH-2026-05-18-0022
+            - link "Tilapia catch FRESH ASSA Verified Tilapia Verified 📍 Lake Tana – East Zone (Woreta) ETB 140/kg 29.3 kg left ✓ Negash Wolde CATCH-2026-05-17-0016" [ref=e714] [cursor=pointer]:
+              - /url: /listing/16
+              - generic [ref=e715]:
+                - img "Tilapia catch" [ref=e716]
+                - generic [ref=e719]: FRESH
+                - generic [ref=e720]: ASSA Verified
+              - generic [ref=e721]:
+                - generic [ref=e722]:
+                  - heading "Tilapia" [level=3] [ref=e723]
+                  - generic [ref=e724]: Verified
+                - generic [ref=e725]:
+                  - generic [ref=e726]: 📍
+                  - generic [ref=e727]: Lake Tana – East Zone (Woreta)
+                - generic [ref=e728]:
+                  - generic [ref=e729]:
+                    - generic [ref=e730]: ETB 140
+                    - text: /kg
+                  - generic [ref=e731]: 29.3 kg left
+                - generic [ref=e732]:
+                  - generic [ref=e733]: ✓
+                  - generic [ref=e734]: Negash Wolde
+                  - generic [ref=e735]: CATCH-2026-05-17-0016
+            - link "Catfish catch LIMITED ASSA Verified Catfish Verified 📍 Lake Tana – North Zone (Gorgora) ETB 130/kg 8.4 kg left ✓ Tesfaye Alemu CATCH-2026-05-17-0017" [ref=e736] [cursor=pointer]:
+              - /url: /listing/17
+              - generic [ref=e737]:
+                - img "Catfish catch" [ref=e738]
+                - generic [ref=e741]: LIMITED
+                - generic [ref=e742]: ASSA Verified
+              - generic [ref=e743]:
+                - generic [ref=e744]:
+                  - heading "Catfish" [level=3] [ref=e745]
+                  - generic [ref=e746]: Verified
+                - generic [ref=e747]:
+                  - generic [ref=e748]: 📍
+                  - generic [ref=e749]: Lake Tana – North Zone (Gorgora)
+                - generic [ref=e750]:
+                  - generic [ref=e751]:
+                    - generic [ref=e752]: ETB 130
+                    - text: /kg
+                  - generic [ref=e753]: 8.4 kg left
+                - generic [ref=e754]:
+                  - generic [ref=e755]: ✓
+                  - generic [ref=e756]: Tesfaye Alemu
+                  - generic [ref=e757]: CATCH-2026-05-17-0017
+            - link "Nile Perch catch FRESH ASSA Verified Nile Perch Verified 📍 Lake Tana – East Zone (Woreta) ETB 200/kg 18.3 kg left ✓ Girma Tadesse CATCH-2026-05-17-0019" [ref=e758] [cursor=pointer]:
+              - /url: /listing/18
+              - generic [ref=e759]:
+                - img "Nile Perch catch" [ref=e760]
+                - generic [ref=e763]: FRESH
+                - generic [ref=e764]: ASSA Verified
+              - generic [ref=e765]:
+                - generic [ref=e766]:
+                  - heading "Nile Perch" [level=3] [ref=e767]
+                  - generic [ref=e768]: Verified
+                - generic [ref=e769]:
+                  - generic [ref=e770]: 📍
+                  - generic [ref=e771]: Lake Tana – East Zone (Woreta)
+                - generic [ref=e772]:
+                  - generic [ref=e773]:
+                    - generic [ref=e774]: ETB 200
+                    - text: /kg
+                  - generic [ref=e775]: 18.3 kg left
+                - generic [ref=e776]:
+                  - generic [ref=e777]: ✓
+                  - generic [ref=e778]: Girma Tadesse
+                  - generic [ref=e779]: CATCH-2026-05-17-0019
+            - link "Carp catch FRESH ASSA Verified Carp Verified 📍 Lake Tana – West Zone (Mecha) ETB 95/kg 10 kg left ✓ Mekonnen Hailu CATCH-2026-05-15-0012" [ref=e780] [cursor=pointer]:
+              - /url: /listing/12
+              - generic [ref=e781]:
+                - img "Carp catch" [ref=e782]
+                - generic [ref=e785]: FRESH
+                - generic [ref=e786]: ASSA Verified
+              - generic [ref=e787]:
+                - generic [ref=e788]:
+                  - heading "Carp" [level=3] [ref=e789]
+                  - generic [ref=e790]: Verified
+                - generic [ref=e791]:
+                  - generic [ref=e792]: 📍
+                  - generic [ref=e793]: Lake Tana – West Zone (Mecha)
+                - generic [ref=e794]:
+                  - generic [ref=e795]:
+                    - generic [ref=e796]: ETB 95
+                    - text: /kg
+                  - generic [ref=e797]: 10 kg left
+                - generic [ref=e798]:
+                  - generic [ref=e799]: ✓
+                  - generic [ref=e800]: Mekonnen Hailu
+                  - generic [ref=e801]: CATCH-2026-05-15-0012
+            - link "Tilapia catch FRESH ASSA Verified Tilapia Verified 📍 Lake Tana – East Zone (Woreta) ETB 140/kg 25.6 kg left ✓ Tadesse Woldemariam CATCH-2026-05-16-0013" [ref=e802] [cursor=pointer]:
+              - /url: /listing/13
+              - generic [ref=e803]:
+                - img "Tilapia catch" [ref=e804]
+                - generic [ref=e807]: FRESH
+                - generic [ref=e808]: ASSA Verified
+              - generic [ref=e809]:
+                - generic [ref=e810]:
+                  - heading "Tilapia" [level=3] [ref=e811]
+                  - generic [ref=e812]: Verified
+                - generic [ref=e813]:
+                  - generic [ref=e814]: 📍
+                  - generic [ref=e815]: Lake Tana – East Zone (Woreta)
+                - generic [ref=e816]:
+                  - generic [ref=e817]:
+                    - generic [ref=e818]: ETB 140
+                    - text: /kg
+                  - generic [ref=e819]: 25.6 kg left
+                - generic [ref=e820]:
+                  - generic [ref=e821]: ✓
+                  - generic [ref=e822]: Tadesse Woldemariam
+                  - generic [ref=e823]: CATCH-2026-05-16-0013
+            - link "Nile Perch catch FRESH ASSA Verified Nile Perch Verified 📍 Lake Tana – South Zone (Bahir Dar) ETB 200/kg 11.6 kg left ✓ Zewdu Kebede CATCH-2026-05-16-0014" [ref=e824] [cursor=pointer]:
+              - /url: /listing/14
+              - generic [ref=e825]:
+                - img "Nile Perch catch" [ref=e826]
+                - generic [ref=e829]: FRESH
+                - generic [ref=e830]: ASSA Verified
+              - generic [ref=e831]:
+                - generic [ref=e832]:
+                  - heading "Nile Perch" [level=3] [ref=e833]
+                  - generic [ref=e834]: Verified
+                - generic [ref=e835]:
+                  - generic [ref=e836]: 📍
+                  - generic [ref=e837]: Lake Tana – South Zone (Bahir Dar)
+                - generic [ref=e838]:
+                  - generic [ref=e839]:
+                    - generic [ref=e840]: ETB 200
+                    - text: /kg
+                  - generic [ref=e841]: 11.6 kg left
+                - generic [ref=e842]:
+                  - generic [ref=e843]: ✓
+                  - generic [ref=e844]: Zewdu Kebede
+                  - generic [ref=e845]: CATCH-2026-05-16-0014
+            - link "Barbus (Ganfo) catch LIMITED ASSA Verified Barbus (Ganfo) Verified 📍 Lake Tana – North Zone (Gorgora) ETB 110/kg 4.9 kg left ✓ Alemu Gebre CATCH-2026-05-16-0015" [ref=e846] [cursor=pointer]:
+              - /url: /listing/15
+              - generic [ref=e847]:
+                - img "Barbus (Ganfo) catch" [ref=e848]
+                - generic [ref=e851]: LIMITED
+                - generic [ref=e852]: ASSA Verified
+              - generic [ref=e853]:
+                - generic [ref=e854]:
+                  - heading "Barbus (Ganfo)" [level=3] [ref=e855]
+                  - generic [ref=e856]: Verified
+                - generic [ref=e857]:
+                  - generic [ref=e858]: 📍
+                  - generic [ref=e859]: Lake Tana – North Zone (Gorgora)
+                - generic [ref=e860]:
+                  - generic [ref=e861]:
+                    - generic [ref=e862]: ETB 110
+                    - text: /kg
+                  - generic [ref=e863]: 4.9 kg left
+                - generic [ref=e864]:
+                  - generic [ref=e865]: ✓
+                  - generic [ref=e866]: Alemu Gebre
+                  - generic [ref=e867]: CATCH-2026-05-16-0015
+            - link "Tilapia catch FRESH ASSA Verified Tilapia Verified 📍 Lake Tana – South Zone (Bahir Dar) ETB 140/kg 13.2 kg left ✓ Berhane Tekle CATCH-2026-05-15-0010" [ref=e868] [cursor=pointer]:
+              - /url: /listing/10
+              - generic [ref=e869]:
+                - img "Tilapia catch" [ref=e870]
+                - generic [ref=e873]: FRESH
+                - generic [ref=e874]: ASSA Verified
+              - generic [ref=e875]:
+                - generic [ref=e876]:
+                  - heading "Tilapia" [level=3] [ref=e877]
+                  - generic [ref=e878]: Verified
+                - generic [ref=e879]:
+                  - generic [ref=e880]: 📍
+                  - generic [ref=e881]: Lake Tana – South Zone (Bahir Dar)
+                - generic [ref=e882]:
+                  - generic [ref=e883]:
+                    - generic [ref=e884]: ETB 140
+                    - text: /kg
+                  - generic [ref=e885]: 13.2 kg left
+                - generic [ref=e886]:
+                  - generic [ref=e887]: ✓
+                  - generic [ref=e888]: Berhane Tekle
+                  - generic [ref=e889]: CATCH-2026-05-15-0010
+            - link "Catfish catch FRESH ASSA Verified Catfish Verified 📍 Lake Tana – North Zone (Gorgora) ETB 130/kg 10.4 kg left ✓ Yitbarek Alemu CATCH-2026-05-15-0011" [ref=e890] [cursor=pointer]:
+              - /url: /listing/11
+              - generic [ref=e891]:
+                - img "Catfish catch" [ref=e892]
+                - generic [ref=e895]: FRESH
+                - generic [ref=e896]: ASSA Verified
+              - generic [ref=e897]:
+                - generic [ref=e898]:
+                  - heading "Catfish" [level=3] [ref=e899]
+                  - generic [ref=e900]: Verified
+                - generic [ref=e901]:
+                  - generic [ref=e902]: 📍
+                  - generic [ref=e903]: Lake Tana – North Zone (Gorgora)
+                - generic [ref=e904]:
+                  - generic [ref=e905]:
+                    - generic [ref=e906]: ETB 130
+                    - text: /kg
+                  - generic [ref=e907]: 10.4 kg left
+                - generic [ref=e908]:
+                  - generic [ref=e909]: ✓
+                  - generic [ref=e910]: Yitbarek Alemu
+                  - generic [ref=e911]: CATCH-2026-05-15-0011
+            - link "Barbus (Ganfo) catch LIMITED ASSA Verified Barbus (Ganfo) Verified 📍 Lake Tana – West Zone (Mecha) ETB 110/kg 4.9 kg left ✓ Sisay Negash CATCH-2026-05-14-0007" [ref=e912] [cursor=pointer]:
+              - /url: /listing/7
+              - generic [ref=e913]:
+                - img "Barbus (Ganfo) catch" [ref=e914]
+                - generic [ref=e917]: LIMITED
+                - generic [ref=e918]: ASSA Verified
+              - generic [ref=e919]:
+                - generic [ref=e920]:
+                  - heading "Barbus (Ganfo)" [level=3] [ref=e921]
+                  - generic [ref=e922]: Verified
+                - generic [ref=e923]:
+                  - generic [ref=e924]: 📍
+                  - generic [ref=e925]: Lake Tana – West Zone (Mecha)
+                - generic [ref=e926]:
+                  - generic [ref=e927]:
+                    - generic [ref=e928]: ETB 110
+                    - text: /kg
+                  - generic [ref=e929]: 4.9 kg left
+                - generic [ref=e930]:
+                  - generic [ref=e931]: ✓
+                  - generic [ref=e932]: Sisay Negash
+                  - generic [ref=e933]: CATCH-2026-05-14-0007
+            - link "Tilapia catch FRESH ASSA Verified Tilapia Verified 📍 Lake Tana – North Zone (Gorgora) ETB 140/kg 14.5 kg left ✓ Fekadu Lemma CATCH-2026-05-14-0008" [ref=e934] [cursor=pointer]:
+              - /url: /listing/8
+              - generic [ref=e935]:
+                - img "Tilapia catch" [ref=e936]
+                - generic [ref=e939]: FRESH
+                - generic [ref=e940]: ASSA Verified
+              - generic [ref=e941]:
+                - generic [ref=e942]:
+                  - heading "Tilapia" [level=3] [ref=e943]
+                  - generic [ref=e944]: Verified
+                - generic [ref=e945]:
+                  - generic [ref=e946]: 📍
+                  - generic [ref=e947]: Lake Tana – North Zone (Gorgora)
+                - generic [ref=e948]:
+                  - generic [ref=e949]:
+                    - generic [ref=e950]: ETB 140
+                    - text: /kg
+                  - generic [ref=e951]: 14.5 kg left
+                - generic [ref=e952]:
+                  - generic [ref=e953]: ✓
+                  - generic [ref=e954]: Fekadu Lemma
+                  - generic [ref=e955]: CATCH-2026-05-14-0008
+            - link "Nile Perch catch LIMITED ASSA Verified Nile Perch Verified 📍 Lake Tana – East Zone (Woreta) ETB 200/kg 9.6 kg left ✓ Getachew Mesfin CATCH-2026-05-14-0009" [ref=e956] [cursor=pointer]:
+              - /url: /listing/9
+              - generic [ref=e957]:
+                - img "Nile Perch catch" [ref=e958]
+                - generic [ref=e961]: LIMITED
+                - generic [ref=e962]: ASSA Verified
+              - generic [ref=e963]:
+                - generic [ref=e964]:
+                  - heading "Nile Perch" [level=3] [ref=e965]
+                  - generic [ref=e966]: Verified
+                - generic [ref=e967]:
+                  - generic [ref=e968]: 📍
+                  - generic [ref=e969]: Lake Tana – East Zone (Woreta)
+                - generic [ref=e970]:
+                  - generic [ref=e971]:
+                    - generic [ref=e972]: ETB 200
+                    - text: /kg
+                  - generic [ref=e973]: 9.6 kg left
+                - generic [ref=e974]:
+                  - generic [ref=e975]: ✓
+                  - generic [ref=e976]: Getachew Mesfin
+                  - generic [ref=e977]: CATCH-2026-05-14-0009
+            - link "Tilapia catch FRESH ASSA Verified Tilapia Verified 📍 Lake Tana – North Zone (Gorgora) ETB 140/kg 15.5 kg left ✓ Amare Yilma CATCH-2026-05-13-0004" [ref=e978] [cursor=pointer]:
+              - /url: /listing/4
+              - generic [ref=e979]:
+                - img "Tilapia catch" [ref=e980]
+                - generic [ref=e983]: FRESH
+                - generic [ref=e984]: ASSA Verified
+              - generic [ref=e985]:
+                - generic [ref=e986]:
+                  - heading "Tilapia" [level=3] [ref=e987]
+                  - generic [ref=e988]: Verified
+                - generic [ref=e989]:
+                  - generic [ref=e990]: 📍
+                  - generic [ref=e991]: Lake Tana – North Zone (Gorgora)
+                - generic [ref=e992]:
+                  - generic [ref=e993]:
+                    - generic [ref=e994]: ETB 140
+                    - text: /kg
+                  - generic [ref=e995]: 15.5 kg left
+                - generic [ref=e996]:
+                  - generic [ref=e997]: ✓
+                  - generic [ref=e998]: Amare Yilma
+                  - generic [ref=e999]: CATCH-2026-05-13-0004
+            - link "Carp catch LIMITED ASSA Verified Carp Verified 📍 Lake Tana – East Zone (Woreta) ETB 95/kg 5.4 kg left ✓ Teshome Haile CATCH-2026-05-13-0005" [ref=e1000] [cursor=pointer]:
+              - /url: /listing/5
+              - generic [ref=e1001]:
+                - img "Carp catch" [ref=e1002]
+                - generic [ref=e1005]: LIMITED
+                - generic [ref=e1006]: ASSA Verified
+              - generic [ref=e1007]:
+                - generic [ref=e1008]:
+                  - heading "Carp" [level=3] [ref=e1009]
+                  - generic [ref=e1010]: Verified
+                - generic [ref=e1011]:
+                  - generic [ref=e1012]: 📍
+                  - generic [ref=e1013]: Lake Tana – East Zone (Woreta)
+                - generic [ref=e1014]:
+                  - generic [ref=e1015]:
+                    - generic [ref=e1016]: ETB 95
+                    - text: /kg
+                  - generic [ref=e1017]: 5.4 kg left
+                - generic [ref=e1018]:
+                  - generic [ref=e1019]: ✓
+                  - generic [ref=e1020]: Teshome Haile
+                  - generic [ref=e1021]: CATCH-2026-05-13-0005
+            - link "Catfish catch LIMITED ASSA Verified Catfish Verified 📍 Lake Tana – South Zone (Bahir Dar) ETB 130/kg 8.5 kg left ✓ Demeke Assefa CATCH-2026-05-13-0006" [ref=e1022] [cursor=pointer]:
+              - /url: /listing/6
+              - generic [ref=e1023]:
+                - img "Catfish catch" [ref=e1024]
+                - generic [ref=e1027]: LIMITED
+                - generic [ref=e1028]: ASSA Verified
+              - generic [ref=e1029]:
+                - generic [ref=e1030]:
+                  - heading "Catfish" [level=3] [ref=e1031]
+                  - generic [ref=e1032]: Verified
+                - generic [ref=e1033]:
+                  - generic [ref=e1034]: 📍
+                  - generic [ref=e1035]: Lake Tana – South Zone (Bahir Dar)
+                - generic [ref=e1036]:
+                  - generic [ref=e1037]:
+                    - generic [ref=e1038]: ETB 130
+                    - text: /kg
+                  - generic [ref=e1039]: 8.5 kg left
+                - generic [ref=e1040]:
+                  - generic [ref=e1041]: ✓
+                  - generic [ref=e1042]: Demeke Assefa
+                  - generic [ref=e1043]: CATCH-2026-05-13-0006
+            - link "Catfish catch LIMITED ASSA Verified Catfish Verified 📍 Lake Tana – East Zone (Woreta) ETB 130/kg 9.4 kg left ✓ Abebe Girma CATCH-2026-05-12-0002" [ref=e1044] [cursor=pointer]:
+              - /url: /listing/2
+              - generic [ref=e1045]:
+                - img "Catfish catch" [ref=e1046]
+                - generic [ref=e1049]: LIMITED
+                - generic [ref=e1050]: ASSA Verified
+              - generic [ref=e1051]:
+                - generic [ref=e1052]:
+                  - heading "Catfish" [level=3] [ref=e1053]
+                  - generic [ref=e1054]: Verified
+                - generic [ref=e1055]:
+                  - generic [ref=e1056]: 📍
+                  - generic [ref=e1057]: Lake Tana – East Zone (Woreta)
+                - generic [ref=e1058]:
+                  - generic [ref=e1059]:
+                    - generic [ref=e1060]: ETB 130
+                    - text: /kg
+                  - generic [ref=e1061]: 9.4 kg left
+                - generic [ref=e1062]:
+                  - generic [ref=e1063]: ✓
+                  - generic [ref=e1064]: Abebe Girma
+                  - generic [ref=e1065]: CATCH-2026-05-12-0002
+            - link "Nile Perch catch FRESH ASSA Verified Nile Perch Verified 📍 Lake Tana – South Zone (Bahir Dar) ETB 200/kg 19.5 kg left ✓ Mulugeta Worku CATCH-2026-05-12-0003" [ref=e1066] [cursor=pointer]:
+              - /url: /listing/3
+              - generic [ref=e1067]:
+                - img "Nile Perch catch" [ref=e1068]
+                - generic [ref=e1071]: FRESH
+                - generic [ref=e1072]: ASSA Verified
+              - generic [ref=e1073]:
+                - generic [ref=e1074]:
+                  - heading "Nile Perch" [level=3] [ref=e1075]
+                  - generic [ref=e1076]: Verified
+                - generic [ref=e1077]:
+                  - generic [ref=e1078]: 📍
+                  - generic [ref=e1079]: Lake Tana – South Zone (Bahir Dar)
+                - generic [ref=e1080]:
+                  - generic [ref=e1081]:
+                    - generic [ref=e1082]: ETB 200
+                    - text: /kg
+                  - generic [ref=e1083]: 19.5 kg left
+                - generic [ref=e1084]:
+                  - generic [ref=e1085]: ✓
+                  - generic [ref=e1086]: Mulugeta Worku
+                  - generic [ref=e1087]: CATCH-2026-05-12-0003
+            - link "Tilapia catch FRESH ASSA Verified Tilapia Verified 📍 Lake Tana – North Zone (Gorgora) ETB 140/kg 13.8 kg left ✓ Tesfaye Alemu CATCH-2026-05-12-0001" [ref=e1088] [cursor=pointer]:
+              - /url: /listing/1
+              - generic [ref=e1089]:
+                - img "Tilapia catch" [ref=e1090]
+                - generic [ref=e1093]: FRESH
+                - generic [ref=e1094]: ASSA Verified
+              - generic [ref=e1095]:
+                - generic [ref=e1096]:
+                  - heading "Tilapia" [level=3] [ref=e1097]
+                  - generic [ref=e1098]: Verified
+                - generic [ref=e1099]:
+                  - generic [ref=e1100]: 📍
+                  - generic [ref=e1101]: Lake Tana – North Zone (Gorgora)
+                - generic [ref=e1102]:
+                  - generic [ref=e1103]:
+                    - generic [ref=e1104]: ETB 140
+                    - text: /kg
+                  - generic [ref=e1105]: 13.8 kg left
+                - generic [ref=e1106]:
+                  - generic [ref=e1107]: ✓
+                  - generic [ref=e1108]: Tesfaye Alemu
+                  - generic [ref=e1109]: CATCH-2026-05-12-0001
+        - complementary [ref=e1110]:
+          - generic [ref=e1111]:
+            - heading "Market Overview" [level=3] [ref=e1112]
+            - region [ref=e1114]:
+              - img [ref=e1115]
+            - generic [ref=e1118]:
+              - generic [ref=e1119]:
+                - generic [ref=e1120]: Active Listings
+                - generic [ref=e1121]: "21"
+              - generic [ref=e1122]:
+                - generic [ref=e1123]: Total Sellers
+                - generic [ref=e1124]: "17"
+              - generic [ref=e1125]:
+                - generic [ref=e1126]: Fish Sold (kg)
+                - generic [ref=e1127]: "92"
+              - generic [ref=e1128]:
+                - generic [ref=e1129]: Avg Price
+                - generic [ref=e1130]: ETB 140/kg
+          - generic [ref=e1131]:
+            - heading "Recent Activity" [level=3] [ref=e1132]
+            - generic [ref=e1133]:
+              - generic [ref=e1134]:
+                - generic [ref=e1135]: Dawit Molla ordered 6.7 kg
+                - generic [ref=e1136]: Carp · ETB 634
+                - generic [ref=e1137]: May 19, 12:07 PM
+              - generic [ref=e1138]:
+                - generic [ref=e1139]: Mesfin Hailu ordered 6 kg
+                - generic [ref=e1140]: Tilapia · ETB 840
+                - generic [ref=e1141]: May 19, 12:07 PM
+              - generic [ref=e1142]:
+                - generic [ref=e1143]: Henok Tesfaye ordered 3 kg
+                - generic [ref=e1144]: Nile Perch · ETB 600
+                - generic [ref=e1145]: May 19, 12:07 PM
+              - generic [ref=e1146]:
+                - generic [ref=e1147]: Rahel Bekele ordered 3.3 kg
+                - generic [ref=e1148]: Barbus (Ganfo) · ETB 360
+                - generic [ref=e1149]: May 19, 12:07 PM
+              - generic [ref=e1150]:
+                - generic [ref=e1151]: Rahel Bekele ordered 8.8 kg
+                - generic [ref=e1152]: Tilapia · ETB 1,234
+                - generic [ref=e1153]: May 18, 12:07 PM
+          - generic [ref=e1154]:
+            - generic [ref=e1155]: 🎣
+            - heading "Become a Verified Seller" [level=4] [ref=e1156]
+            - paragraph [ref=e1157]: Register as a licensed fisher to list your catches.
+            - link "Open Fisher App →" [ref=e1158] [cursor=pointer]:
+              - /url: http://localhost:3002
+  - contentinfo [ref=e1159]:
+    - generic [ref=e1160]:
+      - paragraph [ref=e1161]: 🐟 ASSA Fish Market — All listings are government-verified by the Ministry of Fisheries, Ethiopia
+      - paragraph [ref=e1162]: Lake Tana, Amhara Region · Fresh. Legal. Verified.

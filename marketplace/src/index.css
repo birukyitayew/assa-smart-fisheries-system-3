@@ -1,0 +1,137 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-background text-foreground antialiased;
+  }
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+  }
+  :root {
+    --background: oklch(0.985 0.004 240);
+    --foreground: oklch(0.22 0.02 240);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.22 0.02 240);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.22 0.02 240);
+    --primary: oklch(0.32 0.06 230);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.96 0.008 240);
+    --secondary-foreground: oklch(0.32 0.04 230);
+    --muted: oklch(0.96 0.006 240);
+    --muted-foreground: oklch(0.5 0.02 240);
+    --accent: oklch(0.94 0.012 230);
+    --accent-foreground: oklch(0.28 0.05 230);
+    --destructive: oklch(0.52 0.18 25);
+    --border: oklch(0.91 0.008 240);
+    --input: oklch(0.91 0.008 240);
+    --ring: oklch(0.42 0.06 230);
+    --success: oklch(0.42 0.1 155);
+    --success-foreground: oklch(0.99 0 0);
+    --success-muted: oklch(0.95 0.03 155);
+    --warning: oklch(0.55 0.12 65);
+    --warning-foreground: oklch(0.25 0.04 65);
+    --warning-muted: oklch(0.96 0.04 85);
+    --info: oklch(0.45 0.08 230);
+    --info-foreground: oklch(0.99 0 0);
+    --info-muted: oklch(0.95 0.02 230);
+    --chart-1: oklch(0.45 0.08 230);
+    --chart-2: oklch(0.52 0.1 200);
+    --chart-3: oklch(0.42 0.1 155);
+    --chart-4: oklch(0.55 0.12 65);
+    --chart-5: oklch(0.52 0.18 25);
+    --radius: 0.625rem;
+    --sidebar: oklch(1 0 0);
+    --sidebar-foreground: oklch(0.28 0.03 240);
+    --sidebar-primary: oklch(0.32 0.06 230);
+    --sidebar-primary-foreground: oklch(0.99 0 0);
+    --sidebar-accent: oklch(0.96 0.01 240);
+    --sidebar-accent-foreground: oklch(0.28 0.04 230);
+    --sidebar-border: oklch(0.92 0.008 240);
+    --sidebar-ring: oklch(0.42 0.06 230);
+  }
+  .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.75 0.08 230);
+    --primary-foreground: oklch(0.15 0.02 240);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --success: oklch(0.65 0.12 155);
+    --success-foreground: oklch(0.15 0.02 155);
+    --success-muted: oklch(0.25 0.04 155);
+    --warning: oklch(0.75 0.12 65);
+    --warning-foreground: oklch(0.15 0.02 65);
+    --warning-muted: oklch(0.28 0.04 65);
+    --info: oklch(0.7 0.08 230);
+    --info-foreground: oklch(0.15 0.02 230);
+    --info-muted: oklch(0.25 0.04 230);
+    --chart-1: oklch(0.75 0.08 230);
+    --chart-2: oklch(0.65 0.1 200);
+    --chart-3: oklch(0.65 0.1 155);
+    --chart-4: oklch(0.75 0.12 65);
+    --chart-5: oklch(0.704 0.191 22.216);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.55 0.1 230);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .text-success {
+    color: var(--success);
+  }
+  .text-warning {
+    color: var(--warning);
+  }
+  .text-info {
+    color: var(--info);
+  }
+  .bg-success-muted {
+    background-color: var(--success-muted);
+  }
+  .bg-warning-muted {
+    background-color: var(--warning-muted);
+  }
+  .bg-info-muted {
+    background-color: var(--info-muted);
+  }
+  .border-success {
+    border-color: color-mix(in oklch, var(--success) 30%, transparent);
+  }
+  .border-warning {
+    border-color: color-mix(in oklch, var(--warning) 30%, transparent);
+  }
+  .card-elevated {
+    @apply bg-card shadow-sm border border-border;
+  }
+}

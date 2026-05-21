@@ -1,0 +1,32 @@
+{
+  "name": "assa-smart-fisheries-system-mvp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Runnable MVP for ASSA Smart Fisheries Monitoring and Digital Fish Market System.",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix fisher-app && npm install --prefix admin-dashboard && npm install --prefix marketplace",
+    "seed": "npm run seed --prefix backend",
+    "reset": "npm run reset --prefix backend",
+    "dev": "npx concurrently -n backend,admin,fisher,market -c blue,magenta,green,cyan \"npm run dev --prefix backend\" \"npm run dev --prefix admin-dashboard\" \"npm run dev --prefix fisher-app\" \"npm run dev --prefix marketplace\"",
+    "build": "npm run build --prefix admin-dashboard && npm run build --prefix fisher-app && npm run build --prefix marketplace",
+    "build:vercel": "node scripts/build-vercel.mjs",
+    "lint": "eslint \"{backend,admin-dashboard,fisher-app,marketplace}/src/**/*.{js,jsx}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "start:backend": "npm run start --prefix backend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:admin": "npm run dev --prefix admin-dashboard",
+    "dev:fisher": "npm run dev --prefix fisher-app",
+    "dev:market": "npm run dev --prefix marketplace",
+    "simulate:boats": "npm run simulate:boats --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "9.1.2",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "execa": "^9.6.0",
+    "prettier": "^3.6.2"
+  }
+}

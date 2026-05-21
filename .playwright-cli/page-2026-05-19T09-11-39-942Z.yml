@@ -1,0 +1,19 @@
+- generic [ref=e575]:
+  - generic [ref=e576]:
+    - generic [ref=e577]: 🐟
+    - heading "Sign in to ASSA Fish Market" [level=1] [ref=e578]
+    - paragraph [ref=e579]: Browse and order verified fish from Lake Tana
+  - generic [ref=e580]:
+    - generic [ref=e581]:
+      - generic [ref=e582]:
+        - generic [ref=e583]: Email
+        - textbox [ref=e584]: mesfin@buyer.et
+      - generic [ref=e585]:
+        - generic [ref=e586]: Password
+        - textbox [ref=e587]: buyer123
+      - button "Sign In" [ref=e588] [cursor=pointer]
+    - generic [ref=e589]:
+      - strong [ref=e590]: "Demo:"
+      - text: mesfin@buyer.et / buyer123
+  - link "← Continue as guest" [ref=e592] [cursor=pointer]:
+    - /url: /

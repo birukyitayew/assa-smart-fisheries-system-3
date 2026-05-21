@@ -1,0 +1,72 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "🐟 ASSAFish Market" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e7]: 🐟
+        - generic [ref=e8]: ASSAFish Market
+      - navigation [ref=e9]:
+        - link "Home" [ref=e10] [cursor=pointer]:
+          - /url: /
+        - link "Marketplace" [ref=e11] [cursor=pointer]:
+          - /url: /browse
+      - link "Sign In" [ref=e13] [cursor=pointer]:
+        - /url: /login
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: All fish are legally caught & ASSA verified
+          - heading "Fresh. Legal. Verified." [level=1] [ref=e20]
+          - paragraph [ref=e21]: Buy quality fish, support sustainable fishing in Lake Tana.
+          - generic [ref=e22]:
+            - textbox "Search fish, species, seller..." [ref=e23]
+            - button "Search" [ref=e24] [cursor=pointer]
+        - generic [ref=e25]: 🐟
+      - generic [ref=e26]:
+        - generic [ref=e27]: ✅ Verified Legal Catch
+        - generic [ref=e28]: 🌊 Fresh & Quality
+        - generic [ref=e29]: 💰 Fair Price
+        - generic [ref=e30]: 🔒 Secure
+        - generic [ref=e31]: 🚚 Fast Delivery
+      - generic [ref=e32]:
+        - complementary [ref=e33]:
+          - generic [ref=e34]:
+            - heading "Categories" [level=3] [ref=e35]
+            - generic [ref=e36]:
+              - button "🐟 All Fish" [ref=e37] [cursor=pointer]
+              - button "🐟 Tilapia" [ref=e38] [cursor=pointer]
+              - button "🐡 Nile Perch" [ref=e39] [cursor=pointer]
+              - button "🐠 Catfish" [ref=e40] [cursor=pointer]
+              - button "🐠 Barbus (Ganfo)" [ref=e41] [cursor=pointer]
+              - button "🐟 Carp" [ref=e42] [cursor=pointer]
+          - generic [ref=e43]:
+            - heading "Price Range (ETB/kg)" [level=3] [ref=e44]
+            - generic [ref=e45]:
+              - slider [ref=e46]: "300"
+              - generic [ref=e47]:
+                - generic [ref=e48]: ETB 0
+                - generic [ref=e49]: ETB 300
+        - generic [ref=e50]:
+          - heading "Featured Listings(0 available)" [level=2] [ref=e52]:
+            - text: Featured Listings
+            - generic [ref=e53]: (0 available)
+          - generic [ref=e54]:
+            - generic [ref=e55]: 🐟
+            - paragraph [ref=e56]: No listings available right now.
+            - paragraph [ref=e57]: Check back soon — new catches are approved daily.
+        - complementary [ref=e58]:
+          - heading "Market Overview" [level=3] [ref=e60]
+          - generic [ref=e61]:
+            - heading "Recent Activity" [level=3] [ref=e62]
+            - paragraph [ref=e64]: No recent activity
+          - generic [ref=e65]:
+            - generic [ref=e66]: 🎣
+            - heading "Become a Verified Seller" [level=4] [ref=e67]
+            - paragraph [ref=e68]: Register as a licensed fisher to list your catches.
+            - link "Open Fisher App →" [ref=e69] [cursor=pointer]:
+              - /url: http://localhost:3002
+  - contentinfo [ref=e70]:
+    - generic [ref=e71]:
+      - paragraph [ref=e72]: 🐟 ASSA Fish Market — All listings are government-verified by the Ministry of Fisheries, Ethiopia
+      - paragraph [ref=e73]: Lake Tana, Amhara Region · Fresh. Legal. Verified.
