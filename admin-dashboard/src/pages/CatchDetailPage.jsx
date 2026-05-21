@@ -112,7 +112,7 @@ export default function CatchDetailPage() {
           <CardTitle className="text-base">Fisher Information</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <div className="text-muted-foreground">Name</div>
               <div className="font-medium">{c.fisher_name}</div>
@@ -146,7 +146,7 @@ export default function CatchDetailPage() {
           <CardTitle className="text-base">Catch Details</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <div className="text-muted-foreground">Species</div>
               <div className="font-medium">{c.species}</div>
@@ -180,7 +180,7 @@ export default function CatchDetailPage() {
           <CardTitle className="text-base">Location & Zone</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <div className="text-muted-foreground">Fishing Zone</div>
               <div className="font-medium">{c.zone_name}</div>

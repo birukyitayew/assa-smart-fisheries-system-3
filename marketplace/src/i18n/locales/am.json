@@ -19,5 +19,11 @@
     "success": "ትዕዛዝ ተረጋገጠ",
     "thanks": "ስለ ግዢዎ እናመሰግናለን"
   },
+  "theme": {
+    "toggle": "ገጽታ",
+    "light": "ብርሃን",
+    "dark": "ጨለማ",
+    "system": "ስርዓት"
+  },
   "lang": { "toggle": "ቋንቋ" }
 }

@@ -22,7 +22,7 @@ export default function ReportsPage() {
     return (
       <div className="max-w-3xl space-y-4">
         <Skeleton className="h-8 w-64" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="stat-grid">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-24" />
           ))}
@@ -43,7 +43,7 @@ export default function ReportsPage() {
         <p className="text-sm text-muted-foreground">Monthly summary — {monthName}</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="stat-grid">
         <Card>
           <CardContent className="pt-6 text-center">
             <div className="text-2xl font-bold text-primary">{data.totalVerified.count}</div>

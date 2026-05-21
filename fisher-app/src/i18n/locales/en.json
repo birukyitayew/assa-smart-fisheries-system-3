@@ -18,5 +18,11 @@
     "active": "Active trip",
     "none": "No active trip"
   },
+  "theme": {
+    "toggle": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
   "lang": { "toggle": "Language" }
 }

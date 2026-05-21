@@ -109,7 +109,7 @@ export default function IntelligencePage() {
         </Card>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="stat-grid">
         <KpiCard icon={Fish} label="Species tracked" value={data?.speciesCount ?? '—'} variant="primary" />
         <KpiCard
           icon={TrendingUp}
@@ -126,7 +126,7 @@ export default function IntelligencePage() {
         <KpiCard icon={Brain} label="Shortage signals" value={shortages.length} variant="destructive" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="split-grid">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import LanguageToggle from '../components/LanguageToggle'
+import ThemeToggle from '../components/ThemeToggle'
 import { Plus, Fish, Bell, Map, Store } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
@@ -50,7 +51,10 @@ export default function HomePage() {
           Welcome, {user?.name?.split(' ')[0]}
         </h1>
         </div>
-        <LanguageToggle />
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <LanguageToggle />
+        </div>
       </div>
 
       {profile && <LicenseCard profile={profile.profile} compliance={profile.compliance} />}

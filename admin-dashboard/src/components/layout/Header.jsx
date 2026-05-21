@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import ThemeToggle from '../ThemeToggle'
+import MobileNav from './MobileNav'
 
 export default function Header() {
   const { t } = useTranslation()
@@ -28,6 +30,7 @@ export default function Header() {
     isRegionalAdmin,
   } = useRegion()
   const [alertCount, setAlertCount] = useState(0)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -44,37 +47,47 @@ export default function Header() {
   }, [selectedRegionId])
 
   return (
-    <header className="bg-card border-b border-border px-6 py-3 flex items-center justify-between flex-shrink-0">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
-        <div>
-          <h1 className="text-sm font-semibold text-foreground">{t('header.title')}</h1>
-          <p className="text-xs text-muted-foreground">{t('header.subtitle')}</p>
+    <header className="bg-card/80 backdrop-blur-sm border-b border-border px-4 sm:px-6 py-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between flex-shrink-0">
+      <div className="flex items-start gap-3 min-w-0 w-full lg:flex-1">
+        <MobileNav open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
+        <div className="flex flex-col gap-2 min-w-0 flex-1 sm:flex-row sm:items-center sm:gap-4">
+          <div className="min-w-0">
+            <h1 className="text-sm font-semibold text-foreground truncate">{t('header.title')}</h1>
+            <p className="text-xs text-muted-foreground line-clamp-2 sm:line-clamp-1">
+              {t('header.subtitle')}
+            </p>
+          </div>
+          {canSelectRegion ? (
+            <Select
+              value={selectedRegionId == null ? 'all' : String(selectedRegionId)}
+              onValueChange={(v) => selectRegion(v === 'all' ? null : v)}
+            >
+              <SelectTrigger
+                className="h-8 w-full sm:w-[200px] text-xs shrink-0"
+                aria-label={t('region.selectorLabel')}
+              >
+                <SelectValue placeholder={t('region.allLakes')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('region.allLakes')}</SelectItem>
+                {regions.map((r) => (
+                  <SelectItem key={r.id} value={String(r.id)}>
+                    {r.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <span className="text-xs font-medium text-primary px-2 py-1 rounded-md bg-primary/10 w-fit max-w-full truncate">
+              {regionLabel}
+              {isRegionalAdmin ? ` · ${t('region.regionalScope')}` : ''}
+            </span>
+          )}
         </div>
-        {canSelectRegion ? (
-          <Select
-            value={selectedRegionId == null ? 'all' : String(selectedRegionId)}
-            onValueChange={(v) => selectRegion(v === 'all' ? null : v)}
-          >
-            <SelectTrigger className="h-8 w-[200px] text-xs" aria-label={t('region.selectorLabel')}>
-              <SelectValue placeholder={t('region.allLakes')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('region.allLakes')}</SelectItem>
-              {regions.map((r) => (
-                <SelectItem key={r.id} value={String(r.id)}>
-                  {r.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <span className="text-xs font-medium text-primary px-2 py-1 rounded-md bg-primary/10">
-            {regionLabel}
-            {isRegionalAdmin ? ` · ${t('region.regionalScope')}` : ''}
-          </span>
-        )}
       </div>
-      <div className="flex items-center gap-4">
+
+      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 w-full lg:w-auto flex-wrap">
+        <ThemeToggle className="lg:hidden" />
         <div
           className={cn(
             'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
@@ -84,20 +97,23 @@ export default function Header() {
           )}
           aria-live="polite"
         >
-          <Radio className={cn('h-3 w-3', connected && 'animate-pulse')} />
-          {connected ? 'LIVE' : 'OFFLINE'}
+          <Radio className={cn('h-3 w-3 shrink-0', connected && 'animate-pulse')} />
+          <span className="whitespace-nowrap">{connected ? 'LIVE' : 'OFFLINE'}</span>
         </div>
-        <Button variant="ghost" size="icon" asChild className="relative">
+        <Button variant="ghost" size="icon" asChild className="relative shrink-0">
           <Link to="/alerts">
             <Bell className="h-5 w-5" />
             {alertCount > 0 && (
-              <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px]">
+              <Badge
+                variant="destructive"
+                className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px]"
+              >
                 {alertCount > 9 ? '9+' : alertCount}
               </Badge>
             )}
           </Link>
         </Button>
-        <div className="text-xs text-muted-foreground">
+        <div className="hidden md:block text-xs text-muted-foreground whitespace-nowrap">
           {new Date().toLocaleDateString('en-ET', {
             weekday: 'short',
             year: 'numeric',
@@ -105,6 +121,7 @@ export default function Header() {
             day: 'numeric',
           })}
         </div>
+        <ThemeToggle className="hidden lg:inline-flex" />
       </div>
     </header>
   )

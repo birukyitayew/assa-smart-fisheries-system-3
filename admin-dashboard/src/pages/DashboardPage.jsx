@@ -78,7 +78,7 @@ export default function DashboardPage() {
 
       <CommandQuickLinks />
 
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-5">
+      <div className="kpi-grid">
         <KpiCard
           icon={Fish}
           label="Catch Today (kg)"
@@ -107,8 +107,8 @@ export default function DashboardPage() {
         <KpiCard icon={Bell} label="Alerts" value={stats?.activeAlerts ?? '—'} variant="destructive" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
+      <div className="content-grid">
+        <Card className="lg:col-span-2 min-w-0">
           <CardHeader>
             <CardTitle className="text-base">Catches Over Time (last 7 days)</CardTitle>
           </CardHeader>
@@ -127,9 +127,9 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
+      <div className="content-grid">
+        <Card className="lg:col-span-2 min-w-0">
+          <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle className="text-base">Recent Catches</CardTitle>
             <Link to="/catches" className="text-sm text-primary hover:underline">
               View all →

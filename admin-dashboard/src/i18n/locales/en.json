@@ -8,6 +8,7 @@
     "signingIn": "Signing in…"
   },
   "nav": {
+    "menu": "Open menu",
     "commandOverview": "Command Overview",
     "liveOps": "Live Operations",
     "lakeMap": "Lake Map",
@@ -21,6 +22,12 @@
     "alerts": "Alerts",
     "reports": "Reports",
     "logout": "Log out"
+  },
+  "theme": {
+    "toggle": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   },
   "lang": {
     "toggle": "Language",

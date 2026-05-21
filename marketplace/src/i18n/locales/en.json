@@ -19,5 +19,11 @@
     "success": "Order confirmed",
     "thanks": "Thank you for your purchase"
   },
+  "theme": {
+    "toggle": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
   "lang": { "toggle": "Language" }
 }

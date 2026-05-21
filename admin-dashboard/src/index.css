@@ -155,6 +155,12 @@
   html {
     @apply font-sans;
   }
+  html.theme {
+    color-scheme: light;
+  }
+  html.theme.dark {
+    color-scheme: dark;
+  }
 }
 
 @layer utilities {
@@ -183,6 +189,24 @@
     border-color: color-mix(in oklch, var(--warning) 30%, transparent);
   }
   .card-elevated {
-    @apply bg-card shadow-sm border border-border;
+    @apply bg-card shadow-sm border border-border rounded-xl;
+  }
+  .dashboard-grid {
+    @apply grid gap-4 md:gap-6;
+  }
+  .kpi-grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-6;
+  }
+  .stat-grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4;
+  }
+  .content-grid {
+    @apply grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3;
+  }
+  .split-grid {
+    @apply grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2;
+  }
+  .map-stat-grid {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3;
   }
 }

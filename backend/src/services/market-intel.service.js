@@ -108,7 +108,7 @@ async function getIntelligenceOverview(regionId = null) {
 
   const quotas = await prisma.$queryRaw`
     SELECT species, monthly_limit_kg, current_month_kg,
-           ROUND(current_month_kg * 100.0 / monthly_limit_kg, 1) as usage_pct
+           ROUND((current_month_kg * 100.0 / monthly_limit_kg)::numeric, 1) as usage_pct
     FROM species_quotas
     WHERE month = EXTRACT(MONTH FROM CURRENT_DATE)::int
       AND year = EXTRACT(YEAR FROM CURRENT_DATE)::int
@@ -120,7 +120,7 @@ async function getIntelligenceOverview(regionId = null) {
     SELECT species, SUM(quantity_available_kg) as available_kg
     FROM marketplace_listings ml
     WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
-    GROUP BY species HAVING available_kg < 10
+    GROUP BY species HAVING COALESCE(SUM(quantity_available_kg), 0) < 10
   `;
 
   const avgPriceDeltaRows = await prisma.$queryRaw`
@@ -152,7 +152,7 @@ async function getIntelligenceOverview(regionId = null) {
 
 async function getShortageFlagsForSpecies(species) {
   const quotaRows = await prisma.$queryRaw`
-    SELECT ROUND(current_month_kg * 100.0 / monthly_limit_kg, 1) as usage_pct
+    SELECT ROUND((current_month_kg * 100.0 / monthly_limit_kg)::numeric, 1) as usage_pct
     FROM species_quotas
     WHERE species = ${species}
       AND month = EXTRACT(MONTH FROM CURRENT_DATE)::int

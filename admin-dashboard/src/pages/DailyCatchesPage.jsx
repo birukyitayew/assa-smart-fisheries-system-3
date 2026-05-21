@@ -44,9 +44,9 @@ export default function DailyCatchesPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-wrap gap-3 items-center">
-            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setPage(1) }}>
-              <TabsList>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setPage(1) }} className="w-full sm:w-auto overflow-x-auto">
+              <TabsList className="w-full sm:w-auto">
                 {TABS.map((tab) => (
                   <TabsTrigger key={tab} value={tab} className="text-xs">
                     {tab.charAt(0) + tab.slice(1).toLowerCase()}
@@ -60,14 +60,14 @@ export default function DailyCatchesPage() {
               placeholder="Search fisher, species, reference..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-              className="flex-1 min-w-[200px]"
+              className="w-full sm:flex-1 sm:min-w-[200px]"
             />
 
             <Input
               type="date"
               value={date}
               onChange={(e) => { setDate(e.target.value); setPage(1) }}
-              className="w-auto"
+              className="w-full sm:w-auto"
             />
 
             {(search || date) && (

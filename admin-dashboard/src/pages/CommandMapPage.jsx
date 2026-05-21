@@ -69,7 +69,7 @@ export default function CommandMapPage() {
         <CardContent>
           <CommandMap
             layers={layers}
-            height="560px"
+            height="min(560px, 55vh)"
             center={mapCenter}
             zoom={mapCenter.zoom}
             mapKey={`map-${selectedRegionId}`}
@@ -77,7 +77,7 @@ export default function CommandMapPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="map-stat-grid">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Zones</CardTitle>

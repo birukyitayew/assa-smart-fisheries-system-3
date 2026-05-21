@@ -106,6 +106,12 @@
   html {
     @apply font-sans;
   }
+  html.theme {
+    color-scheme: light;
+  }
+  html.theme.dark {
+    color-scheme: dark;
+  }
 }
 
 @layer utilities {

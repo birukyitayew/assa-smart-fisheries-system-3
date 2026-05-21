@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import LanguageToggle from '../components/LanguageToggle'
+import ThemeToggle from '../components/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -33,8 +34,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/40 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen bg-muted/40 flex items-center justify-center p-4 sm:p-6">
+      <div className="w-full max-w-md space-y-6 sm:space-y-8">
         <div className="flex justify-center">
           <AppLogo
             size="lg"
@@ -42,10 +43,11 @@ export default function LoginPage() {
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end items-center gap-1">
+          <ThemeToggle />
           <LanguageToggle />
         </div>
-        <Card className="shadow-md">
+        <Card className="shadow-md border-border/80">
           <CardHeader>
             <CardTitle>{t('login.title')}</CardTitle>
             <CardDescription>{t('login.subtitle')}</CardDescription>

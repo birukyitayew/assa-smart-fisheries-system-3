@@ -391,7 +391,7 @@ async function getQuotas(req, res) {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
   const quotas = await prisma.$queryRaw`
-    SELECT *, ROUND((current_month_kg * 100.0 / monthly_limit_kg), 1) as usage_pct
+    SELECT *, ROUND((current_month_kg * 100.0 / monthly_limit_kg)::numeric, 1) as usage_pct
     FROM species_quotas WHERE month = ${currentMonth} AND year = ${currentYear}
     ORDER BY usage_pct DESC
   `;
@@ -721,7 +721,7 @@ async function getMarketShortages(req, res) {
 
   const quotaShortages = await prisma.$queryRaw`
     SELECT species, monthly_limit_kg, current_month_kg,
-           ROUND((current_month_kg * 100.0 / monthly_limit_kg), 1) as usage_pct
+           ROUND((current_month_kg * 100.0 / monthly_limit_kg)::numeric, 1) as usage_pct
     FROM species_quotas WHERE month = ${currentMonth} AND year = ${currentYear}
       AND (current_month_kg * 100.0 / monthly_limit_kg) >= 85
     ORDER BY usage_pct DESC

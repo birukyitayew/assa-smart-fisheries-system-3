@@ -8,6 +8,7 @@
     "signingIn": "በመግባት ላይ…"
   },
   "nav": {
+    "menu": "ምናሌ ክፈት",
     "commandOverview": "የቀን መቆጣጠሪያ",
     "liveOps": "ቀጥታ ክወና",
     "lakeMap": "የሐይቅ ካርታ",
@@ -21,6 +22,12 @@
     "alerts": "ማስጠንቀቂያዎች",
     "reports": "ሪፖርቶች",
     "logout": "ውጣ"
+  },
+  "theme": {
+    "toggle": "ገጽታ",
+    "light": "ብርሃን",
+    "dark": "ጨለማ",
+    "system": "ስርዓት"
   },
   "lang": {
     "toggle": "ቋንቋ",

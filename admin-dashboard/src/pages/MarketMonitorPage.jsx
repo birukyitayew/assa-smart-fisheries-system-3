@@ -62,13 +62,13 @@ export default function MarketMonitorPage() {
   usePolling(fetchAll, 15000)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0">
       <PageHeader
         title="Market Monitor"
         description="Total market visibility — buyers, sellers, prices, shortages, supply chain"
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="stat-grid">
         <KpiCard
           icon={Banknote}
           label="Revenue Today"
@@ -119,22 +119,24 @@ export default function MarketMonitorPage() {
         </Card>
       )}
 
-      <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="buyers">Buyers</TabsTrigger>
-          <TabsTrigger value="sellers">Sellers</TabsTrigger>
-          <TabsTrigger value="prices">Species & Prices</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="network">Supply Chain</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="overview" className="min-w-0">
+        <div className="w-full overflow-x-auto -mx-1 px-1 pb-1">
+          <TabsList className="w-max flex-nowrap">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="buyers">Buyers</TabsTrigger>
+            <TabsTrigger value="sellers">Sellers</TabsTrigger>
+            <TabsTrigger value="prices">Species & Prices</TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="network">Supply Chain</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="overview" className="mt-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Top Species Sold (7 days)</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="min-w-0">
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={overview?.topSpecies || []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />

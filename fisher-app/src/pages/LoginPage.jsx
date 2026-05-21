@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import LanguageToggle from '../components/LanguageToggle'
+import ThemeToggle from '../components/ThemeToggle'
 import AppLogo from '../components/brand/AppLogo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,10 +40,11 @@ export default function LoginPage() {
         <div className="flex justify-center">
           <AppLogo size="lg" subtitle="Fisher Portal · Lake Tana" />
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end items-center gap-1">
+          <ThemeToggle />
           <LanguageToggle />
         </div>
-        <Card className="shadow-md">
+        <Card className="shadow-md border-border/80">
           <CardHeader>
             <CardTitle>{t('login.title')}</CardTitle>
           </CardHeader>
