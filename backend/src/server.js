@@ -18,7 +18,6 @@ const inspectorRoutes   = require('./routes/inspector.routes');
 
 const app = express();
 
-// ── Middleware ────────────────────────────────────────────────────────────────
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
@@ -26,16 +25,26 @@ const logger = pino({ level: process.env.LOG_LEVEL || (env.NODE_ENV === 'product
 app.use(pinoHttp({ logger }));
 
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' }, // allow /uploads assets
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 if (env.NODE_ENV === 'production') {
-  app.use(rateLimit({
-    windowMs: 60 * 1000,
-    limit: 300,
-    standardHeaders: true,
-    legacyHeaders: false,
-  }));
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api', apiLimiter);
 }
 
 app.use(cors({
@@ -44,26 +53,26 @@ app.use(cors({
     if (env.NODE_ENV === 'development' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
       return cb(null, true);
     }
+    if (corsOrigins.length === 0 && env.NODE_ENV === 'production') {
+      return cb(new Error('CORS_ORIGINS must be set in production'), false);
+    }
     if (corsOrigins.includes(origin)) return cb(null, true);
     return cb(null, false);
   },
   credentials: true,
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-// Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',        authRoutes);
-app.use('/api',             catchesRoutes);   // /api/catches, /api/fisher/*, /api/notifications, /api/zones
+app.use('/api',             catchesRoutes);
 app.use('/api/admin',       adminRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/realtime',    realtimeRoutes);
 app.use('/api/inspector',   inspectorRoutes);
 
-// ── Health check ──────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -73,18 +82,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
 });
 
-// ── Error handler ─────────────────────────────────────────────────────────────
-app.use((err, req, res) => {
+app.use((err, req, res, _next) => {
   req.log?.error({ err }, 'Unhandled error');
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-// ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(env.PORT, () => {
   logger.info({ port: env.PORT }, 'ASSA Backend listening');
 });

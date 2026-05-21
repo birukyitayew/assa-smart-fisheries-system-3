@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import api from '../services/api'
+import { useRegion } from '../context/RegionContext'
 import { usePolling } from '../hooks/usePolling'
 import CatchesTable from '../components/tables/CatchesTable'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 const TABS = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED']
 
 export default function DailyCatchesPage() {
+  const { selectedRegionId } = useRegion()
   const [catches, setCatches] = useState([])
   const [total, setTotal] = useState(0)
   const [activeTab, setActiveTab] = useState('PENDING')
@@ -29,7 +31,7 @@ export default function DailyCatchesPage() {
     } catch (err) {
       console.error(err)
     }
-  }, [activeTab, search, date, page])
+  }, [activeTab, search, date, page, selectedRegionId])
 
   usePolling(fetchCatches, 10000)
 

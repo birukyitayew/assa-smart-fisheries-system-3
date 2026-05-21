@@ -1,96 +1,186 @@
-const { getDb } = require('../database/db');
+const { Prisma } = require('@prisma/client');
+const { prisma } = require('../database/prisma');
+const { asyncHandler } = require('../utils/asyncHandler');
 const quotaService = require('../services/quota.service');
 const notificationService = require('../services/notification.service');
 const listingService = require('../services/listing.service');
+const fleetService = require('../services/fleet.service');
+const marketIntelService = require('../services/market-intel.service');
 const eventBus = require('../services/eventBus');
 const { auditFromReq } = require('../services/audit.service');
+const regionService = require('../services/region.service');
 
-// GET /api/admin/dashboard/stats
-function getDashboardStats(req, res) {
-  const db = getDb();
-  const today = new Date().toISOString().split('T')[0];
-
-  const totalFishers   = db.prepare('SELECT COUNT(*) as cnt FROM fishers').get().cnt;
-  const totalBoats     = db.prepare('SELECT COUNT(*) as cnt FROM boats').get().cnt;
-  const todayCatchKg   = db.prepare(`
-    SELECT COALESCE(SUM(quantity_kg), 0) as total
-    FROM catch_submissions WHERE fishing_date = ? AND status = 'VERIFIED'
-  `).get(today).total;
-  const activeListings = db.prepare(`
-    SELECT COUNT(*) as cnt FROM marketplace_listings WHERE status = 'ACTIVE'
-  `).get().cnt;
-  const activeAlerts   = db.prepare(`
-    SELECT COUNT(*) as cnt FROM alerts WHERE is_read = 0
-  `).get().cnt;
-  const pendingCatches = db.prepare(`
-    SELECT COUNT(*) as cnt FROM catch_submissions WHERE status = 'PENDING'
-  `).get().cnt;
-  const fishSoldToday  = db.prepare(`
-    SELECT COALESCE(SUM(o.quantity_kg), 0) as total
-    FROM orders o WHERE DATE(o.ordered_at) = ?
-  `).get(today).total;
-
-  res.json({ totalFishers, totalBoats, todayCatchKg, activeListings, activeAlerts, pendingCatches, fishSoldToday });
+function num(v) {
+  return Number(v ?? 0);
 }
 
-// GET /api/admin/dashboard/catches-over-time
-function getCatchesOverTime(req, res) {
-  const db = getDb();
-  const rows = db.prepare(`
+function catchRegionSql(regionId) {
+  if (regionId == null) return Prisma.empty;
+  return Prisma.sql`AND EXISTS (
+    SELECT 1 FROM fishing_zones fz_r WHERE fz_r.id = cs.zone_id AND fz_r.region_id = ${regionId}
+  )`;
+}
+
+function fisherRegionSql(regionId) {
+  if (regionId == null) return Prisma.empty;
+  return Prisma.sql`AND EXISTS (
+    SELECT 1 FROM fishing_zones fz_r WHERE fz_r.id = f.zone_id AND fz_r.region_id = ${regionId}
+  )`;
+}
+
+function zoneRegionSql(regionId) {
+  if (regionId == null) return Prisma.empty;
+  return Prisma.sql`WHERE region_id = ${regionId}`;
+}
+
+function listingRegionSql(regionId) {
+  if (regionId == null) return Prisma.empty;
+  return Prisma.sql`AND EXISTS (
+    SELECT 1 FROM fishers f_r
+    JOIN fishing_zones fz_r ON f_r.zone_id = fz_r.id
+    WHERE f_r.id = ml.fisher_id AND fz_r.region_id = ${regionId}
+  )`;
+}
+
+function orderRegionSql(regionId) {
+  if (regionId == null) return Prisma.empty;
+  return Prisma.sql`AND EXISTS (
+    SELECT 1 FROM marketplace_listings ml_r
+    JOIN fishers f_r ON ml_r.fisher_id = f_r.id
+    JOIN fishing_zones fz_r ON f_r.zone_id = fz_r.id
+    WHERE ml_r.id = o.listing_id AND fz_r.region_id = ${regionId}
+  )`;
+}
+
+async function listRegions(req, res) {
+  const regions = await regionService.listRegions();
+  res.json({ regions });
+}
+
+async function getRegionSummary(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const id = Number(req.params.id);
+  if (regionId != null && id !== regionId) {
+    return res.status(403).json({ error: 'Cannot view another region' });
+  }
+  const region = await prisma.region.findUnique({
+    where: { id },
+    select: { id: true, name: true, code: true, centerLat: true, centerLng: true },
+  });
+  if (!region) return res.status(404).json({ error: 'Region not found' });
+  const summary = await regionService.getRegionSummary(id);
+  res.json({ region, summary });
+}
+
+async function getDashboardStats(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const today = new Date().toISOString().split('T')[0];
+
+  const [fishers, boats, todayCatch, listings, alerts, pending, sold] = await Promise.all([
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as cnt FROM fishers f WHERE 1=1 ${fisherRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as cnt FROM boats b
+      JOIN fishers f ON b.fisher_id = f.id WHERE 1=1 ${fisherRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(quantity_kg), 0) as total
+      FROM catch_submissions cs
+      WHERE fishing_date = ${today}::date AND status = 'VERIFIED' ${catchRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as cnt FROM marketplace_listings ml
+      WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`SELECT COUNT(*)::int as cnt FROM alerts WHERE is_read = false`,
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as cnt FROM catch_submissions cs
+      WHERE status = 'PENDING' ${catchRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(o.quantity_kg), 0) as total
+      FROM orders o WHERE o.ordered_at::date = ${today}::date ${orderRegionSql(regionId)}
+    `,
+  ]);
+
+  res.json({
+    totalFishers: num(fishers[0]?.cnt),
+    totalBoats: num(boats[0]?.cnt),
+    todayCatchKg: num(todayCatch[0]?.total),
+    activeListings: num(listings[0]?.cnt),
+    activeAlerts: num(alerts[0]?.cnt),
+    pendingCatches: num(pending[0]?.cnt),
+    fishSoldToday: num(sold[0]?.total),
+  });
+}
+
+async function getCatchesOverTime(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const rows = await prisma.$queryRaw`
     SELECT fishing_date as date, COALESCE(SUM(quantity_kg), 0) as total_kg
-    FROM catch_submissions
-    WHERE status = 'VERIFIED' AND fishing_date >= DATE('now', '-6 days')
+    FROM catch_submissions cs
+    WHERE status = 'VERIFIED' AND fishing_date >= CURRENT_DATE - interval '6 days'
+    ${catchRegionSql(regionId)}
     GROUP BY fishing_date ORDER BY fishing_date ASC
-  `).all();
+  `;
 
   const result = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
-    const found = rows.find((r) => r.date === d);
-    result.push({ date: d, total_kg: found ? found.total_kg : 0 });
+    const found = rows.find((r) => {
+      const rd = r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date).split('T')[0];
+      return rd === d;
+    });
+    result.push({ date: d, total_kg: found ? num(found.total_kg) : 0 });
   }
 
   res.json({ data: result });
 }
 
-// GET /api/admin/dashboard/species-breakdown
-function getSpeciesBreakdown(req, res) {
-  const db = getDb();
+async function getSpeciesBreakdown(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
   const today = new Date().toISOString().split('T')[0];
-  const rows = db.prepare(`
+  const rows = await prisma.$queryRaw`
     SELECT species, COALESCE(SUM(quantity_kg), 0) as total_kg
-    FROM catch_submissions
-    WHERE status = 'VERIFIED' AND fishing_date = ?
+    FROM catch_submissions cs
+    WHERE status = 'VERIFIED' AND fishing_date = ${today}::date
+    ${catchRegionSql(regionId)}
     GROUP BY species ORDER BY total_kg DESC
-  `).all(today);
+  `;
   res.json({ data: rows });
 }
 
-// GET /api/admin/catches
-function getCatches(req, res) {
-  const db = getDb();
+async function getCatches(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
   const { status, date, search, page = 1, limit = 20 } = req.query;
-  const offset = (page - 1) * limit;
+  const offset = (Number(page) - 1) * Number(limit);
+  const lim = Number(limit);
 
-  let where = '1=1';
-  const params = [];
-
-  if (status && status !== 'ALL') { where += ' AND cs.status = ?'; params.push(status); }
-  if (date)   { where += ' AND cs.fishing_date = ?'; params.push(date); }
+  const parts = [Prisma.sql`1=1`];
+  if (status && status !== 'ALL') parts.push(Prisma.sql`cs.status = ${status}`);
+  if (date) parts.push(Prisma.sql`cs.fishing_date = ${date}::date`);
   if (search) {
-    where += ' AND (u.name LIKE ? OR cs.species LIKE ? OR cs.reference_id LIKE ?)';
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    const like = `%${search}%`;
+    parts.push(Prisma.sql`(u.name ILIKE ${like} OR cs.species ILIKE ${like} OR cs.reference_id ILIKE ${like})`);
   }
+  if (regionId != null) {
+    parts.push(Prisma.sql`EXISTS (
+      SELECT 1 FROM fishing_zones fz_r WHERE fz_r.id = cs.zone_id AND fz_r.region_id = ${regionId}
+    )`);
+  }
+  const where = Prisma.join(parts, ' AND ');
 
-  const total = db.prepare(`
-    SELECT COUNT(*) as cnt
+  const totalRows = await prisma.$queryRaw`
+    SELECT COUNT(*)::int as cnt
     FROM catch_submissions cs
     JOIN fishers f ON cs.fisher_id = f.id
     JOIN users u ON f.user_id = u.id
     WHERE ${where}
-  `).get(...params).cnt;
+  `;
+  const total = num(totalRows[0]?.cnt);
 
-  const catches = db.prepare(`
+  const catches = await prisma.$queryRaw`
     SELECT cs.*, u.name as fisher_name, f.license_number, f.license_status,
            fz.name as zone_name, fz.type as zone_type, b.boat_name
     FROM catch_submissions cs
@@ -100,16 +190,14 @@ function getCatches(req, res) {
     LEFT JOIN boats b ON b.fisher_id = f.id
     WHERE ${where}
     ORDER BY cs.submitted_at DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, limit, offset);
+    LIMIT ${lim} OFFSET ${offset}
+  `;
 
   res.json({ catches, total, page: Number(page), limit: Number(limit) });
 }
 
-// GET /api/admin/catches/:id
-function getCatch(req, res) {
-  const db = getDb();
-  const catchRow = db.prepare(`
+async function getCatch(req, res) {
+  const rows = await prisma.$queryRaw`
     SELECT cs.*,
            u.name as fisher_name, u.email as fisher_email, u.phone as fisher_phone,
            f.license_number, f.license_status, f.license_expiry,
@@ -122,47 +210,57 @@ function getCatch(req, res) {
     LEFT JOIN fishing_zones fz ON cs.zone_id = fz.id
     LEFT JOIN boats b ON b.fisher_id = f.id
     LEFT JOIN users ru ON cs.reviewed_by = ru.id
-    WHERE cs.id = ?
-  `).get(req.params.id);
-
+    WHERE cs.id = ${Number(req.params.id)}
+  `;
+  const catchRow = rows[0];
   if (!catchRow) return res.status(404).json({ error: 'Catch not found' });
 
   const currentMonth = new Date().getMonth() + 1;
-  const currentYear  = new Date().getFullYear();
-  const quota = db.prepare(`
-    SELECT * FROM species_quotas WHERE species = ? AND month = ? AND year = ?
-  `).get(catchRow.species, currentMonth, currentYear);
+  const currentYear = new Date().getFullYear();
+  const quotaRows = await prisma.$queryRaw`
+    SELECT * FROM species_quotas WHERE species = ${catchRow.species}
+      AND month = ${currentMonth} AND year = ${currentYear}
+  `;
 
-  res.json({ catch: catchRow, quota });
+  res.json({ catch: catchRow, quota: quotaRows[0] ?? null });
 }
 
-// PUT /api/admin/catches/:id/approve
-function approveCatch(req, res) {
-  const db = getDb();
-  const catchRow = db.prepare('SELECT * FROM catch_submissions WHERE id = ?').get(req.params.id);
+async function approveCatch(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const rows = await prisma.$queryRaw`
+    SELECT * FROM catch_submissions WHERE id = ${Number(req.params.id)}
+  `;
+  const catchRow = rows[0];
   if (!catchRow) return res.status(404).json({ error: 'Catch not found' });
+  await regionService.assertCatchInRegion(catchRow.id, regionId);
   if (catchRow.status !== 'PENDING') {
     return res.status(400).json({ error: 'Only pending catches can be approved' });
   }
 
-  const quotaCheck = quotaService.checkQuotaBeforeApprove(db, catchRow.species, catchRow.quantity_kg);
+  const quotaCheck = await quotaService.checkQuotaBeforeApprove(catchRow.species, catchRow.quantity_kg);
   if (!quotaCheck.allowed) {
     return res.status(409).json({ error: quotaCheck.message });
   }
 
-  db.prepare(`
-    UPDATE catch_submissions
-    SET status = 'VERIFIED', reviewed_by = ?, reviewed_at = datetime('now')
-    WHERE id = ?
-  `).run(req.user.id, catchRow.id);
+  await prisma.catchSubmission.update({
+    where: { id: catchRow.id },
+    data: {
+      status: 'VERIFIED',
+      reviewedBy: req.user.id,
+      reviewedAt: new Date(),
+    },
+  });
 
-  const listing = listingService.createListing(db, catchRow);
-  quotaService.updateQuota(db, catchRow.species, catchRow.quantity_kg);
+  const listing = await listingService.createListing(catchRow);
+  await quotaService.updateQuota(catchRow.species, catchRow.quantity_kg);
 
-  const fisher = db.prepare('SELECT * FROM fishers WHERE id = ?').get(catchRow.fisher_id);
-  notificationService.notifyFisher(db, fisher.user_id, 'CATCH_APPROVED',
+  const fisherRows = await prisma.$queryRaw`SELECT * FROM fishers WHERE id = ${catchRow.fisher_id}`;
+  const fisher = fisherRows[0];
+  await notificationService.notifyFisher(
+    fisher.user_id,
+    'CATCH_APPROVED',
     'Catch Approved',
-    `Your catch ${catchRow.reference_id} has been approved and is now listed in the marketplace.`
+    `Your catch ${catchRow.reference_id} has been approved and is now listed in the marketplace.`,
   );
 
   auditFromReq(req, 'catch.approved', 'catch', catchRow.id, {
@@ -179,33 +277,49 @@ function approveCatch(req, res) {
     listing_id: listing.id,
   });
 
-  res.json({ success: true, catch_id: catchRow.id, status: 'VERIFIED', listing_id: listing.id, fisher_notified: true });
+  res.json({
+    success: true,
+    catch_id: catchRow.id,
+    status: 'VERIFIED',
+    listing_id: listing.id,
+    fisher_notified: true,
+  });
 }
 
-// PUT /api/admin/catches/:id/reject
-function rejectCatch(req, res) {
+async function rejectCatch(req, res) {
   const { reason } = req.body;
   if (!reason || reason.trim().length === 0) {
     return res.status(400).json({ error: 'A rejection reason is required' });
   }
 
-  const db = getDb();
-  const catchRow = db.prepare('SELECT * FROM catch_submissions WHERE id = ?').get(req.params.id);
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const rows = await prisma.$queryRaw`
+    SELECT * FROM catch_submissions WHERE id = ${Number(req.params.id)}
+  `;
+  const catchRow = rows[0];
   if (!catchRow) return res.status(404).json({ error: 'Catch not found' });
+  await regionService.assertCatchInRegion(catchRow.id, regionId);
   if (catchRow.status !== 'PENDING') {
     return res.status(400).json({ error: 'Only pending catches can be rejected' });
   }
 
-  db.prepare(`
-    UPDATE catch_submissions
-    SET status = 'REJECTED', rejection_reason = ?, reviewed_by = ?, reviewed_at = datetime('now')
-    WHERE id = ?
-  `).run(reason.trim(), req.user.id, catchRow.id);
+  await prisma.catchSubmission.update({
+    where: { id: catchRow.id },
+    data: {
+      status: 'REJECTED',
+      rejectionReason: reason.trim(),
+      reviewedBy: req.user.id,
+      reviewedAt: new Date(),
+    },
+  });
 
-  const fisher = db.prepare('SELECT * FROM fishers WHERE id = ?').get(catchRow.fisher_id);
-  notificationService.notifyFisher(db, fisher.user_id, 'CATCH_REJECTED',
+  const fisherRows = await prisma.$queryRaw`SELECT * FROM fishers WHERE id = ${catchRow.fisher_id}`;
+  const fisher = fisherRows[0];
+  await notificationService.notifyFisher(
+    fisher.user_id,
+    'CATCH_REJECTED',
     'Catch Not Approved',
-    `Your catch ${catchRow.reference_id} was not approved. Reason: ${reason.trim()}`
+    `Your catch ${catchRow.reference_id} was not approved. Reason: ${reason.trim()}`,
   );
 
   auditFromReq(req, 'catch.rejected', 'catch', catchRow.id, { reason: reason.trim() });
@@ -219,37 +333,40 @@ function rejectCatch(req, res) {
   res.json({ success: true, catch_id: catchRow.id, status: 'REJECTED', fisher_notified: true });
 }
 
-// GET /api/admin/fishers
-function getFishers(req, res) {
-  const db = getDb();
+async function getFishers(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
   const { page = 1, limit = 20 } = req.query;
-  const offset = (page - 1) * limit;
+  const offset = (Number(page) - 1) * Number(limit);
+  const lim = Number(limit);
 
-  const total = db.prepare('SELECT COUNT(*) as cnt FROM fishers').get().cnt;
-  const fishers = db.prepare(`
+  const totalRows = await prisma.$queryRaw`
+    SELECT COUNT(*)::int as cnt FROM fishers f WHERE 1=1 ${fisherRegionSql(regionId)}
+  `;
+  const total = num(totalRows[0]?.cnt);
+
+  const fishers = await prisma.$queryRaw`
     SELECT f.*, u.name, u.email, u.phone,
            fz.name as zone_name,
            b.boat_name, b.registration_number,
            COALESCE(fc.score, 100) as compliance_score,
            COALESCE(fc.open_violations, 0) as open_violations,
-           (SELECT COUNT(*) FROM catch_submissions cs WHERE cs.fisher_id = f.id) as total_catches,
-           (SELECT COUNT(*) FROM catch_submissions cs WHERE cs.fisher_id = f.id AND cs.status = 'VERIFIED') as verified_catches
+           (SELECT COUNT(*)::int FROM catch_submissions cs WHERE cs.fisher_id = f.id) as total_catches,
+           (SELECT COUNT(*)::int FROM catch_submissions cs WHERE cs.fisher_id = f.id AND cs.status = 'VERIFIED') as verified_catches
     FROM fishers f
     JOIN users u ON f.user_id = u.id
     LEFT JOIN fishing_zones fz ON f.zone_id = fz.id
     LEFT JOIN boats b ON b.fisher_id = f.id
     LEFT JOIN fisher_compliance fc ON fc.fisher_id = f.id
+    WHERE 1=1 ${fisherRegionSql(regionId)}
     ORDER BY u.name ASC
-    LIMIT ? OFFSET ?
-  `).all(limit, offset);
+    LIMIT ${lim} OFFSET ${offset}
+  `;
 
   res.json({ fishers, total, page: Number(page), limit: Number(limit) });
 }
 
-// GET /api/admin/fishers/:id
-function getFisher(req, res) {
-  const db = getDb();
-  const fisher = db.prepare(`
+async function getFisher(req, res) {
+  const rows = await prisma.$queryRaw`
     SELECT f.*, u.name, u.email, u.phone,
            fz.name as zone_name, fz.type as zone_type,
            b.boat_name, b.registration_number, b.capacity_kg
@@ -257,172 +374,182 @@ function getFisher(req, res) {
     JOIN users u ON f.user_id = u.id
     LEFT JOIN fishing_zones fz ON f.zone_id = fz.id
     LEFT JOIN boats b ON b.fisher_id = f.id
-    WHERE f.id = ?
-  `).get(req.params.id);
-
+    WHERE f.id = ${Number(req.params.id)}
+  `;
+  const fisher = rows[0];
   if (!fisher) return res.status(404).json({ error: 'Fisher not found' });
 
-  const recentCatches = db.prepare(`
-    SELECT * FROM catch_submissions WHERE fisher_id = ? ORDER BY submitted_at DESC LIMIT 10
-  `).all(req.params.id);
+  const recentCatches = await prisma.$queryRaw`
+    SELECT * FROM catch_submissions WHERE fisher_id = ${fisher.id}
+    ORDER BY submitted_at DESC LIMIT 10
+  `;
 
   res.json({ fisher, recentCatches });
 }
 
-// GET /api/admin/quotas
-function getQuotas(req, res) {
-  const db = getDb();
+async function getQuotas(req, res) {
   const currentMonth = new Date().getMonth() + 1;
-  const currentYear  = new Date().getFullYear();
-  const quotas = db.prepare(`
+  const currentYear = new Date().getFullYear();
+  const quotas = await prisma.$queryRaw`
     SELECT *, ROUND((current_month_kg * 100.0 / monthly_limit_kg), 1) as usage_pct
-    FROM species_quotas WHERE month = ? AND year = ?
+    FROM species_quotas WHERE month = ${currentMonth} AND year = ${currentYear}
     ORDER BY usage_pct DESC
-  `).all(currentMonth, currentYear);
+  `;
   res.json({ quotas });
 }
 
-// PUT /api/admin/quotas/:id
-function updateQuota(req, res) {
+async function updateQuota(req, res) {
   const { monthly_limit_kg } = req.body;
   if (!monthly_limit_kg || monthly_limit_kg <= 0) {
     return res.status(400).json({ error: 'Valid monthly limit is required' });
   }
-  const db = getDb();
-  db.prepare(`
-    UPDATE species_quotas SET monthly_limit_kg = ?, updated_at = datetime('now') WHERE id = ?
-  `).run(monthly_limit_kg, req.params.id);
+  await prisma.speciesQuota.update({
+    where: { id: Number(req.params.id) },
+    data: { monthlyLimitKg: monthly_limit_kg, updatedAt: new Date() },
+  });
   auditFromReq(req, 'quota.updated', 'quota', Number(req.params.id), { monthly_limit_kg });
   res.json({ success: true });
 }
 
-// GET /api/admin/alerts
-function getAlerts(req, res) {
-  const db = getDb();
-  const alerts = db.prepare(`
+async function getAlerts(req, res) {
+  const alerts = await prisma.$queryRaw`
     SELECT * FROM alerts ORDER BY created_at DESC LIMIT 50
-  `).all();
-  const unreadCount = db.prepare('SELECT COUNT(*) as cnt FROM alerts WHERE is_read = 0').get().cnt;
-  res.json({ alerts, unreadCount });
+  `;
+  const unreadRows = await prisma.$queryRaw`
+    SELECT COUNT(*)::int as cnt FROM alerts WHERE is_read = false
+  `;
+  res.json({ alerts, unreadCount: num(unreadRows[0]?.cnt) });
 }
 
-// PUT /api/admin/alerts/:id/read
-function markAlertRead(req, res) {
-  const db = getDb();
-  db.prepare('UPDATE alerts SET is_read = 1 WHERE id = ?').run(req.params.id);
+async function markAlertRead(req, res) {
+  await prisma.alert.update({
+    where: { id: Number(req.params.id) },
+    data: { isRead: true },
+  });
   res.json({ success: true });
 }
 
-// PUT /api/admin/alerts/read-all
-function markAllAlertsRead(req, res) {
-  const db = getDb();
-  db.prepare('UPDATE alerts SET is_read = 1').run();
+async function markAllAlertsRead(req, res) {
+  await prisma.alert.updateMany({ data: { isRead: true } });
   res.json({ success: true });
 }
 
-// GET /api/admin/zones
-function getZones(req, res) {
-  const db = getDb();
-  const zones = db.prepare(`
+async function getZones(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const zones = await prisma.$queryRaw`
     SELECT fz.*,
-      (SELECT COUNT(*) FROM catch_submissions cs WHERE cs.zone_id = fz.id AND cs.fishing_date = DATE('now')) as today_submissions
+      (SELECT COUNT(*)::int FROM catch_submissions cs
+       WHERE cs.zone_id = fz.id AND cs.fishing_date = CURRENT_DATE) as today_submissions
     FROM fishing_zones fz
+    ${regionId != null ? Prisma.sql`WHERE fz.region_id = ${regionId}` : Prisma.empty}
     ORDER BY fz.type, fz.name
-  `).all();
+  `;
   res.json({ zones });
 }
 
-// GET /api/admin/reports/monthly
-function getMonthlyReport(req, res) {
-  const db = getDb();
+async function getMonthlyReport(req, res) {
   const currentMonth = new Date().getMonth() + 1;
-  const currentYear  = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
 
-  const totalVerified = db.prepare(`
-    SELECT COALESCE(SUM(quantity_kg), 0) as total, COUNT(*) as count
-    FROM catch_submissions
-    WHERE status = 'VERIFIED'
-      AND strftime('%m', fishing_date) = ? AND strftime('%Y', fishing_date) = ?
-  `).get(String(currentMonth).padStart(2, '0'), String(currentYear));
-
-  const totalRejected = db.prepare(`
-    SELECT COUNT(*) as count FROM catch_submissions
-    WHERE status = 'REJECTED'
-      AND strftime('%m', fishing_date) = ? AND strftime('%Y', fishing_date) = ?
-  `).get(String(currentMonth).padStart(2, '0'), String(currentYear));
-
-  const bySpecies = db.prepare(`
-    SELECT species, COALESCE(SUM(quantity_kg), 0) as total_kg, COUNT(*) as count
-    FROM catch_submissions
-    WHERE status = 'VERIFIED'
-      AND strftime('%m', fishing_date) = ? AND strftime('%Y', fishing_date) = ?
-    GROUP BY species ORDER BY total_kg DESC
-  `).all(String(currentMonth).padStart(2, '0'), String(currentYear));
-
-  const totalSales = db.prepare(`
-    SELECT COALESCE(SUM(total_price), 0) as revenue, COALESCE(SUM(quantity_kg), 0) as kg_sold
-    FROM orders WHERE strftime('%m', ordered_at) = ? AND strftime('%Y', ordered_at) = ?
-  `).get(String(currentMonth).padStart(2, '0'), String(currentYear));
-
-  res.json({ totalVerified, totalRejected, bySpecies, totalSales, month: currentMonth, year: currentYear });
-}
-
-// GET /api/admin/command/live-stats
-function getLiveStats(req, res) {
-  const db = getDb();
-  const today = new Date().toISOString().split('T')[0];
-  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
-
-  const catchKgToday = db.prepare(`
-    SELECT COALESCE(SUM(quantity_kg), 0) as total
-    FROM catch_submissions WHERE fishing_date = ? AND status = 'VERIFIED'
-  `).get(today).total;
-
-  const pendingCatches = db.prepare(`
-    SELECT COUNT(*) as cnt FROM catch_submissions WHERE status = 'PENDING'
-  `).get().cnt;
-
-  const ordersLastHour = db.prepare(`
-    SELECT COUNT(*) as cnt FROM orders WHERE ordered_at >= ? AND status != 'CANCELLED'
-  `).get(oneHourAgo).cnt;
-
-  const revenueToday = db.prepare(`
-    SELECT COALESCE(SUM(total_price), 0) as total
-    FROM orders WHERE DATE(ordered_at) = ? AND status != 'CANCELLED'
-  `).get(today).total;
-
-  const activeBoats = db.prepare(`
-    SELECT COUNT(DISTINCT boat_id) as cnt FROM boat_positions
-    WHERE status IN ('FISHING', 'RETURNING')
-      AND recorded_at >= datetime('now', '-30 minutes')
-  `).get().cnt;
-
-  const activeListingsKg = db.prepare(`
-    SELECT COALESCE(SUM(quantity_available_kg), 0) as total
-    FROM marketplace_listings WHERE status = 'ACTIVE'
-  `).get().total;
-
-  const activeFishers = db.prepare(`
-    SELECT COUNT(DISTINCT fisher_id) as cnt FROM catch_submissions
-    WHERE fishing_date = ? AND status IN ('PENDING', 'VERIFIED')
-  `).get(today).cnt;
+  const [totalVerified, totalRejected, bySpecies, totalSales] = await Promise.all([
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(quantity_kg), 0) as total, COUNT(*)::int as count
+      FROM catch_submissions
+      WHERE status = 'VERIFIED'
+        AND EXTRACT(MONTH FROM fishing_date) = ${currentMonth}
+        AND EXTRACT(YEAR FROM fishing_date) = ${currentYear}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as count FROM catch_submissions
+      WHERE status = 'REJECTED'
+        AND EXTRACT(MONTH FROM fishing_date) = ${currentMonth}
+        AND EXTRACT(YEAR FROM fishing_date) = ${currentYear}
+    `,
+    prisma.$queryRaw`
+      SELECT species, COALESCE(SUM(quantity_kg), 0) as total_kg, COUNT(*)::int as count
+      FROM catch_submissions
+      WHERE status = 'VERIFIED'
+        AND EXTRACT(MONTH FROM fishing_date) = ${currentMonth}
+        AND EXTRACT(YEAR FROM fishing_date) = ${currentYear}
+      GROUP BY species ORDER BY total_kg DESC
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(total_price), 0) as revenue, COALESCE(SUM(quantity_kg), 0) as kg_sold
+      FROM orders
+      WHERE EXTRACT(MONTH FROM ordered_at) = ${currentMonth}
+        AND EXTRACT(YEAR FROM ordered_at) = ${currentYear}
+    `,
+  ]);
 
   res.json({
-    catchKgToday,
-    pendingCatches,
-    ordersLastHour,
-    revenueToday,
-    activeBoats,
-    activeListingsKg,
-    activeFishers,
+    totalVerified: totalVerified[0],
+    totalRejected: totalRejected[0],
+    bySpecies,
+    totalSales: totalSales[0],
+    month: currentMonth,
+    year: currentYear,
+  });
+}
+
+async function getLiveStats(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const today = new Date().toISOString().split('T')[0];
+  const oneHourAgo = new Date(Date.now() - 3600000);
+
+  const [catchKg, pending, ordersHour, revenue, boats, listingsKg, fishers] = await Promise.all([
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(quantity_kg), 0) as total
+      FROM catch_submissions cs
+      WHERE fishing_date = ${today}::date AND status = 'VERIFIED' ${catchRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as cnt FROM catch_submissions cs
+      WHERE status = 'PENDING' ${catchRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as cnt FROM orders o
+      WHERE ordered_at >= ${oneHourAgo} AND status != 'CANCELLED' ${orderRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(total_price), 0) as total
+      FROM orders o
+      WHERE ordered_at::date = ${today}::date AND status != 'CANCELLED' ${orderRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(DISTINCT bp.boat_id)::int as cnt FROM boat_positions bp
+      JOIN boats b ON bp.boat_id = b.id
+      JOIN fishers f ON b.fisher_id = f.id
+      WHERE bp.status IN ('FISHING', 'RETURNING')
+        AND bp.recorded_at >= NOW() - interval '30 minutes'
+        ${fisherRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(quantity_available_kg), 0) as total
+      FROM marketplace_listings ml
+      WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(DISTINCT fisher_id)::int as cnt FROM catch_submissions cs
+      WHERE fishing_date = ${today}::date AND status IN ('PENDING', 'VERIFIED')
+      ${catchRegionSql(regionId)}
+    `,
+  ]);
+
+  res.json({
+    catchKgToday: num(catchKg[0]?.total),
+    pendingCatches: num(pending[0]?.cnt),
+    ordersLastHour: num(ordersHour[0]?.cnt),
+    revenueToday: num(revenue[0]?.total),
+    activeBoats: num(boats[0]?.cnt),
+    activeListingsKg: num(listingsKg[0]?.total),
+    activeFishers: num(fishers[0]?.cnt),
     timestamp: new Date().toISOString(),
   });
 }
 
-// GET /api/admin/fleet/positions
-function getFleetPositions(req, res) {
-  const db = getDb();
-  const boats = db.prepare(`
+async function getFleetPositions(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const boats = await prisma.$queryRaw`
     SELECT b.id as boat_id, b.boat_name, b.registration_number,
            f.id as fisher_id, u.name as fisher_name,
            bp.lat, bp.lng, bp.status, bp.recorded_at
@@ -432,15 +559,19 @@ function getFleetPositions(req, res) {
     LEFT JOIN boat_positions bp ON bp.id = (
       SELECT id FROM boat_positions WHERE boat_id = b.id ORDER BY recorded_at DESC LIMIT 1
     )
+    WHERE 1=1 ${fisherRegionSql(regionId)}
     ORDER BY b.boat_name
-  `).all();
+  `;
   res.json({ boats });
 }
 
-// GET /api/admin/map/layers
-function getMapLayers(req, res) {
-  const db = getDb();
-  const zonesRaw = db.prepare('SELECT id, name, type, gps_lat, gps_lng, description, geo_polygon FROM fishing_zones').all();
+async function getMapLayers(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const zonesRaw = await prisma.$queryRaw`
+    SELECT id, name, type, gps_lat, gps_lng, description, geo_polygon, region_id
+    FROM fishing_zones fz
+    ${regionId != null ? Prisma.sql`WHERE fz.region_id = ${regionId}` : Prisma.empty}
+  `;
   const zones = zonesRaw.map((z) => {
     let geo_polygon = null;
     if (z.geo_polygon) {
@@ -452,7 +583,8 @@ function getMapLayers(req, res) {
     }
     return { ...z, geo_polygon };
   });
-  const fleet = db.prepare(`
+
+  const fleet = await prisma.$queryRaw`
     SELECT b.id as boat_id, b.boat_name, u.name as fisher_name,
            bp.lat, bp.lng, bp.status, bp.recorded_at
     FROM boats b
@@ -461,9 +593,10 @@ function getMapLayers(req, res) {
     LEFT JOIN boat_positions bp ON bp.id = (
       SELECT id FROM boat_positions WHERE boat_id = b.id ORDER BY recorded_at DESC LIMIT 1
     )
-    WHERE bp.lat IS NOT NULL
-  `).all();
-  const catches = db.prepare(`
+    WHERE bp.lat IS NOT NULL ${fisherRegionSql(regionId)}
+  `;
+
+  const catches = await prisma.$queryRaw`
     SELECT cs.id, cs.reference_id, cs.species, cs.quantity_kg, cs.status,
            cs.gps_lat, cs.gps_lng, cs.submitted_at,
            u.name as fisher_name, fz.name as zone_name
@@ -471,66 +604,72 @@ function getMapLayers(req, res) {
     JOIN fishers f ON cs.fisher_id = f.id
     JOIN users u ON f.user_id = u.id
     LEFT JOIN fishing_zones fz ON cs.zone_id = fz.id
-    WHERE cs.submitted_at >= datetime('now', '-24 hours')
+    WHERE cs.submitted_at >= NOW() - interval '24 hours'
       AND cs.gps_lat IS NOT NULL
+      ${catchRegionSql(regionId)}
     ORDER BY cs.submitted_at DESC
     LIMIT 100
-  `).all();
+  `;
+
   res.json({ zones, fleet, catches });
 }
 
-// GET /api/admin/market/overview
-function getMarketOverview(req, res) {
-  const db = getDb();
+async function getMarketOverview(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
   const today = new Date().toISOString().split('T')[0];
 
-  const revenueToday = db.prepare(`
-    SELECT COALESCE(SUM(total_price), 0) as total FROM orders
-    WHERE DATE(ordered_at) = ? AND status != 'CANCELLED'
-  `).get(today).total;
+  const [revenue, orders, listings, topSpecies] = await Promise.all([
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(total_price), 0) as total FROM orders o
+      WHERE ordered_at::date = ${today}::date AND status != 'CANCELLED' ${orderRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as cnt FROM orders o
+      WHERE ordered_at::date = ${today}::date AND status != 'CANCELLED' ${orderRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(quantity_available_kg), 0) as total
+      FROM marketplace_listings ml
+      WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT ml.species, COALESCE(SUM(o.quantity_kg), 0) as kg_sold,
+             COALESCE(SUM(o.total_price), 0) as revenue
+      FROM orders o
+      JOIN marketplace_listings ml ON o.listing_id = ml.id
+      WHERE o.status != 'CANCELLED' AND o.ordered_at::date >= CURRENT_DATE - interval '7 days'
+      ${orderRegionSql(regionId)}
+      GROUP BY ml.species ORDER BY kg_sold DESC LIMIT 5
+    `,
+  ]);
 
-  const ordersToday = db.prepare(`
-    SELECT COUNT(*) as cnt FROM orders WHERE DATE(ordered_at) = ? AND status != 'CANCELLED'
-  `).get(today).cnt;
-
-  const activeListingsKg = db.prepare(`
-    SELECT COALESCE(SUM(quantity_available_kg), 0) as total
-    FROM marketplace_listings WHERE status = 'ACTIVE'
-  `).get().total;
-
-  const topSpecies = db.prepare(`
-    SELECT ml.species, COALESCE(SUM(o.quantity_kg), 0) as kg_sold,
-           COALESCE(SUM(o.total_price), 0) as revenue
-    FROM orders o
-    JOIN marketplace_listings ml ON o.listing_id = ml.id
-    WHERE o.status != 'CANCELLED' AND DATE(o.ordered_at) >= DATE('now', '-7 days')
-    GROUP BY ml.species ORDER BY kg_sold DESC LIMIT 5
-  `).all();
-
-  res.json({ revenueToday, ordersToday, activeListingsKg, topSpecies });
+  res.json({
+    revenueToday: num(revenue[0]?.total),
+    ordersToday: num(orders[0]?.cnt),
+    activeListingsKg: num(listings[0]?.total),
+    topSpecies,
+  });
 }
 
-// GET /api/admin/market/buyers
-function getMarketBuyers(req, res) {
-  const db = getDb();
-  const buyers = db.prepare(`
+async function getMarketBuyers(req, res) {
+  const buyers = await prisma.$queryRaw`
     SELECT u.id, u.name, u.email, b.location,
-           COUNT(o.id) as order_count,
+           COUNT(o.id)::int as order_count,
            COALESCE(SUM(o.quantity_kg), 0) as total_kg,
            COALESCE(SUM(o.total_price), 0) as total_spend
     FROM users u
     JOIN buyers b ON b.user_id = u.id
     LEFT JOIN orders o ON o.buyer_id = u.id AND o.status != 'CANCELLED'
     WHERE u.role = 'buyer'
-    GROUP BY u.id ORDER BY total_spend DESC
-  `).all();
+    GROUP BY u.id, u.name, u.email, b.location
+    ORDER BY total_spend DESC
+  `;
   res.json({ buyers });
 }
 
-// GET /api/admin/market/sellers
-function getMarketSellers(req, res) {
-  const db = getDb();
-  const sellers = db.prepare(`
+async function getMarketSellers(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const sellers = await prisma.$queryRaw`
     SELECT f.id as fisher_id, u.name, f.license_number,
            COALESCE(SUM(CASE WHEN cs.status = 'VERIFIED' THEN cs.quantity_kg ELSE 0 END), 0) as verified_kg,
            COALESCE(SUM(ml.quantity_available_kg), 0) as listed_kg,
@@ -543,28 +682,31 @@ function getMarketSellers(req, res) {
     JOIN users u ON f.user_id = u.id
     LEFT JOIN catch_submissions cs ON cs.fisher_id = f.id
     LEFT JOIN marketplace_listings ml ON ml.fisher_id = f.id AND ml.status = 'ACTIVE'
-    GROUP BY f.id ORDER BY revenue DESC
-  `).all();
+    WHERE 1=1 ${fisherRegionSql(regionId)}
+    GROUP BY f.id, u.name, f.license_number
+    ORDER BY revenue DESC
+  `;
   res.json({ sellers });
 }
 
-// GET /api/admin/market/species-prices
-function getMarketSpeciesPrices(req, res) {
-  const db = getDb();
-  const fromOrders = db.prepare(`
+async function getMarketSpeciesPrices(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const fromOrders = await prisma.$queryRaw`
     SELECT ml.species,
-           ROUND(AVG(o.price_per_kg), 2) as avg_order_price,
-           COUNT(o.id) as order_count
+           ROUND(AVG(o.price_per_kg)::numeric, 2) as avg_order_price,
+           COUNT(o.id)::int as order_count
     FROM orders o
     JOIN marketplace_listings ml ON o.listing_id = ml.id
-    WHERE o.status != 'CANCELLED' AND o.ordered_at >= datetime('now', '-7 days')
+    WHERE o.status != 'CANCELLED' AND o.ordered_at >= NOW() - interval '7 days'
+    ${orderRegionSql(regionId)}
     GROUP BY ml.species
-  `).all();
-  const fromListings = db.prepare(`
-    SELECT species, ROUND(AVG(price_per_kg), 2) as avg_listing_price
-    FROM marketplace_listings WHERE status = 'ACTIVE'
+  `;
+  const fromListings = await prisma.$queryRaw`
+    SELECT species, ROUND(AVG(price_per_kg)::numeric, 2) as avg_listing_price
+    FROM marketplace_listings ml
+    WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
     GROUP BY species
-  `).all();
+  `;
   const listingMap = Object.fromEntries(fromListings.map((r) => [r.species, r.avg_listing_price]));
   const data = fromOrders.map((r) => ({
     ...r,
@@ -573,37 +715,36 @@ function getMarketSpeciesPrices(req, res) {
   res.json({ data });
 }
 
-// GET /api/admin/market/shortages
-function getMarketShortages(req, res) {
-  const db = getDb();
+async function getMarketShortages(req, res) {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
-  const quotaShortages = db.prepare(`
+  const quotaShortages = await prisma.$queryRaw`
     SELECT species, monthly_limit_kg, current_month_kg,
            ROUND((current_month_kg * 100.0 / monthly_limit_kg), 1) as usage_pct
-    FROM species_quotas WHERE month = ? AND year = ?
+    FROM species_quotas WHERE month = ${currentMonth} AND year = ${currentYear}
       AND (current_month_kg * 100.0 / monthly_limit_kg) >= 85
     ORDER BY usage_pct DESC
-  `).all(currentMonth, currentYear);
+  `;
 
-  const stockLow = db.prepare(`
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const stockLow = await prisma.$queryRaw`
     SELECT species,
            COALESCE(SUM(quantity_available_kg), 0) as available_kg,
-           COUNT(*) as listing_count
-    FROM marketplace_listings WHERE status = 'ACTIVE'
-    GROUP BY species HAVING available_kg < 50
+           COUNT(*)::int as listing_count
+    FROM marketplace_listings ml
+    WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
+    GROUP BY species HAVING COALESCE(SUM(quantity_available_kg), 0) < 50
     ORDER BY available_kg ASC
-  `).all();
+  `;
 
   res.json({ quotaShortages, stockLow });
 }
 
-// GET /api/admin/market/transactions
-function getMarketTransactions(req, res) {
-  const db = getDb();
+async function getMarketTransactions(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
   const limit = Math.min(Number(req.query.limit) || 30, 100);
-  const transactions = db.prepare(`
+  const transactions = await prisma.$queryRaw`
     SELECT o.id, o.reference_id, o.quantity_kg, o.price_per_kg, o.total_price, o.ordered_at,
            ml.species,
            bu.name as buyer_name,
@@ -613,16 +754,15 @@ function getMarketTransactions(req, res) {
     JOIN users bu ON o.buyer_id = bu.id
     JOIN fishers f ON ml.fisher_id = f.id
     JOIN users fu ON f.user_id = fu.id
-    WHERE o.status != 'CANCELLED'
-    ORDER BY o.ordered_at DESC LIMIT ?
-  `).all(limit);
+    WHERE o.status != 'CANCELLED' ${orderRegionSql(regionId)}
+    ORDER BY o.ordered_at DESC LIMIT ${limit}
+  `;
   res.json({ transactions });
 }
 
-// GET /api/admin/market/network
-function getMarketNetwork(req, res) {
-  const db = getDb();
-  const edges = db.prepare(`
+async function getMarketNetwork(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const edges = await prisma.$queryRaw`
     SELECT fu.name as seller, bu.name as buyer, ml.species,
            o.quantity_kg, o.total_price, o.ordered_at, o.reference_id
     FROM orders o
@@ -630,34 +770,35 @@ function getMarketNetwork(req, res) {
     JOIN users bu ON o.buyer_id = bu.id
     JOIN fishers f ON ml.fisher_id = f.id
     JOIN users fu ON f.user_id = fu.id
-    WHERE o.status != 'CANCELLED'
+    WHERE o.status != 'CANCELLED' ${orderRegionSql(regionId)}
     ORDER BY o.ordered_at DESC LIMIT 50
-  `).all();
+  `;
   res.json({ edges });
 }
 
-// GET /api/admin/audit
-function getAuditLog(req, res) {
-  const db = getDb();
+async function getAuditLog(req, res) {
   const { action, entity_type, page = 1, limit = 50 } = req.query;
-  const offset = (page - 1) * limit;
-  let where = '1=1';
-  const params = [];
-  if (action) { where += ' AND a.action LIKE ?'; params.push(`%${action}%`); }
-  if (entity_type) { where += ' AND a.entity_type = ?'; params.push(entity_type); }
+  const offset = (Number(page) - 1) * Number(limit);
+  const lim = Number(limit);
 
-  const total = db.prepare(`
-    SELECT COUNT(*) as cnt FROM audit_log a WHERE ${where}
-  `).get(...params).cnt;
+  const parts = [Prisma.sql`1=1`];
+  if (action) parts.push(Prisma.sql`a.action ILIKE ${`%${action}%`}`);
+  if (entity_type) parts.push(Prisma.sql`a.entity_type = ${entity_type}`);
+  const where = Prisma.join(parts, ' AND ');
 
-  const entries = db.prepare(`
+  const totalRows = await prisma.$queryRaw`
+    SELECT COUNT(*)::int as cnt FROM audit_log a WHERE ${where}
+  `;
+  const total = num(totalRows[0]?.cnt);
+
+  const entries = await prisma.$queryRaw`
     SELECT a.*, u.name as actor_name, u.email as actor_email
     FROM audit_log a
     LEFT JOIN users u ON a.actor_user_id = u.id
     WHERE ${where}
     ORDER BY a.created_at DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, limit, offset);
+    LIMIT ${lim} OFFSET ${offset}
+  `;
 
   const parsed = entries.map((e) => ({
     ...e,
@@ -667,101 +808,115 @@ function getAuditLog(req, res) {
   res.json({ entries: parsed, total, page: Number(page), limit: Number(limit) });
 }
 
-// GET /api/admin/events/recent (for activity feed without SSE)
-function getFleet(req, res) {
-  const fleetService = require('../services/fleet.service');
-  const boats = fleetService.getFleetList(getDb());
+async function getFleet(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const boats = await fleetService.getFleetList(regionId);
   res.json({ boats });
 }
 
-function getFleetHistory(req, res) {
+async function getFleetHistory(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const boatId = Number(req.params.boatId);
+  if (regionId != null) {
+    const inRegion = await prisma.$queryRaw`
+      SELECT b.id FROM boats b
+      JOIN fishers f ON b.fisher_id = f.id
+      WHERE b.id = ${boatId} ${fisherRegionSql(regionId)}
+      LIMIT 1
+    `;
+    if (!inRegion.length) return res.status(403).json({ error: 'Boat not in selected region' });
+  }
   const hours = Math.min(Number(req.query.hours) || 24, 72);
-  const fleetService = require('../services/fleet.service');
-  const points = fleetService.getBoatHistory(getDb(), Number(req.params.boatId), hours);
-  res.json({ boat_id: Number(req.params.boatId), points });
+  const points = await fleetService.getBoatHistory(boatId, hours);
+  res.json({ boat_id: boatId, points });
 }
 
-function getActiveFleetTrips(req, res) {
-  const db = getDb();
-  const trips = db.prepare(`
+async function getActiveFleetTrips(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const trips = await prisma.$queryRaw`
     SELECT t.*, b.boat_name, u.name as fisher_name
     FROM boat_trips t
     JOIN boats b ON b.id = t.boat_id
     JOIN fishers f ON t.fisher_id = f.id
     JOIN users u ON f.user_id = u.id
-    WHERE t.status = 'ACTIVE'
+    WHERE t.status = 'ACTIVE' ${fisherRegionSql(regionId)}
     ORDER BY t.started_at DESC
-  `).all();
+  `;
   res.json({ trips });
 }
 
-function getIntelligenceOverview(req, res) {
-  const marketIntel = require('../services/market-intel.service');
-  res.json(marketIntel.getIntelligenceOverview(getDb()));
+async function getIntelligenceOverview(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const overview = await marketIntelService.getIntelligenceOverview(regionId);
+  res.json(overview);
 }
 
-function refreshIntelligenceSnapshots(req, res) {
-  const marketIntel = require('../services/market-intel.service');
-  const db = getDb();
-  marketIntel.refreshSnapshots(db, Number(req.body?.days) || 14);
+async function refreshIntelligenceSnapshots(req, res) {
+  await marketIntelService.refreshSnapshots(Number(req.body?.days) || 14);
   res.json({ success: true, message: 'Market snapshots refreshed' });
 }
 
-function getSeasonRules(req, res) {
-  const db = getDb();
-  const rules = db.prepare(`
+async function getSeasonRules(req, res) {
+  const { regionId } = await regionService.resolveRegionFilter(req);
+  const rules = await prisma.$queryRaw`
     SELECT r.*, fz.name as zone_name
     FROM zone_season_rules r
     JOIN fishing_zones fz ON r.zone_id = fz.id
+    ${regionId != null ? Prisma.sql`WHERE fz.region_id = ${regionId}` : Prisma.empty}
     ORDER BY fz.name, r.species
-  `).all();
+  `;
   res.json({ rules });
 }
 
-function createSeasonRule(req, res) {
+async function createSeasonRule(req, res) {
   const { zone_id, species, season_start, season_end, rule_type, max_kg, notes } = req.body;
   if (!zone_id || !species || !season_start || !season_end || !rule_type) {
     return res.status(400).json({ error: 'zone_id, species, season_start, season_end, rule_type required' });
   }
-  const db = getDb();
-  const result = db.prepare(`
-    INSERT INTO zone_season_rules (zone_id, species, season_start, season_end, rule_type, max_kg, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(zone_id, species, season_start, season_end, rule_type, max_kg ?? null, notes ?? null);
-  res.status(201).json({ id: result.lastInsertRowid });
+  const created = await prisma.zoneSeasonRule.create({
+    data: {
+      zoneId: zone_id,
+      species,
+      seasonStart: season_start,
+      seasonEnd: season_end,
+      ruleType: rule_type,
+      maxKg: max_kg ?? null,
+      notes: notes ?? null,
+    },
+  });
+  res.status(201).json({ id: created.id });
 }
 
-function updateSeasonRule(req, res) {
+async function updateSeasonRule(req, res) {
   const { species, season_start, season_end, rule_type, max_kg, notes } = req.body;
-  const db = getDb();
-  const existing = db.prepare('SELECT id FROM zone_season_rules WHERE id = ?').get(req.params.id);
+  const existing = await prisma.zoneSeasonRule.findUnique({ where: { id: Number(req.params.id) } });
   if (!existing) return res.status(404).json({ error: 'Rule not found' });
-  db.prepare(`
-    UPDATE zone_season_rules
-    SET species = COALESCE(?, species),
-        season_start = COALESCE(?, season_start),
-        season_end = COALESCE(?, season_end),
-        rule_type = COALESCE(?, rule_type),
-        max_kg = COALESCE(?, max_kg),
-        notes = COALESCE(?, notes)
-    WHERE id = ?
-  `).run(species, season_start, season_end, rule_type, max_kg, notes, req.params.id);
+
+  await prisma.zoneSeasonRule.update({
+    where: { id: Number(req.params.id) },
+    data: {
+      species: species ?? undefined,
+      seasonStart: season_start ?? undefined,
+      seasonEnd: season_end ?? undefined,
+      ruleType: rule_type ?? undefined,
+      maxKg: max_kg ?? undefined,
+      notes: notes ?? undefined,
+    },
+  });
   res.json({ success: true });
 }
 
-function deleteSeasonRule(req, res) {
-  const db = getDb();
-  db.prepare('DELETE FROM zone_season_rules WHERE id = ?').run(req.params.id);
+async function deleteSeasonRule(req, res) {
+  await prisma.zoneSeasonRule.delete({ where: { id: Number(req.params.id) } });
   res.json({ success: true });
 }
 
-function getRecentEvents(req, res) {
-  const db = getDb();
+async function getRecentEvents(req, res) {
   const limit = Math.min(Number(req.query.limit) || 20, 50);
-  const events = db.prepare(`
+  const events = await prisma.$queryRaw`
     SELECT id, event_type, payload_json, created_at FROM domain_events
-    ORDER BY id DESC LIMIT ?
-  `).all(limit);
+    ORDER BY id DESC LIMIT ${limit}
+  `;
   res.json({
     events: events.map((e) => ({
       type: e.event_type,
@@ -772,41 +927,43 @@ function getRecentEvents(req, res) {
 }
 
 module.exports = {
-  getDashboardStats,
-  getCatchesOverTime,
-  getSpeciesBreakdown,
-  getCatches,
-  getCatch,
-  approveCatch,
-  rejectCatch,
-  getFishers,
-  getFisher,
-  getQuotas,
-  updateQuota,
-  getAlerts,
-  markAlertRead,
-  markAllAlertsRead,
-  getZones,
-  getMonthlyReport,
-  getLiveStats,
-  getFleetPositions,
-  getFleet,
-  getFleetHistory,
-  getActiveFleetTrips,
-  getIntelligenceOverview,
-  refreshIntelligenceSnapshots,
-  getSeasonRules,
-  createSeasonRule,
-  updateSeasonRule,
-  deleteSeasonRule,
-  getMapLayers,
-  getMarketOverview,
-  getMarketBuyers,
-  getMarketSellers,
-  getMarketSpeciesPrices,
-  getMarketShortages,
-  getMarketTransactions,
-  getMarketNetwork,
-  getAuditLog,
-  getRecentEvents,
+  listRegions: asyncHandler(listRegions),
+  getRegionSummary: asyncHandler(getRegionSummary),
+  getDashboardStats: asyncHandler(getDashboardStats),
+  getCatchesOverTime: asyncHandler(getCatchesOverTime),
+  getSpeciesBreakdown: asyncHandler(getSpeciesBreakdown),
+  getCatches: asyncHandler(getCatches),
+  getCatch: asyncHandler(getCatch),
+  approveCatch: asyncHandler(approveCatch),
+  rejectCatch: asyncHandler(rejectCatch),
+  getFishers: asyncHandler(getFishers),
+  getFisher: asyncHandler(getFisher),
+  getQuotas: asyncHandler(getQuotas),
+  updateQuota: asyncHandler(updateQuota),
+  getAlerts: asyncHandler(getAlerts),
+  markAlertRead: asyncHandler(markAlertRead),
+  markAllAlertsRead: asyncHandler(markAllAlertsRead),
+  getZones: asyncHandler(getZones),
+  getMonthlyReport: asyncHandler(getMonthlyReport),
+  getLiveStats: asyncHandler(getLiveStats),
+  getFleetPositions: asyncHandler(getFleetPositions),
+  getFleet: asyncHandler(getFleet),
+  getFleetHistory: asyncHandler(getFleetHistory),
+  getActiveFleetTrips: asyncHandler(getActiveFleetTrips),
+  getIntelligenceOverview: asyncHandler(getIntelligenceOverview),
+  refreshIntelligenceSnapshots: asyncHandler(refreshIntelligenceSnapshots),
+  getSeasonRules: asyncHandler(getSeasonRules),
+  createSeasonRule: asyncHandler(createSeasonRule),
+  updateSeasonRule: asyncHandler(updateSeasonRule),
+  deleteSeasonRule: asyncHandler(deleteSeasonRule),
+  getMapLayers: asyncHandler(getMapLayers),
+  getMarketOverview: asyncHandler(getMarketOverview),
+  getMarketBuyers: asyncHandler(getMarketBuyers),
+  getMarketSellers: asyncHandler(getMarketSellers),
+  getMarketSpeciesPrices: asyncHandler(getMarketSpeciesPrices),
+  getMarketShortages: asyncHandler(getMarketShortages),
+  getMarketTransactions: asyncHandler(getMarketTransactions),
+  getMarketNetwork: asyncHandler(getMarketNetwork),
+  getAuditLog: asyncHandler(getAuditLog),
+  getRecentEvents: asyncHandler(getRecentEvents),
 };

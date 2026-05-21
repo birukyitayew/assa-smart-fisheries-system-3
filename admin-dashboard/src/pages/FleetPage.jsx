@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Ship, MapPin } from 'lucide-react'
 import api from '../services/api'
+import { useRegion } from '../context/RegionContext'
 import { usePolling } from '../hooks/usePolling'
 import PageHeader from '../components/layout/PageHeader'
 import CommandMap from '../components/command/CommandMap'
@@ -20,6 +21,7 @@ function statusChip(boat) {
 }
 
 export default function FleetPage() {
+  const { selectedRegionId, mapCenter } = useRegion()
   const [boats, setBoats] = useState([])
   const [layers, setLayers] = useState({ zones: [], fleet: [], catches: [] })
   const [selectedId, setSelectedId] = useState(null)
@@ -57,7 +59,7 @@ export default function FleetPage() {
       const msg = err.response?.data?.error || err.message || 'Failed to load fleet'
       setLoadError(msg)
     }
-  }, [])
+  }, [selectedRegionId])
 
   const loadHistory = useCallback(async (boatId) => {
     if (!boatId) {
@@ -165,7 +167,9 @@ export default function FleetPage() {
               layers={layers}
               route={route}
               highlightBoatId={selectedId}
-              mapKey={`fleet-${selectedId}-${route.length}`}
+              mapKey={`fleet-${selectedRegionId}-${selectedId}-${route.length}`}
+              center={mapCenter}
+              zoom={mapCenter.zoom}
               height="520px"
             />
           </CardContent>

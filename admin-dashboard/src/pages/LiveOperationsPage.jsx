@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Fish, Clock, Package, Banknote } from 'lucide-react'
 import api from '../services/api'
+import { useRegion } from '../context/RegionContext'
 import PageHeader from '../components/layout/PageHeader'
 import { usePolling } from '../hooks/usePolling'
 import { useRealtime } from '../context/RealtimeContext'
@@ -21,6 +22,7 @@ import {
 
 export default function LiveOperationsPage() {
   const { events, connected } = useRealtime()
+  const { selectedRegionId } = useRegion()
   const [liveStats, setLiveStats] = useState(null)
   const [pending, setPending] = useState([])
   const [transactions, setTransactions] = useState([])
@@ -38,7 +40,7 @@ export default function LiveOperationsPage() {
     } catch (err) {
       console.error('Live ops fetch error:', err)
     }
-  }, [])
+  }, [selectedRegionId])
 
   usePolling(fetchAll, 8000)
 

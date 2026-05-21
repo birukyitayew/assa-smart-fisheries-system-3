@@ -1,0 +1,39 @@
+{
+  "login": {
+    "title": "Government Login",
+    "subtitle": "Sign in to the fisheries command center",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "signingIn": "Signing in…"
+  },
+  "nav": {
+    "commandOverview": "Command Overview",
+    "liveOps": "Live Operations",
+    "lakeMap": "Lake Map",
+    "fleet": "Fleet",
+    "intelligence": "Intelligence",
+    "market": "Market Monitor",
+    "catches": "Daily Catches",
+    "fishers": "Fishermen",
+    "quotas": "Quotas & Rules",
+    "zones": "Fishing Zones",
+    "alerts": "Alerts",
+    "reports": "Reports",
+    "logout": "Log out"
+  },
+  "lang": {
+    "toggle": "Language",
+    "en": "English",
+    "am": "አማርኛ"
+  },
+  "header": {
+    "title": "ASSA Command Center",
+    "subtitle": "National fisheries oversight — Ministry of Agriculture"
+  },
+  "region": {
+    "selectorLabel": "Select lake region",
+    "allLakes": "All lakes (national)",
+    "regionalScope": "Regional scope"
+  }
+}

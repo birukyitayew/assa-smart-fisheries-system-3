@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import LanguageToggle from '../components/LanguageToggle'
 import { Plus, Fish, Bell, Map, Store } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
@@ -11,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export default function HomePage() {
+  const { t } = useTranslation()
   const { user } = useAuth()
   const [profile, setProfile] = useState(null)
 
@@ -32,7 +35,7 @@ export default function HomePage() {
   const canSubmit = profile?.profile?.license_status === 'VALID'
 
   const actions = [
-    { to: '/submit', icon: Plus, label: 'Submit Catch', primary: true, disabled: !canSubmit },
+    { to: '/submit', icon: Plus, label: t('home.submitCatch'), primary: true, disabled: !canSubmit },
     { to: '/catches', icon: Fish, label: 'My Catches' },
     { to: '/notifications', icon: Bell, label: 'Notifications' },
     { to: '/zones', icon: Map, label: 'Fishing Zones' },
@@ -40,11 +43,14 @@ export default function HomePage() {
 
   return (
     <div className="p-4 space-y-4">
-      <div className="pt-2">
+      <div className="pt-2 flex justify-between items-start">
+        <div>
         <p className="text-muted-foreground text-sm">{today}</p>
         <h1 className="text-2xl font-bold text-foreground mt-1">
           Welcome, {user?.name?.split(' ')[0]}
         </h1>
+        </div>
+        <LanguageToggle />
       </div>
 
       {profile && <LicenseCard profile={profile.profile} compliance={profile.compliance} />}

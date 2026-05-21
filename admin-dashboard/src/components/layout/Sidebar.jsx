@@ -1,4 +1,6 @@
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import LanguageToggle from '../LanguageToggle'
 import {
   LayoutDashboard,
   Fish,
@@ -23,21 +25,18 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const adminNav = [
-  { to: '/', label: 'Command Overview', icon: LayoutDashboard, end: true },
-  { to: '/live', label: 'Live Operations', icon: Activity },
-  { to: '/map', label: 'Lake Map', icon: MapPin },
-  { to: '/fleet', label: 'Fleet', icon: Ship },
-  { to: '/intelligence', label: 'Intelligence', icon: Brain },
-  { to: '/market', label: 'Market Monitor', icon: TrendingUp },
-  { to: '/inspections', label: 'Inspections', icon: ClipboardCheck },
-  { to: '/violations', label: 'Violations', icon: AlertTriangle },
-  { to: '/audit', label: 'Audit Log', icon: Shield },
-  { to: '/catches', label: 'Daily Catches', icon: Fish },
-  { to: '/fishermen', label: 'Fishermen', icon: Users },
-  { to: '/quotas', label: 'Quotas & Rules', icon: Ruler },
-  { to: '/zones', label: 'Fishing Zones', icon: Map },
-  { to: '/alerts', label: 'Alerts', icon: Bell },
-  { to: '/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/', labelKey: 'nav.commandOverview', icon: LayoutDashboard, end: true },
+  { to: '/live', labelKey: 'nav.liveOps', icon: Activity },
+  { to: '/map', labelKey: 'nav.lakeMap', icon: MapPin },
+  { to: '/fleet', labelKey: 'nav.fleet', icon: Ship },
+  { to: '/intelligence', labelKey: 'nav.intelligence', icon: Brain },
+  { to: '/market', labelKey: 'nav.market', icon: TrendingUp },
+  { to: '/catches', labelKey: 'nav.catches', icon: Fish },
+  { to: '/fishermen', labelKey: 'nav.fishers', icon: Users },
+  { to: '/quotas', labelKey: 'nav.quotas', icon: Ruler },
+  { to: '/zones', labelKey: 'nav.zones', icon: Map },
+  { to: '/alerts', labelKey: 'nav.alerts', icon: Bell },
+  { to: '/reports', labelKey: 'nav.reports', icon: BarChart3 },
 ]
 
 const inspectorNav = [
@@ -48,6 +47,7 @@ const inspectorNav = [
 ]
 
 export default function Sidebar() {
+  const { t } = useTranslation()
   const { user, logout } = useAuth()
   const isInspector = user?.role === 'inspector'
   const navItems = isInspector ? inspectorNav : adminNav
@@ -74,17 +74,18 @@ export default function Sidebar() {
             }
           >
             <item.icon className="h-4 w-4" />
-            {item.label}
+            {item.labelKey ? t(item.labelKey) : item.label}
           </NavLink>
         ))}
       </nav>
 
-      <div className="px-4 py-4 border-t border-sidebar-border">
+      <div className="px-4 py-4 border-t border-sidebar-border space-y-2">
+        <LanguageToggle />
         <div className="text-xs text-muted-foreground mb-1">{user?.role?.toUpperCase()}</div>
         <div className="text-sm font-medium truncate">{user?.name}</div>
-        <Button variant="ghost" size="sm" onClick={logout} className="mt-3 w-full justify-start gap-2 px-0">
+        <Button variant="ghost" size="sm" onClick={logout} className="mt-1 w-full justify-start gap-2 px-0">
           <LogOut className="h-4 w-4" />
-          Sign out
+          {t('nav.logout')}
         </Button>
       </div>
     </aside>

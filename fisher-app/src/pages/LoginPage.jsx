@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
+import LanguageToggle from '../components/LanguageToggle'
 import AppLogo from '../components/brand/AppLogo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function LoginPage() {
+  const { t } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -36,10 +39,12 @@ export default function LoginPage() {
         <div className="flex justify-center">
           <AppLogo size="lg" subtitle="Fisher Portal · Lake Tana" />
         </div>
-
+        <div className="flex justify-end">
+          <LanguageToggle />
+        </div>
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle>Sign In</CardTitle>
+            <CardTitle>{t('login.title')}</CardTitle>
           </CardHeader>
           <CardContent>
             {error && (
@@ -49,29 +54,15 @@ export default function LoginPage() {
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                  required
-                />
+                <Label htmlFor="email">{t('login.email')}</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                  required
-                />
+                <Label htmlFor="password">{t('login.password')}</Label>
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? t('login.signingIn') : t('login.submit')}
               </Button>
             </form>
           </CardContent>

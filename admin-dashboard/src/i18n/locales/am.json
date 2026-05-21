@@ -1,0 +1,39 @@
+{
+  "login": {
+    "title": "የመንግስት መግቢያ",
+    "subtitle": "ወደ የዓሣ ማጥመጃ ማዕከል ይግቡ",
+    "email": "ኢሜይል",
+    "password": "የይለፍ ቃል",
+    "submit": "ግባ",
+    "signingIn": "በመግባት ላይ…"
+  },
+  "nav": {
+    "commandOverview": "የቀን መቆጣጠሪያ",
+    "liveOps": "ቀጥታ ክወና",
+    "lakeMap": "የሐይቅ ካርታ",
+    "fleet": "ጀልባዎች",
+    "intelligence": "መረጃ",
+    "market": "የገበያ ክትትል",
+    "catches": "ዕለታዊ ዓሣ",
+    "fishers": "ዓሣ አጥማጆች",
+    "quotas": "ኮታ እና ህጎች",
+    "zones": "የዓሣ ማጥመጃ ቦታዎች",
+    "alerts": "ማስጠንቀቂያዎች",
+    "reports": "ሪፖርቶች",
+    "logout": "ውጣ"
+  },
+  "lang": {
+    "toggle": "ቋንቋ",
+    "en": "English",
+    "am": "አማርኛ"
+  },
+  "header": {
+    "title": "ASSA የቀን መቆጣጠሪያ",
+    "subtitle": "ብሔራዊ የዓሣ ሀብት ክትትል — የግብርና ሚኒስትር"
+  },
+  "region": {
+    "selectorLabel": "የሐይቅ ክልል ይምረጡ",
+    "allLakes": "ሁሉም ሐይቆች (ብሔራዊ)",
+    "regionalScope": "ክልላዊ ክልል"
+  }
+}

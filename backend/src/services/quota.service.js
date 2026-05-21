@@ -4,93 +4,118 @@
  */
 
 const eventBus = require('./eventBus');
+const { prisma } = require('../database/prisma');
 
-function checkQuotaBeforeApprove(db, species, quantityKg) {
+async function checkQuotaBeforeApprove(species, quantityKg) {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
-  const quota = db.prepare(`
-    SELECT * FROM species_quotas WHERE species = ? AND month = ? AND year = ?
-  `).get(species, currentMonth, currentYear);
+
+  const quota = await prisma.speciesQuota.findUnique({
+    where: {
+      species_month_year: { species, month: currentMonth, year: currentYear },
+    },
+  });
+
   if (!quota) return { allowed: true };
-  const projected = quota.current_month_kg + quantityKg;
-  if (projected > quota.monthly_limit_kg) {
+
+  const projected = quota.currentMonthKg + quantityKg;
+  if (projected > quota.monthlyLimitKg) {
     return {
       allowed: false,
-      message: `Approving this catch would exceed the monthly ${species} quota (${Math.round(projected)} / ${quota.monthly_limit_kg} kg).`,
+      message: `Approving this catch would exceed the monthly ${species} quota (${Math.round(projected)} / ${quota.monthlyLimitKg} kg).`,
       quota,
     };
   }
   return { allowed: true, quota };
 }
 
-function updateQuota(db, species, quantityKg) {
+async function updateQuota(species, quantityKg) {
   const currentMonth = new Date().getMonth() + 1;
-  const currentYear  = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
 
-  // Upsert quota row
-  const existing = db.prepare(`
-    SELECT * FROM species_quotas WHERE species = ? AND month = ? AND year = ?
-  `).get(species, currentMonth, currentYear);
+  const defaults = {
+    Tilapia: 5000,
+    Catfish: 2000,
+    'Nile Perch': 2000,
+    Carp: 1500,
+    'Barbus (Ganfo)': 1000,
+  };
+
+  const existing = await prisma.speciesQuota.findUnique({
+    where: {
+      species_month_year: { species, month: currentMonth, year: currentYear },
+    },
+  });
 
   if (!existing) {
-    // Create with default limit if not seeded
-    const defaults = {
-      Tilapia: 5000, Catfish: 2000, 'Nile Perch': 2000, Carp: 1500, 'Barbus (Ganfo)': 1000,
-    };
-    db.prepare(`
-      INSERT INTO species_quotas (species, monthly_limit_kg, current_month_kg, month, year)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(species, defaults[species] || 2000, quantityKg, currentMonth, currentYear);
+    await prisma.speciesQuota.create({
+      data: {
+        species,
+        monthlyLimitKg: defaults[species] || 2000,
+        currentMonthKg: quantityKg,
+        month: currentMonth,
+        year: currentYear,
+      },
+    });
   } else {
-    db.prepare(`
-      UPDATE species_quotas
-      SET current_month_kg = current_month_kg + ?, updated_at = datetime('now')
-      WHERE species = ? AND month = ? AND year = ?
-    `).run(quantityKg, species, currentMonth, currentYear);
+    await prisma.speciesQuota.update({
+      where: {
+        species_month_year: { species, month: currentMonth, year: currentYear },
+      },
+      data: { currentMonthKg: { increment: quantityKg } },
+    });
   }
 
-  // Re-fetch to check thresholds
-  const quota = db.prepare(`
-    SELECT * FROM species_quotas WHERE species = ? AND month = ? AND year = ?
-  `).get(species, currentMonth, currentYear);
+  const quota = await prisma.speciesQuota.findUnique({
+    where: {
+      species_month_year: { species, month: currentMonth, year: currentYear },
+    },
+  });
 
   if (!quota) return;
 
-  const pct = (quota.current_month_kg / quota.monthly_limit_kg) * 100;
+  const pct = (quota.currentMonthKg / quota.monthlyLimitKg) * 100;
+  const monthPad = String(currentMonth).padStart(2, '0');
+  const yearStr = String(currentYear);
 
-  // Check if a warning alert already exists for this species/month
-  const existingAlert = db.prepare(`
+  const existingAlerts = await prisma.$queryRaw`
     SELECT id FROM alerts
     WHERE type IN ('QUOTA_WARNING', 'QUOTA_EXCEEDED')
       AND related_entity_type = 'quota'
-      AND related_entity_id = ?
-      AND strftime('%m', created_at) = ?
-      AND strftime('%Y', created_at) = ?
-  `).get(quota.id, String(currentMonth).padStart(2, '0'), String(currentYear));
+      AND related_entity_id = ${quota.id}
+      AND EXTRACT(MONTH FROM created_at) = ${currentMonth}
+      AND EXTRACT(YEAR FROM created_at) = ${currentYear}
+    LIMIT 1
+  `;
+  const existingAlert = existingAlerts[0];
 
   if (pct >= 100 && !existingAlert) {
-    db.prepare(`
-      INSERT INTO alerts (type, title, message, severity, related_entity_type, related_entity_id)
-      VALUES ('QUOTA_EXCEEDED', ?, ?, 'CRITICAL', 'quota', ?)
-    `).run(
-      `${species} Quota Exceeded`,
-      `Monthly ${species} quota has been exceeded (${Math.round(quota.current_month_kg)} / ${quota.monthly_limit_kg} kg). No further catches should be approved.`,
-      quota.id
-    );
+    await prisma.alert.create({
+      data: {
+        type: 'QUOTA_EXCEEDED',
+        title: `${species} Quota Exceeded`,
+        message: `Monthly ${species} quota has been exceeded (${Math.round(quota.currentMonthKg)} / ${quota.monthlyLimitKg} kg). No further catches should be approved.`,
+        severity: 'CRITICAL',
+        relatedEntityType: 'quota',
+        relatedEntityId: quota.id,
+      },
+    });
   } else if (pct >= 90 && !existingAlert) {
-    db.prepare(`
-      INSERT INTO alerts (type, title, message, severity, related_entity_type, related_entity_id)
-      VALUES ('QUOTA_WARNING', ?, ?, 'WARNING', 'quota', ?)
-    `).run(
-      `${species} Quota at ${Math.round(pct)}%`,
-      `Monthly ${species} quota has reached ${Math.round(pct)}% (${Math.round(quota.current_month_kg)} / ${quota.monthly_limit_kg} kg). Monitor closely.`,
-      quota.id
-    );
+    await prisma.alert.create({
+      data: {
+        type: 'QUOTA_WARNING',
+        title: `${species} Quota at ${Math.round(pct)}%`,
+        message: `Monthly ${species} quota has reached ${Math.round(pct)}% (${Math.round(quota.currentMonthKg)} / ${quota.monthlyLimitKg} kg). Monitor closely.`,
+        severity: 'WARNING',
+        relatedEntityType: 'quota',
+        relatedEntityId: quota.id,
+      },
+    });
     eventBus.emit('quota.warning', {
       species,
       usage_pct: Math.round(pct),
-      current_month_kg: quota.current_month_kg,
-      monthly_limit_kg: quota.monthly_limit_kg,
+      current_month_kg: quota.currentMonthKg,
+      monthly_limit_kg: quota.monthlyLimitKg,
       quota_id: quota.id,
     });
   }

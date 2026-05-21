@@ -5,23 +5,32 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const s = localStorage.getItem('assa_buyer_user');
+    const s = localStorage.getItem('assa_user');
     return s ? JSON.parse(s) : null;
   });
 
   async function login(email, password) {
     const res = await api.post('/auth/login', { email, password });
-    const { token, user: u } = res.data;
+    const { token, accessToken, refreshToken, user: u } = res.data;
+    const access = accessToken || token;
     if (u.role !== 'buyer') throw new Error('This app is for buyers only.');
-    localStorage.setItem('assa_buyer_token', token);
-    localStorage.setItem('assa_buyer_user', JSON.stringify(u));
+    localStorage.setItem('assa_token', access);
+    localStorage.setItem('assa_user', JSON.stringify(u));
+    if (refreshToken) sessionStorage.setItem('assa_refresh_token', refreshToken);
     setUser(u);
     return u;
   }
 
-  function logout() {
-    localStorage.removeItem('assa_buyer_token');
-    localStorage.removeItem('assa_buyer_user');
+  async function logout() {
+    const refreshToken = sessionStorage.getItem('assa_refresh_token');
+    try {
+      await api.post('/auth/logout', { refreshToken });
+    } catch {
+      /* ignore */
+    }
+    localStorage.removeItem('assa_token');
+    localStorage.removeItem('assa_user');
+    sessionStorage.removeItem('assa_refresh_token');
     setUser(null);
   }
 

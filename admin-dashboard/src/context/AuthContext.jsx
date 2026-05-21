@@ -12,19 +12,28 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     const res = await api.post('/auth/login', { email, password });
-    const { token, user: u } = res.data;
-    if (!['admin', 'superadmin', 'inspector'].includes(u.role)) {
+    const { token, accessToken, refreshToken, user: u } = res.data;
+    const access = accessToken || token;
+    if (!['admin', 'superadmin', 'regional_admin', 'inspector'].includes(u.role)) {
       throw new Error('Access denied. Government credentials required.');
     }
-    localStorage.setItem('assa_token', token);
+    localStorage.setItem('assa_token', access);
     localStorage.setItem('assa_user', JSON.stringify(u));
+    if (refreshToken) sessionStorage.setItem('assa_refresh_token', refreshToken);
     setUser(u);
     return u;
   }
 
-  function logout() {
+  async function logout() {
+    const refreshToken = sessionStorage.getItem('assa_refresh_token');
+    try {
+      await api.post('/auth/logout', { refreshToken });
+    } catch {
+      /* ignore */
+    }
     localStorage.removeItem('assa_token');
     localStorage.removeItem('assa_user');
+    sessionStorage.removeItem('assa_refresh_token');
     setUser(null);
   }
 

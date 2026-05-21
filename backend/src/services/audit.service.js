@@ -2,29 +2,27 @@
  * Audit log writes for government accountability.
  */
 
-const { getDb } = require('../database/db');
+const { prisma } = require('../database/prisma');
 
-function logAudit({ actorUserId, action, entityType, entityId, payload, ip }) {
+async function logAudit({ actorUserId, action, entityType, entityId, payload, ip }) {
   try {
-    const db = getDb();
-    db.prepare(`
-      INSERT INTO audit_log (actor_user_id, action, entity_type, entity_id, payload_json, ip)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(
-      actorUserId ?? null,
-      action,
-      entityType ?? null,
-      entityId ?? null,
-      JSON.stringify(payload ?? {}),
-      ip ?? null,
-    );
+    await prisma.auditLog.create({
+      data: {
+        actorUserId: actorUserId ?? null,
+        action,
+        entityType: entityType ?? null,
+        entityId: entityId ?? null,
+        payloadJson: JSON.stringify(payload ?? {}),
+        ip: ip ?? null,
+      },
+    });
   } catch (err) {
     console.error('[audit] failed to log:', err.message);
   }
 }
 
-function auditFromReq(req, action, entityType, entityId, payload = {}) {
-  logAudit({
+async function auditFromReq(req, action, entityType, entityId, payload = {}) {
+  await logAudit({
     actorUserId: req.user?.id,
     action,
     entityType,

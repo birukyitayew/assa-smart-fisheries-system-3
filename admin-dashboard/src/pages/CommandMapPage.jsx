@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import api from '../services/api'
+import { useRegion } from '../context/RegionContext'
 import { usePolling } from '../hooks/usePolling'
 import CommandMap from '../components/command/CommandMap'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,6 +19,7 @@ const boatLegend = [
 ]
 
 export default function CommandMapPage() {
+  const { selectedRegionId, mapCenter } = useRegion()
   const [layers, setLayers] = useState({ zones: [], fleet: [], catches: [] })
 
   const fetchLayers = useCallback(async () => {
@@ -27,7 +29,7 @@ export default function CommandMapPage() {
     } catch (err) {
       console.error('Map layers error:', err)
     }
-  }, [])
+  }, [selectedRegionId])
 
   usePolling(fetchLayers, 10000)
 
@@ -65,7 +67,13 @@ export default function CommandMapPage() {
           <CardTitle className="text-base">Lake Tana — Live Layers</CardTitle>
         </CardHeader>
         <CardContent>
-          <CommandMap layers={layers} height="560px" />
+          <CommandMap
+            layers={layers}
+            height="560px"
+            center={mapCenter}
+            zoom={mapCenter.zoom}
+            mapKey={`map-${selectedRegionId}`}
+          />
         </CardContent>
       </Card>
 

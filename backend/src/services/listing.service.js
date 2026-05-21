@@ -12,36 +12,35 @@ const PRICES = {
 };
 
 const DESCRIPTIONS = {
-  Tilapia:        'Fresh Lake Tana Tilapia, government-verified. Firm flesh, ideal for grilling or stew.',
-  Catfish:        'Wild-caught catfish from Lake Tana. Great for traditional Ethiopian fish dishes.',
-  'Nile Perch':   'Premium Nile Perch, high commercial value. Perfect for restaurants and hotels.',
-  Carp:           'Fresh carp from Lake Tana. Suitable for smoking or frying.',
-  'Barbus (Ganfo)':'Endemic Lake Tana Ganfo. Rare and prized for its delicate flavor.',
+  Tilapia: 'Fresh Lake Tana Tilapia, government-verified. Firm flesh, ideal for grilling or stew.',
+  Catfish: 'Wild-caught catfish from Lake Tana. Great for traditional Ethiopian fish dishes.',
+  'Nile Perch': 'Premium Nile Perch, high commercial value. Perfect for restaurants and hotels.',
+  Carp: 'Fresh carp from Lake Tana. Suitable for smoking or frying.',
+  'Barbus (Ganfo)': 'Endemic Lake Tana Ganfo. Rare and prized for its delicate flavor.',
 };
 
 const eventBus = require('./eventBus');
 const priceHistoryService = require('./price-history.service');
+const { prisma } = require('../database/prisma');
 
-function createListing(db, catchRow) {
+async function createListing(catchRow) {
   const pricePerKg = PRICES[catchRow.species] || 120;
-  const description = DESCRIPTIONS[catchRow.species] || 'Fresh fish from Lake Tana, government-verified.';
+  const description =
+    DESCRIPTIONS[catchRow.species] || 'Fresh fish from Lake Tana, government-verified.';
 
-  const result = db.prepare(`
-    INSERT INTO marketplace_listings
-      (catch_id, fisher_id, species, quantity_available_kg, price_per_kg, status, listed_at, description)
-    VALUES (?, ?, ?, ?, ?, 'ACTIVE', datetime('now'), ?)
-  `).run(
-    catchRow.id,
-    catchRow.fisher_id,
-    catchRow.species,
-    catchRow.quantity_kg,
-    pricePerKg,
-    description
-  );
+  const listing = await prisma.marketplaceListing.create({
+    data: {
+      catchId: catchRow.id,
+      fisherId: catchRow.fisher_id ?? catchRow.fisherId,
+      species: catchRow.species,
+      quantityAvailableKg: catchRow.quantity_kg ?? catchRow.quantityKg,
+      pricePerKg,
+      status: 'ACTIVE',
+      description,
+    },
+  });
 
-  const listingId = result.lastInsertRowid;
-
-  priceHistoryService.recordPrice(db, {
+  await priceHistoryService.recordPrice({
     species: catchRow.species,
     zoneId: catchRow.zone_id,
     pricePerKg,
@@ -49,14 +48,15 @@ function createListing(db, catchRow) {
   });
 
   eventBus.emit('listing.created', {
-    listing_id: listingId,
+    listing_id: listing.id,
     catch_id: catchRow.id,
     fisher_id: catchRow.fisher_id,
     species: catchRow.species,
     quantity_kg: catchRow.quantity_kg,
     price_per_kg: pricePerKg,
   });
-  return { id: listingId };
+
+  return { id: listing.id };
 }
 
 module.exports = { createListing };

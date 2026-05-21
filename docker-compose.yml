@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: assa-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: assa
+      POSTGRES_PASSWORD: assa
+      POSTGRES_DB: assa
+    ports:
+      - '5432:5432'
+    volumes:
+      - assa_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U assa -d assa']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  assa_pg_data:

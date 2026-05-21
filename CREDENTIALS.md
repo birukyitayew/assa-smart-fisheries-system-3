@@ -3,7 +3,7 @@
 **Local development only.** All seeded users share one password per role (see below).  
 Do not use these in production. Do not commit real secrets to git.
 
-After `npm run seed`, these accounts exist in SQLite.
+After `npm run seed`, these accounts exist in PostgreSQL.
 
 ---
 
@@ -21,7 +21,7 @@ After `npm run seed`, these accounts exist in SQLite.
 
 | Role | Password (all users of that role) |
 |------|-----------------------------------|
-| Admin / Superadmin | `admin123` |
+| Admin / Superadmin / Regional admin | `admin123` |
 | Inspector | `inspector123` |
 | Fisher | `fisher123` |
 | Buyer | `buyer123` |
@@ -40,6 +40,19 @@ After `npm run seed`, these accounts exist in SQLite.
 | Yonas Tadesse | yonas@fisheries.gov.et | admin |
 | Mekdes Alemu | mekdes@fisheries.gov.et | admin |
 | Biruk Getachew | biruk@fisheries.gov.et | admin |
+
+---
+
+## Regional administrators (Phase 5)
+
+**App:** Admin dashboard — scoped to one lake; cannot switch regions  
+**Password:** `admin123`
+
+| Name | Email | Region |
+|------|-------|--------|
+| Aster Zewdu | regional@ziway.gov.et | Lake Ziway |
+
+National admins (`dawit@fisheries.gov.et`, etc.) can use the header region selector for **All lakes (national)** or a single lake (Tana, Ziway, Hawassa).
 
 ---
 

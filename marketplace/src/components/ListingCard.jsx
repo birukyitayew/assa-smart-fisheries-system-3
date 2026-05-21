@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -28,6 +29,7 @@ function ListingBadge({ listing }) {
 }
 
 export default function ListingCard({ listing }) {
+  const { t } = useTranslation()
   const imageUrl = FISH_IMAGES[listing.species] || FISH_IMAGES.Tilapia
 
   return (
@@ -49,7 +51,7 @@ export default function ListingCard({ listing }) {
           </div>
           <div className="absolute bottom-3 left-3">
             <Badge variant="secondary" className="bg-background/90">
-              ASSA Verified
+              {t('listing.verified')}
             </Badge>
           </div>
         </div>
@@ -58,14 +60,14 @@ export default function ListingCard({ listing }) {
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-bold text-foreground">{listing.species}</h3>
             <Badge variant="outline" className="text-[10px] shrink-0 border-success/40 text-success">
-              Verified
+              {t('listing.verified')}
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground mt-1 truncate">{listing.zone_name}</p>
           <div className="flex items-end justify-between mt-3 gap-2">
             <div>
               <span className="text-xl font-bold text-primary">ETB {listing.price_per_kg}</span>
-              <span className="text-xs text-muted-foreground">/kg</span>
+              <span className="text-xs text-muted-foreground">/{t('listing.perKg')}</span>
               <PriceSparkline data={listing.price_trend} />
             </div>
             <span className="text-xs text-muted-foreground shrink-0">

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Fish, Clock, Users, Ship, Banknote, Bell } from 'lucide-react'
 import api from '../services/api'
+import { useRegion } from '../context/RegionContext'
 import PageHeader from '../components/layout/PageHeader'
 import { usePolling } from '../hooks/usePolling'
 import { useRealtime } from '../context/RealtimeContext'
@@ -25,6 +26,7 @@ import {
 
 export default function DashboardPage() {
   const { events } = useRealtime()
+  const { selectedRegionId } = useRegion()
   const [liveStats, setLiveStats] = useState(null)
   const [stats, setStats] = useState(null)
   const [timeData, setTimeData] = useState([])
@@ -54,7 +56,7 @@ export default function DashboardPage() {
     } catch (err) {
       console.error('Dashboard fetch error:', err)
     }
-  }, [])
+  }, [selectedRegionId])
 
   usePolling(fetchAll, 10000)
 

@@ -3,20 +3,55 @@ import axios from 'axios';
 const api = axios.create({ baseURL: '/api' });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('assa_buyer_token');
+  const token = localStorage.getItem('assa_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
+let refreshPromise = null;
+
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('assa_buyer_token');
-      localStorage.removeItem('assa_buyer_user');
+  async (err) => {
+    const original = err.config;
+    if (err.response?.status !== 401 || original._retry) {
+      return Promise.reject(err);
     }
-    return Promise.reject(err);
-  }
+    const refreshToken = sessionStorage.getItem('assa_refresh_token');
+    if (!refreshToken) {
+      localStorage.removeItem('assa_token');
+      localStorage.removeItem('assa_user');
+      window.location.href = `${import.meta.env.BASE_URL}login`.replace(/\/+/g, '/');
+      return Promise.reject(err);
+    }
+    original._retry = true;
+    if (!refreshPromise) {
+      refreshPromise = axios
+        .post('/api/auth/refresh', { refreshToken })
+        .then((r) => {
+          const token = r.data.accessToken || r.data.token;
+          localStorage.setItem('assa_token', token);
+          if (r.data.refreshToken) {
+            sessionStorage.setItem('assa_refresh_token', r.data.refreshToken);
+          }
+          return token;
+        })
+        .finally(() => {
+          refreshPromise = null;
+        });
+    }
+    try {
+      const token = await refreshPromise;
+      original.headers.Authorization = `Bearer ${token}`;
+      return api(original);
+    } catch {
+      localStorage.removeItem('assa_token');
+      localStorage.removeItem('assa_user');
+      sessionStorage.removeItem('assa_refresh_token');
+      window.location.href = `${import.meta.env.BASE_URL}login`.replace(/\/+/g, '/');
+      return Promise.reject(err);
+    }
+  },
 );
 
 export default api;

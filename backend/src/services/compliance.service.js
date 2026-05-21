@@ -1,21 +1,24 @@
 /**
  * Fisher compliance score — recalculated when violations change.
  */
+const { prisma } = require('../database/prisma');
 
 const SEVERITY_PENALTY = { LOW: 5, MEDIUM: 10, HIGH: 20, CRITICAL: 35 };
 
-function recalculateCompliance(db, fisherId) {
-  const stats = db.prepare(`
+async function recalculateCompliance(fisherId) {
+  const statsRows = await prisma.$queryRaw`
     SELECT
-      COUNT(*) as total,
-      COALESCE(SUM(CASE WHEN status IN ('OPEN','UNDER_REVIEW') THEN 1 ELSE 0 END), 0) as open_cnt,
+      COUNT(*)::int as total,
+      COALESCE(SUM(CASE WHEN status IN ('OPEN','UNDER_REVIEW') THEN 1 ELSE 0 END), 0)::int as open_cnt,
       MAX(created_at) as last_at
-    FROM violations WHERE fisher_id = ?
-  `).get(fisherId);
+    FROM violations WHERE fisher_id = ${fisherId}
+  `;
+  const stats = statsRows[0] || { total: 0, open_cnt: 0, last_at: null };
 
-  const penalties = db.prepare(`
-    SELECT severity FROM violations WHERE fisher_id = ? AND status != 'DISMISSED'
-  `).all(fisherId);
+  const penalties = await prisma.violation.findMany({
+    where: { fisherId, status: { not: 'DISMISSED' } },
+    select: { severity: true },
+  });
 
   let score = 100;
   penalties.forEach((v) => {
@@ -23,38 +26,53 @@ function recalculateCompliance(db, fisherId) {
   });
   score = Math.max(0, Math.min(100, score));
 
-  const existing = db.prepare('SELECT fisher_id FROM fisher_compliance WHERE fisher_id = ?').get(fisherId);
-  if (existing) {
-    db.prepare(`
-      UPDATE fisher_compliance
-      SET score = ?, violations_count = ?, open_violations = ?,
-          last_violation_at = ?, updated_at = datetime('now')
-      WHERE fisher_id = ?
-    `).run(score, stats.total, stats.open_cnt, stats.last_at, fisherId);
-  } else {
-    db.prepare(`
-      INSERT INTO fisher_compliance (fisher_id, score, violations_count, open_violations, last_violation_at)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(fisherId, score, stats.total, stats.open_cnt, stats.last_at);
-  }
+  await prisma.fisherCompliance.upsert({
+    where: { fisherId },
+    create: {
+      fisherId,
+      score,
+      violationsCount: stats.total,
+      openViolations: stats.open_cnt,
+      lastViolationAt: stats.last_at,
+    },
+    update: {
+      score,
+      violationsCount: stats.total,
+      openViolations: stats.open_cnt,
+      lastViolationAt: stats.last_at,
+    },
+  });
 
   if (score < 50 && stats.open_cnt > 0) {
-    const fisher = db.prepare('SELECT license_status FROM fishers WHERE id = ?').get(fisherId);
-    if (fisher && fisher.license_status === 'VALID') {
-      db.prepare(`UPDATE fishers SET license_status = 'SUSPENDED' WHERE id = ?`).run(fisherId);
+    const fisher = await prisma.fisher.findUnique({ where: { id: fisherId } });
+    if (fisher?.licenseStatus === 'VALID') {
+      await prisma.fisher.update({
+        where: { id: fisherId },
+        data: { licenseStatus: 'SUSPENDED' },
+      });
     }
   }
 
   return { score, violations_count: stats.total, open_violations: stats.open_cnt };
 }
 
-function getCompliance(db, fisherId) {
-  let row = db.prepare('SELECT * FROM fisher_compliance WHERE fisher_id = ?').get(fisherId);
+async function getCompliance(fisherId) {
+  let row = await prisma.fisherCompliance.findUnique({ where: { fisherId } });
   if (!row) {
-    recalculateCompliance(db, fisherId);
-    row = db.prepare('SELECT * FROM fisher_compliance WHERE fisher_id = ?').get(fisherId);
+    await recalculateCompliance(fisherId);
+    row = await prisma.fisherCompliance.findUnique({ where: { fisherId } });
   }
-  return row || { fisher_id: fisherId, score: 100, violations_count: 0, open_violations: 0 };
+  if (!row) {
+    return { fisher_id: fisherId, score: 100, violations_count: 0, open_violations: 0 };
+  }
+  return {
+    fisher_id: row.fisherId,
+    score: row.score,
+    violations_count: row.violationsCount,
+    open_violations: row.openViolations,
+    last_violation_at: row.lastViolationAt,
+    updated_at: row.updatedAt,
+  };
 }
 
 module.exports = { recalculateCompliance, getCompliance, SEVERITY_PENALTY };

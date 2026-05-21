@@ -3,18 +3,18 @@
  * Creates in-app notifications for fishers and buyers.
  */
 
-function notifyFisher(db, userId, type, title, message) {
-  db.prepare(`
-    INSERT INTO notifications (user_id, type, title, message, is_read)
-    VALUES (?, ?, ?, ?, 0)
-  `).run(userId, type, title, message);
+const { prisma } = require('../database/prisma');
+
+async function notifyFisher(userId, type, title, message) {
+  await prisma.notification.create({
+    data: { userId, type, title, message, isRead: false },
+  });
 }
 
-function notifyBuyer(db, userId, type, title, message) {
-  db.prepare(`
-    INSERT INTO notifications (user_id, type, title, message, is_read)
-    VALUES (?, ?, ?, ?, 0)
-  `).run(userId, type, title, message);
+async function notifyBuyer(userId, type, title, message) {
+  await prisma.notification.create({
+    data: { userId, type, title, message, isRead: false },
+  });
 }
 
 module.exports = { notifyFisher, notifyBuyer };

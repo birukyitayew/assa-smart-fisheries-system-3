@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts'
 import { Brain, RefreshCw, TrendingUp, Package, Fish } from 'lucide-react'
 import api from '../services/api'
+import { useRegion } from '../context/RegionContext'
 import PageHeader from '../components/layout/PageHeader'
 import KpiCard from '../components/cards/KpiCard'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ import {
 import { cn } from '@/lib/utils'
 
 export default function IntelligencePage() {
+  const { selectedRegionId } = useRegion()
   const [data, setData] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
   const [loadError, setLoadError] = useState(null)
@@ -31,7 +33,7 @@ export default function IntelligencePage() {
       console.error('Intelligence error:', err)
       setLoadError(err.response?.data?.error || err.message || 'Failed to load intelligence')
     }
-  }, [])
+  }, [selectedRegionId])
 
   async function handleRefresh() {
     setRefreshing(true)

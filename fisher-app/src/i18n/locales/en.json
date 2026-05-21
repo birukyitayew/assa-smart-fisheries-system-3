@@ -1,0 +1,22 @@
+{
+  "login": {
+    "title": "Fisher Sign In",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "signingIn": "Signing in…"
+  },
+  "home": {
+    "title": "Today on the lake",
+    "submitCatch": "Submit catch",
+    "license": "License",
+    "tripsToday": "Trips today"
+  },
+  "trip": {
+    "start": "Start trip",
+    "end": "End trip",
+    "active": "Active trip",
+    "none": "No active trip"
+  },
+  "lang": { "toggle": "Language" }
+}

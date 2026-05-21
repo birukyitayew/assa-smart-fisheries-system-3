@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Anchor, Play, Square } from 'lucide-react'
 import api from '../services/api'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ function formatElapsed(startedAt) {
 }
 
 export default function TripCard({ profile, activeTrip, onTripChange }) {
+  const { t } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -52,7 +54,7 @@ export default function TripCard({ profile, activeTrip, onTripChange }) {
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
           <Anchor className="h-4 w-4 text-primary" />
-          Fishing trip
+          {t('trip.active')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -69,7 +71,7 @@ export default function TripCard({ profile, activeTrip, onTripChange }) {
             </p>
             <Button className="w-full" variant="destructive" onClick={endTrip} disabled={loading}>
               <Square className="h-4 w-4 mr-2" />
-              End trip
+              {t('trip.end')}
             </Button>
           </>
         ) : (
@@ -85,7 +87,7 @@ export default function TripCard({ profile, activeTrip, onTripChange }) {
             )}
             <Button className="w-full" onClick={startTrip} disabled={!canStart || loading}>
               <Play className="h-4 w-4 mr-2" />
-              Start fishing trip
+              {t('trip.start')}
             </Button>
           </>
         )}

@@ -1,0 +1,22 @@
+{
+  "login": {
+    "title": "የዓሣ አጥማጅ መግቢያ",
+    "email": "ኢሜይል",
+    "password": "የይለፍ ቃል",
+    "submit": "ግባ",
+    "signingIn": "በመግባት ላይ…"
+  },
+  "home": {
+    "title": "ዛሬ በሐይቅ ላይ",
+    "submitCatch": "ዓሣ አስገባ",
+    "license": "ፈቃድ",
+    "tripsToday": "የዛሬ ጉዞዎች"
+  },
+  "trip": {
+    "start": "ጉዞ ጀምር",
+    "end": "ጉዞ አቁም",
+    "active": "ንቁ ጉዞ",
+    "none": "ንቁ ጉዞ የለም"
+  },
+  "lang": { "toggle": "ቋንቋ" }
+}

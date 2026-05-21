@@ -1,27 +1,29 @@
-const { getDb } = require('../database/db');
+const { Prisma } = require('@prisma/client');
+const { prisma } = require('../database/prisma');
+const { asyncHandler } = require('../utils/asyncHandler');
 const eventBus = require('../services/eventBus');
 const { auditFromReq } = require('../services/audit.service');
 const complianceService = require('../services/compliance.service');
 
-function violationRef(db) {
-  const n = db.prepare('SELECT COUNT(*) as cnt FROM violations').get().cnt + 1;
+async function violationRef() {
+  const rows = await prisma.$queryRaw`SELECT COUNT(*)::int as cnt FROM violations`;
+  const n = Number(rows[0]?.cnt ?? 0) + 1;
   return `VIO-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${String(n).padStart(4, '0')}`;
 }
 
-function inspectionRef(db) {
-  const n = db.prepare('SELECT COUNT(*) as cnt FROM inspections').get().cnt + 1;
+async function inspectionRef() {
+  const rows = await prisma.$queryRaw`SELECT COUNT(*)::int as cnt FROM inspections`;
+  const n = Number(rows[0]?.cnt ?? 0) + 1;
   return `INS-${new Date().toISOString().split('T')[0].replace(/-/g, '')}-${String(n).padStart(4, '0')}`;
 }
 
-// ── Inspector: my assignments ─────────────────────────────────────────────────
-function getMyAssignments(req, res) {
-  const db = getDb();
+async function getMyAssignments(req, res) {
   const { status } = req.query;
-  let where = 'i.inspector_id = ?';
-  const params = [req.user.id];
-  if (status) { where += ' AND i.status = ?'; params.push(status); }
+  const parts = [Prisma.sql`i.inspector_id = ${req.user.id}`];
+  if (status) parts.push(Prisma.sql`i.status = ${status}`);
+  const where = Prisma.join(parts, ' AND ');
 
-  const assignments = db.prepare(`
+  const assignments = await prisma.$queryRaw`
     SELECT i.*,
            u.name as fisher_name, f.license_number, f.license_status,
            fz.name as zone_name
@@ -31,14 +33,13 @@ function getMyAssignments(req, res) {
     LEFT JOIN fishing_zones fz ON i.zone_id = fz.id
     WHERE ${where}
     ORDER BY i.scheduled_at ASC, i.created_at DESC
-  `).all(...params);
+  `;
 
   res.json({ assignments });
 }
 
-function getAssignment(req, res) {
-  const db = getDb();
-  const row = db.prepare(`
+async function getAssignment(req, res) {
+  const rows = await prisma.$queryRaw`
     SELECT i.*,
            u.name as fisher_name, u.phone as fisher_phone,
            f.license_number, f.license_status, f.license_expiry,
@@ -49,30 +50,33 @@ function getAssignment(req, res) {
     LEFT JOIN users u ON f.user_id = u.id
     LEFT JOIN fishing_zones fz ON i.zone_id = fz.id
     JOIN users iu ON i.inspector_id = iu.id
-    WHERE i.id = ?
-  `).get(req.params.id);
-
+    WHERE i.id = ${Number(req.params.id)}
+  `;
+  const row = rows[0];
   if (!row) return res.status(404).json({ error: 'Inspection not found' });
   if (req.user.role === 'inspector' && row.inspector_id !== req.user.id) {
     return res.status(403).json({ error: 'Not your assignment' });
   }
 
   const violations = row.fisher_id
-    ? db.prepare(`
-        SELECT * FROM violations WHERE fisher_id = ? ORDER BY created_at DESC LIMIT 10
-      `).all(row.fisher_id)
+    ? await prisma.$queryRaw`
+        SELECT * FROM violations WHERE fisher_id = ${row.fisher_id}
+        ORDER BY created_at DESC LIMIT 10
+      `
     : [];
 
   const compliance = row.fisher_id
-    ? complianceService.getCompliance(db, row.fisher_id)
+    ? await complianceService.getCompliance(row.fisher_id)
     : null;
 
   res.json({ inspection: row, violations, compliance });
 }
 
-function startAssignment(req, res) {
-  const db = getDb();
-  const row = db.prepare('SELECT * FROM inspections WHERE id = ?').get(req.params.id);
+async function startAssignment(req, res) {
+  const rows = await prisma.$queryRaw`
+    SELECT * FROM inspections WHERE id = ${Number(req.params.id)}
+  `;
+  const row = rows[0];
   if (!row) return res.status(404).json({ error: 'Inspection not found' });
   if (req.user.role === 'inspector' && row.inspector_id !== req.user.id) {
     return res.status(403).json({ error: 'Forbidden' });
@@ -81,29 +85,38 @@ function startAssignment(req, res) {
     return res.status(400).json({ error: 'Inspection is not in ASSIGNED status' });
   }
 
-  db.prepare(`UPDATE inspections SET status = 'IN_PROGRESS' WHERE id = ?`).run(row.id);
+  await prisma.inspection.update({
+    where: { id: row.id },
+    data: { status: 'IN_PROGRESS' },
+  });
   auditFromReq(req, 'inspection.started', 'inspection', row.id, {});
   res.json({ success: true, status: 'IN_PROGRESS' });
 }
 
-function completeAssignment(req, res) {
+async function completeAssignment(req, res) {
   const { outcome, notes } = req.body;
   if (!outcome || !['PASS', 'WARNING', 'VIOLATION_FOUND'].includes(outcome)) {
     return res.status(400).json({ error: 'Valid outcome required: PASS, WARNING, VIOLATION_FOUND' });
   }
 
-  const db = getDb();
-  const row = db.prepare('SELECT * FROM inspections WHERE id = ?').get(req.params.id);
+  const rows = await prisma.$queryRaw`
+    SELECT * FROM inspections WHERE id = ${Number(req.params.id)}
+  `;
+  const row = rows[0];
   if (!row) return res.status(404).json({ error: 'Inspection not found' });
   if (req.user.role === 'inspector' && row.inspector_id !== req.user.id) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
-  db.prepare(`
-    UPDATE inspections
-    SET status = 'COMPLETED', outcome = ?, notes = ?, completed_at = datetime('now')
-    WHERE id = ?
-  `).run(outcome, notes || null, row.id);
+  await prisma.inspection.update({
+    where: { id: row.id },
+    data: {
+      status: 'COMPLETED',
+      outcome,
+      notes: notes || null,
+      completedAt: new Date(),
+    },
+  });
 
   auditFromReq(req, 'inspection.completed', 'inspection', row.id, { outcome });
   eventBus.emit('inspection.completed', { id: row.id, reference_id: row.reference_id, outcome });
@@ -111,8 +124,7 @@ function completeAssignment(req, res) {
   res.json({ success: true, status: 'COMPLETED', outcome });
 }
 
-// ── Violations ────────────────────────────────────────────────────────────────
-function createViolation(req, res) {
+async function createViolation(req, res) {
   const {
     fisher_id, boat_id, zone_id, catch_id, inspection_id,
     type, severity, description, lat, lng, evidence_urls, fine_amount,
@@ -122,39 +134,46 @@ function createViolation(req, res) {
     return res.status(400).json({ error: 'fisher_id, type, severity, and description are required' });
   }
 
-  const db = getDb();
-  const fisher = db.prepare('SELECT id FROM fishers WHERE id = ?').get(fisher_id);
+  const fisher = await prisma.fisher.findUnique({ where: { id: fisher_id } });
   if (!fisher) return res.status(404).json({ error: 'Fisher not found' });
 
-  const ref = violationRef(db);
-  const result = db.prepare(`
-    INSERT INTO violations
-      (reference_id, fisher_id, boat_id, zone_id, catch_id, inspection_id,
-       type, severity, description, lat, lng, reported_by_user_id, evidence_urls, fine_amount, fine_status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    ref, fisher_id, boat_id || null, zone_id || null, catch_id || null, inspection_id || null,
-    type, severity, description.trim(), lat || null, lng || null, req.user.id,
-    JSON.stringify(evidence_urls || []),
-    fine_amount || null,
-    fine_amount ? 'PENDING' : null,
-  );
+  const ref = await violationRef();
+  const created = await prisma.violation.create({
+    data: {
+      referenceId: ref,
+      fisherId: fisher_id,
+      boatId: boat_id || null,
+      zoneId: zone_id || null,
+      catchId: catch_id || null,
+      inspectionId: inspection_id || null,
+      type,
+      severity,
+      description: description.trim(),
+      lat: lat || null,
+      lng: lng || null,
+      reportedByUserId: req.user.id,
+      evidenceUrls: JSON.stringify(evidence_urls || []),
+      fineAmount: fine_amount || null,
+      fineStatus: fine_amount ? 'PENDING' : null,
+    },
+  });
 
-  const compliance = complianceService.recalculateCompliance(db, fisher_id);
+  const compliance = await complianceService.recalculateCompliance(fisher_id);
 
-  db.prepare(`
-    INSERT INTO alerts (type, title, message, severity, related_entity_type, related_entity_id)
-    VALUES ('VIOLATION', ?, ?, ?, 'violation', ?)
-  `).run(
-    `Violation: ${type}`,
-    `${description.trim().slice(0, 120)} (Fisher #${fisher_id})`,
-    severity === 'CRITICAL' ? 'CRITICAL' : severity === 'HIGH' ? 'WARNING' : 'INFO',
-    result.lastInsertRowid,
-  );
+  await prisma.alert.create({
+    data: {
+      type: 'VIOLATION',
+      title: `Violation: ${type}`,
+      message: `${description.trim().slice(0, 120)} (Fisher #${fisher_id})`,
+      severity: severity === 'CRITICAL' ? 'CRITICAL' : severity === 'HIGH' ? 'WARNING' : 'INFO',
+      relatedEntityType: 'violation',
+      relatedEntityId: created.id,
+    },
+  });
 
-  auditFromReq(req, 'violation.created', 'violation', result.lastInsertRowid, { reference_id: ref, type });
+  auditFromReq(req, 'violation.created', 'violation', created.id, { reference_id: ref, type });
   eventBus.emit('violation.created', {
-    id: result.lastInsertRowid,
+    id: created.id,
     reference_id: ref,
     fisher_id,
     type,
@@ -164,23 +183,28 @@ function createViolation(req, res) {
 
   res.status(201).json({
     success: true,
-    id: result.lastInsertRowid,
+    id: created.id,
     reference_id: ref,
     compliance,
   });
 }
 
-function getViolations(req, res) {
-  const db = getDb();
+async function getViolations(req, res) {
   const { status, fisher_id, page = 1, limit = 30 } = req.query;
-  const offset = (page - 1) * limit;
-  let where = '1=1';
-  const params = [];
-  if (status) { where += ' AND v.status = ?'; params.push(status); }
-  if (fisher_id) { where += ' AND v.fisher_id = ?'; params.push(fisher_id); }
+  const offset = (Number(page) - 1) * Number(limit);
+  const lim = Number(limit);
 
-  const total = db.prepare(`SELECT COUNT(*) as cnt FROM violations v WHERE ${where}`).get(...params).cnt;
-  const violations = db.prepare(`
+  const parts = [Prisma.sql`1=1`];
+  if (status) parts.push(Prisma.sql`v.status = ${status}`);
+  if (fisher_id) parts.push(Prisma.sql`v.fisher_id = ${Number(fisher_id)}`);
+  const where = Prisma.join(parts, ' AND ');
+
+  const totalRows = await prisma.$queryRaw`
+    SELECT COUNT(*)::int as cnt FROM violations v WHERE ${where}
+  `;
+  const total = Number(totalRows[0]?.cnt ?? 0);
+
+  const violations = await prisma.$queryRaw`
     SELECT v.*, u.name as fisher_name, ru.name as reported_by_name
     FROM violations v
     JOIN fishers f ON v.fisher_id = f.id
@@ -188,8 +212,8 @@ function getViolations(req, res) {
     JOIN users ru ON v.reported_by_user_id = ru.id
     WHERE ${where}
     ORDER BY v.created_at DESC
-    LIMIT ? OFFSET ?
-  `).all(...params, limit, offset);
+    LIMIT ${lim} OFFSET ${offset}
+  `;
 
   res.json({
     violations: violations.map((v) => ({
@@ -201,57 +225,62 @@ function getViolations(req, res) {
   });
 }
 
-function getViolation(req, res) {
-  const db = getDb();
-  const v = db.prepare(`
+async function getViolation(req, res) {
+  const rows = await prisma.$queryRaw`
     SELECT v.*, u.name as fisher_name, u.email as fisher_email,
            f.license_number, ru.name as reported_by_name
     FROM violations v
     JOIN fishers f ON v.fisher_id = f.id
     JOIN users u ON f.user_id = u.id
     JOIN users ru ON v.reported_by_user_id = ru.id
-    WHERE v.id = ?
-  `).get(req.params.id);
+    WHERE v.id = ${Number(req.params.id)}
+  `;
+  const v = rows[0];
   if (!v) return res.status(404).json({ error: 'Violation not found' });
   res.json({
     violation: { ...v, evidence_urls: JSON.parse(v.evidence_urls || '[]') },
-    compliance: complianceService.getCompliance(db, v.fisher_id),
+    compliance: await complianceService.getCompliance(v.fisher_id),
   });
 }
 
-function updateViolationFine(req, res) {
+async function updateViolationFine(req, res) {
   const { fine_amount, fine_status, status } = req.body;
-  const db = getDb();
-  const v = db.prepare('SELECT * FROM violations WHERE id = ?').get(req.params.id);
+  const v = await prisma.violation.findUnique({ where: { id: Number(req.params.id) } });
   if (!v) return res.status(404).json({ error: 'Violation not found' });
 
   if (fine_amount != null) {
-    db.prepare('UPDATE violations SET fine_amount = ?, fine_status = ? WHERE id = ?')
-      .run(fine_amount, fine_status || 'PENDING', req.params.id);
+    await prisma.violation.update({
+      where: { id: v.id },
+      data: {
+        fineAmount: fine_amount,
+        fineStatus: fine_status || 'PENDING',
+      },
+    });
   }
   if (status) {
-    db.prepare(`
-      UPDATE violations SET status = ?, resolved_at = CASE WHEN ? IN ('RESOLVED','DISMISSED') THEN datetime('now') ELSE resolved_at END
-      WHERE id = ?
-    `).run(status, status, req.params.id);
-    complianceService.recalculateCompliance(db, v.fisher_id);
+    await prisma.violation.update({
+      where: { id: v.id },
+      data: {
+        status,
+        resolvedAt: ['RESOLVED', 'DISMISSED'].includes(status) ? new Date() : undefined,
+      },
+    });
+    await complianceService.recalculateCompliance(v.fisherId);
   }
 
   auditFromReq(req, 'violation.updated', 'violation', v.id, { fine_amount, fine_status, status });
   res.json({ success: true });
 }
 
-// ── Suspicious fishers ────────────────────────────────────────────────────────
-function getSuspiciousFishers(req, res) {
-  const db = getDb();
-  const fishers = db.prepare(`
+async function getSuspiciousFishers(req, res) {
+  const fishers = await prisma.$queryRaw`
     SELECT f.id as fisher_id, u.name, f.license_number, f.license_status,
            COALESCE(fc.score, 100) as compliance_score,
            COALESCE(fc.open_violations, 0) as open_violations,
-           (SELECT COUNT(*) FROM catch_submissions cs
+           (SELECT COUNT(*)::int FROM catch_submissions cs
             WHERE cs.fisher_id = f.id AND cs.zone_flag IN ('PROHIBITED_ZONE','RESTRICTED_ZONE')
-              AND cs.submitted_at >= datetime('now', '-30 days')) as flagged_catches_30d,
-           (SELECT COUNT(*) FROM violations v WHERE v.fisher_id = f.id AND v.status IN ('OPEN','UNDER_REVIEW')) as active_violations
+              AND cs.submitted_at >= NOW() - interval '30 days') as flagged_catches_30d,
+           (SELECT COUNT(*)::int FROM violations v WHERE v.fisher_id = f.id AND v.status IN ('OPEN','UNDER_REVIEW')) as active_violations
     FROM fishers f
     JOIN users u ON f.user_id = u.id
     LEFT JOIN fisher_compliance fc ON fc.fisher_id = f.id
@@ -261,58 +290,59 @@ function getSuspiciousFishers(req, res) {
        OR EXISTS (
          SELECT 1 FROM catch_submissions cs
          WHERE cs.fisher_id = f.id AND cs.zone_flag = 'PROHIBITED_ZONE'
-           AND cs.submitted_at >= datetime('now', '-14 days')
+           AND cs.submitted_at >= NOW() - interval '14 days'
        )
     ORDER BY COALESCE(fc.score, 100) ASC, active_violations DESC
     LIMIT 30
-  `).all();
+  `;
   res.json({ fishers });
 }
 
-// ── Admin: assign inspection ──────────────────────────────────────────────────
-function createInspection(req, res) {
+async function createInspection(req, res) {
   const { inspector_id, fisher_id, zone_id, title, instructions, scheduled_at } = req.body;
   if (!inspector_id || !title?.trim()) {
     return res.status(400).json({ error: 'inspector_id and title are required' });
   }
 
-  const db = getDb();
-  const inspector = db.prepare('SELECT id, role FROM users WHERE id = ?').get(inspector_id);
+  const inspector = await prisma.user.findUnique({ where: { id: inspector_id } });
   if (!inspector || inspector.role !== 'inspector') {
     return res.status(400).json({ error: 'Invalid inspector user' });
   }
 
-  const ref = inspectionRef(db);
-  const result = db.prepare(`
-    INSERT INTO inspections
-      (reference_id, inspector_id, fisher_id, zone_id, title, instructions, scheduled_at, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, 'ASSIGNED')
-  `).run(
-    ref, inspector_id, fisher_id || null, zone_id || null,
-    title.trim(), instructions || null, scheduled_at || new Date().toISOString(),
-  );
+  const ref = await inspectionRef();
+  const created = await prisma.inspection.create({
+    data: {
+      referenceId: ref,
+      inspectorId: inspector_id,
+      fisherId: fisher_id || null,
+      zoneId: zone_id || null,
+      title: title.trim(),
+      instructions: instructions || null,
+      scheduledAt: scheduled_at ? new Date(scheduled_at) : new Date(),
+      status: 'ASSIGNED',
+    },
+  });
 
-  auditFromReq(req, 'inspection.assigned', 'inspection', result.lastInsertRowid, { reference_id: ref, inspector_id });
+  auditFromReq(req, 'inspection.assigned', 'inspection', created.id, { reference_id: ref, inspector_id });
   eventBus.emit('inspection.assigned', {
-    id: result.lastInsertRowid,
+    id: created.id,
     reference_id: ref,
     inspector_id,
     fisher_id,
     title: title.trim(),
   });
 
-  res.status(201).json({ success: true, id: result.lastInsertRowid, reference_id: ref });
+  res.status(201).json({ success: true, id: created.id, reference_id: ref });
 }
 
-function getAllInspections(req, res) {
-  const db = getDb();
+async function getAllInspections(req, res) {
   const { status, inspector_id } = req.query;
-  let where = '1=1';
-  const params = [];
-  if (status) { where += ' AND i.status = ?'; params.push(status); }
-  if (inspector_id) { where += ' AND i.inspector_id = ?'; params.push(inspector_id); }
+  const parts = [Prisma.sql`1=1`];
+  if (status) parts.push(Prisma.sql`i.status = ${status}`);
+  if (inspector_id) parts.push(Prisma.sql`i.inspector_id = ${Number(inspector_id)}`);
+  const where = Prisma.join(parts, ' AND ');
 
-  const inspections = db.prepare(`
+  const inspections = await prisma.$queryRaw`
     SELECT i.*,
            iu.name as inspector_name,
            fu.name as fisher_name,
@@ -325,52 +355,52 @@ function getAllInspections(req, res) {
     WHERE ${where}
     ORDER BY i.created_at DESC
     LIMIT 100
-  `).all(...params);
+  `;
 
   res.json({ inspections });
 }
 
-function getFishersList(req, res) {
-  const db = getDb();
-  const fishers = db.prepare(`
+async function getFishersList(req, res) {
+  const fishers = await prisma.$queryRaw`
     SELECT f.id, u.name, f.license_number, f.license_status,
            COALESCE(fc.score, 100) as compliance_score
     FROM fishers f
     JOIN users u ON f.user_id = u.id
     LEFT JOIN fisher_compliance fc ON fc.fisher_id = f.id
     ORDER BY u.name LIMIT 100
-  `).all();
+  `;
   res.json({ fishers });
 }
 
-function getInspectors(req, res) {
-  const db = getDb();
-  const inspectors = db.prepare(`
+async function getInspectors(req, res) {
+  const inspectors = await prisma.$queryRaw`
     SELECT u.id, u.name, u.email, u.phone,
-           (SELECT COUNT(*) FROM inspections i WHERE i.inspector_id = u.id AND i.status IN ('ASSIGNED','IN_PROGRESS')) as active_assignments
+           (SELECT COUNT(*)::int FROM inspections i WHERE i.inspector_id = u.id AND i.status IN ('ASSIGNED','IN_PROGRESS')) as active_assignments
     FROM users u WHERE u.role = 'inspector'
     ORDER BY u.name
-  `).all();
+  `;
   res.json({ inspectors });
 }
 
-function verifyFisherLicense(req, res) {
-  const db = getDb();
-  const fisher = db.prepare(`
+async function verifyFisherLicense(req, res) {
+  const idParam = req.params.id;
+  const rows = await prisma.$queryRaw`
     SELECT f.*, u.name, u.email, u.phone, b.boat_name, b.registration_number
     FROM fishers f
     JOIN users u ON f.user_id = u.id
     LEFT JOIN boats b ON b.fisher_id = f.id
-    WHERE f.id = ? OR f.license_number = ?
-  `).get(req.params.id, req.params.id);
-
+    WHERE f.id::text = ${idParam} OR f.license_number = ${idParam}
+    LIMIT 1
+  `;
+  const fisher = rows[0];
   if (!fisher) return res.status(404).json({ error: 'Fisher not found' });
 
-  const compliance = complianceService.getCompliance(db, fisher.id);
-  const openViolations = db.prepare(`
+  const compliance = await complianceService.getCompliance(fisher.id);
+  const openViolations = await prisma.$queryRaw`
     SELECT reference_id, type, severity, status, created_at FROM violations
-    WHERE fisher_id = ? AND status IN ('OPEN','UNDER_REVIEW') ORDER BY created_at DESC LIMIT 5
-  `).all(fisher.id);
+    WHERE fisher_id = ${fisher.id} AND status IN ('OPEN','UNDER_REVIEW')
+    ORDER BY created_at DESC LIMIT 5
+  `;
 
   const valid = fisher.license_status === 'VALID' && new Date(fisher.license_expiry) >= new Date();
 
@@ -384,18 +414,18 @@ function verifyFisherLicense(req, res) {
 }
 
 module.exports = {
-  getMyAssignments,
-  getAssignment,
-  startAssignment,
-  completeAssignment,
-  createViolation,
-  getViolations,
-  getViolation,
-  updateViolationFine,
-  getSuspiciousFishers,
-  createInspection,
-  getAllInspections,
-  getInspectors,
-  getFishersList,
-  verifyFisherLicense,
+  getMyAssignments: asyncHandler(getMyAssignments),
+  getAssignment: asyncHandler(getAssignment),
+  startAssignment: asyncHandler(startAssignment),
+  completeAssignment: asyncHandler(completeAssignment),
+  createViolation: asyncHandler(createViolation),
+  getViolations: asyncHandler(getViolations),
+  getViolation: asyncHandler(getViolation),
+  updateViolationFine: asyncHandler(updateViolationFine),
+  getSuspiciousFishers: asyncHandler(getSuspiciousFishers),
+  createInspection: asyncHandler(createInspection),
+  getAllInspections: asyncHandler(getAllInspections),
+  getInspectors: asyncHandler(getInspectors),
+  getFishersList: asyncHandler(getFishersList),
+  verifyFisherLicense: asyncHandler(verifyFisherLicense),
 };

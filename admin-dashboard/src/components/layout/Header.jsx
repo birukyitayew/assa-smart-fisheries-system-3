@@ -1,14 +1,32 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Bell, Radio } from 'lucide-react'
 import api from '../../services/api'
 import { useRealtime } from '../../context/RealtimeContext'
+import { useRegion } from '../../context/RegionContext'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 export default function Header() {
+  const { t } = useTranslation()
   const { connected } = useRealtime()
+  const {
+    regions,
+    selectedRegionId,
+    selectRegion,
+    canSelectRegion,
+    regionLabel,
+    isRegionalAdmin,
+  } = useRegion()
   const [alertCount, setAlertCount] = useState(0)
 
   useEffect(() => {
@@ -23,13 +41,38 @@ export default function Header() {
     fetchAlerts()
     const id = setInterval(fetchAlerts, 15000)
     return () => clearInterval(id)
-  }, [])
+  }, [selectedRegionId])
 
   return (
     <header className="bg-card border-b border-border px-6 py-3 flex items-center justify-between flex-shrink-0">
-      <div>
-        <h1 className="text-sm font-semibold text-foreground">ASSA Command Center</h1>
-        <p className="text-xs text-muted-foreground">Lake Tana · Ministry of Fisheries — Amhara Region</p>
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+        <div>
+          <h1 className="text-sm font-semibold text-foreground">{t('header.title')}</h1>
+          <p className="text-xs text-muted-foreground">{t('header.subtitle')}</p>
+        </div>
+        {canSelectRegion ? (
+          <Select
+            value={selectedRegionId == null ? 'all' : String(selectedRegionId)}
+            onValueChange={(v) => selectRegion(v === 'all' ? null : v)}
+          >
+            <SelectTrigger className="h-8 w-[200px] text-xs" aria-label={t('region.selectorLabel')}>
+              <SelectValue placeholder={t('region.allLakes')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('region.allLakes')}</SelectItem>
+              {regions.map((r) => (
+                <SelectItem key={r.id} value={String(r.id)}>
+                  {r.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <span className="text-xs font-medium text-primary px-2 py-1 rounded-md bg-primary/10">
+            {regionLabel}
+            {isRegionalAdmin ? ` · ${t('region.regionalScope')}` : ''}
+          </span>
+        )}
       </div>
       <div className="flex items-center gap-4">
         <div

@@ -1,0 +1,23 @@
+{
+  "login": {
+    "title": "Buyer Sign In",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "signingIn": "Signing in…"
+  },
+  "browse": {
+    "title": "Fresh catch marketplace",
+    "available": "Available now",
+    "order": "Place order"
+  },
+  "listing": {
+    "verified": "Government verified",
+    "perKg": "per kg"
+  },
+  "order": {
+    "success": "Order confirmed",
+    "thanks": "Thank you for your purchase"
+  },
+  "lang": { "toggle": "Language" }
+}

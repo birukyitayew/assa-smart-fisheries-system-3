@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { Banknote, ClipboardList, Package, Fish } from 'lucide-react'
 import api from '../services/api'
+import { useRegion } from '../context/RegionContext'
 import PageHeader from '../components/layout/PageHeader'
 import { usePolling } from '../hooks/usePolling'
 import KpiCard from '../components/cards/KpiCard'
@@ -26,6 +27,7 @@ import {
 } from 'recharts'
 
 export default function MarketMonitorPage() {
+  const { selectedRegionId } = useRegion()
   const [overview, setOverview] = useState(null)
   const [buyers, setBuyers] = useState([])
   const [sellers, setSellers] = useState([])
@@ -55,7 +57,7 @@ export default function MarketMonitorPage() {
     } catch (err) {
       console.error('Market monitor error:', err)
     }
-  }, [])
+  }, [selectedRegionId])
 
   usePolling(fetchAll, 15000)
 

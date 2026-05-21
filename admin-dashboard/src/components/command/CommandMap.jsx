@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { MapContainer, TileLayer, Circle, CircleMarker, Popup, Polygon, Polyline } from 'react-leaflet'
 
-const LAKE_CENTER = [11.75, 37.35]
+const DEFAULT_CENTER = [11.75, 37.35]
+const DEFAULT_ZOOM = 10
 const ZONE_RADIUS = 2000
 
 const zoneColors = {
@@ -34,7 +35,13 @@ export default function CommandMap({
   route = [],
   highlightBoatId = null,
   mapKey = 'default',
+  center,
+  zoom,
 }) {
+  const mapCenter = center
+    ? [center.lat ?? center[0], center.lng ?? center[1]]
+    : DEFAULT_CENTER
+  const mapZoom = zoom ?? DEFAULT_ZOOM
   useEffect(() => {
     document.getElementById('command-map')?.scrollIntoView({ block: 'nearest' })
   }, [])
@@ -48,8 +55,8 @@ export default function CommandMap({
     <div id="command-map" style={{ height }} className="rounded-lg overflow-hidden border border-border z-0">
       <MapContainer
         key={mapKey}
-        center={LAKE_CENTER}
-        zoom={10}
+        center={mapCenter}
+        zoom={mapZoom}
         style={{ height: '100%', width: '100%' }}
         scrollWheelZoom
       >

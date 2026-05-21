@@ -1,0 +1,23 @@
+{
+  "login": {
+    "title": "የገዢ መግቢያ",
+    "email": "ኢሜይል",
+    "password": "የይለፍ ቃል",
+    "submit": "ግባ",
+    "signingIn": "በመግባት ላይ…"
+  },
+  "browse": {
+    "title": "ትኩስ ዓሣ ገበያ",
+    "available": "አሁን ይገኛል",
+    "order": "ትዕዛዝ አድርግ"
+  },
+  "listing": {
+    "verified": "በመንግስት የተረጋገጠ",
+    "perKg": "በኪ.ግ"
+  },
+  "order": {
+    "success": "ትዕዛዝ ተረጋገጠ",
+    "thanks": "ስለ ግዢዎ እናመሰግናለን"
+  },
+  "lang": { "toggle": "ቋንቋ" }
+}

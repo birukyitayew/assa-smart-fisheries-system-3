@@ -5,7 +5,12 @@ const requireRole = require('../middleware/role.middleware');
 const controller = require('../controllers/admin.controller');
 const inspectorController = require('../controllers/inspector.controller');
 
-const isAdmin = [authMiddleware, requireRole('admin', 'superadmin')];
+const isAdmin = [authMiddleware, requireRole('admin', 'superadmin', 'regional_admin')];
+const isSuperAdmin = [authMiddleware, requireRole('superadmin')];
+
+// ── Regions (Phase 5) ─────────────────────────────────────────────────────────
+router.get('/regions', ...isAdmin, controller.listRegions);
+router.get('/regions/:id/summary', ...isAdmin, controller.getRegionSummary);
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 router.get('/dashboard/stats',            ...isAdmin, controller.getDashboardStats);
@@ -52,7 +57,7 @@ router.post('/intelligence/refresh-snapshots', ...isAdmin, controller.refreshInt
 router.get('/season-rules',       ...isAdmin, controller.getSeasonRules);
 router.post('/season-rules',      ...isAdmin, controller.createSeasonRule);
 router.put('/season-rules/:id',   ...isAdmin, controller.updateSeasonRule);
-router.delete('/season-rules/:id', ...isAdmin, controller.deleteSeasonRule);
+router.delete('/season-rules/:id', ...isSuperAdmin, controller.deleteSeasonRule);
 router.get('/events/recent',       ...isAdmin, controller.getRecentEvents);
 
 // ── Market Monitor ────────────────────────────────────────────────────────────

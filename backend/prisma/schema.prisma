@@ -1,0 +1,403 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Region {
+  id          Int     @id @default(autoincrement())
+  name        String
+  code        String  @unique
+  description String?
+  centerLat   Float?  @map("center_lat")
+  centerLng   Float?  @map("center_lng")
+
+  zones FishingZone[]
+  users User[] @relation("RegionalAdmin")
+
+  @@map("regions")
+}
+
+model User {
+  id               Int       @id @default(autoincrement())
+  name             String
+  email            String    @unique
+  passwordHash     String    @map("password_hash")
+  role             String
+  phone            String?
+  regionId         Int?      @map("region_id")
+  failedLoginCount Int       @default(0) @map("failed_login_count")
+  lockedUntil      DateTime? @map("locked_until")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  region         Region?  @relation("RegionalAdmin", fields: [regionId], references: [id])
+  fisher         Fisher?
+  buyer          Buyer?
+  refreshTokens  RefreshToken[]
+  auditLogs      AuditLog[]     @relation("AuditActor")
+  reviewedCatches CatchSubmission[] @relation("CatchReviewer")
+  inspections    Inspection[]   @relation("Inspector")
+  reportedViolations Violation[] @relation("ViolationReporter")
+  reviewedViolations Violation[] @relation("ViolationReviewer")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model FishingZone {
+  id          Int     @id @default(autoincrement())
+  regionId    Int     @map("region_id")
+  name        String
+  type        String
+  description String?
+  gpsLat      Float?  @map("gps_lat")
+  gpsLng      Float?  @map("gps_lng")
+  geoPolygon  String? @map("geo_polygon")
+
+  region       Region       @relation(fields: [regionId], references: [id])
+  fishers      Fisher[]
+  catches      CatchSubmission[]
+  seasonRules  ZoneSeasonRule[]
+  inspections  Inspection[]
+  violations   Violation[]
+
+  @@map("fishing_zones")
+}
+
+model Fisher {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique @map("user_id")
+  licenseNumber   String   @unique @map("license_number")
+  licenseStatus   String   @map("license_status")
+  licenseExpiry   DateTime @map("license_expiry") @db.Date
+  zoneId          Int?     @map("zone_id")
+  profilePhotoUrl String?  @map("profile_photo_url")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user       User              @relation(fields: [userId], references: [id])
+  zone       FishingZone?      @relation(fields: [zoneId], references: [id])
+  boats      Boat[]
+  trips      BoatTrip[]
+  catches    CatchSubmission[]
+  listings   MarketplaceListing[]
+  compliance FisherCompliance?
+  inspections Inspection[]
+  violations Violation[]
+
+  @@map("fishers")
+}
+
+model Buyer {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique @map("user_id")
+  location  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("buyers")
+}
+
+model Boat {
+  id                 Int      @id @default(autoincrement())
+  fisherId           Int      @map("fisher_id")
+  boatName           String   @map("boat_name")
+  registrationNumber String   @unique @map("registration_number")
+  capacityKg         Int?     @map("capacity_kg")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  fisher    Fisher         @relation(fields: [fisherId], references: [id])
+  trips     BoatTrip[]
+  positions BoatPosition[]
+  violations Violation[]
+
+  @@map("boats")
+}
+
+model BoatTrip {
+  id        Int       @id @default(autoincrement())
+  boatId    Int       @map("boat_id")
+  fisherId  Int       @map("fisher_id")
+  startedAt DateTime  @default(now()) @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+  status    String    @default("ACTIVE")
+
+  boat      Boat           @relation(fields: [boatId], references: [id])
+  fisher    Fisher         @relation(fields: [fisherId], references: [id])
+  positions BoatPosition[]
+
+  @@index([boatId, status])
+  @@index([fisherId, status])
+  @@map("boat_trips")
+}
+
+model BoatPosition {
+  id         Int      @id @default(autoincrement())
+  boatId     Int      @map("boat_id")
+  tripId     Int?     @map("trip_id")
+  lat        Float
+  lng        Float
+  status     String
+  recordedAt DateTime @default(now()) @map("recorded_at")
+
+  boat Boat      @relation(fields: [boatId], references: [id])
+  trip BoatTrip? @relation(fields: [tripId], references: [id])
+
+  @@index([boatId, recordedAt(sort: Desc)])
+  @@map("boat_positions")
+}
+
+model CatchSubmission {
+  id              Int       @id @default(autoincrement())
+  referenceId     String    @unique @map("reference_id")
+  fisherId        Int       @map("fisher_id")
+  species         String
+  quantityKg      Float     @map("quantity_kg")
+  numberOfFish    Int?      @map("number_of_fish")
+  fishingGear     String    @map("fishing_gear")
+  fishingDate     DateTime  @map("fishing_date") @db.Date
+  fishingTime     String    @map("fishing_time")
+  zoneId          Int       @map("zone_id")
+  gpsLat          Float?    @map("gps_lat")
+  gpsLng          Float?    @map("gps_lng")
+  photoUrls       String    @default("[]") @map("photo_urls")
+  zoneFlag        String?   @map("zone_flag")
+  status          String    @default("PENDING")
+  rejectionReason String?   @map("rejection_reason")
+  reviewedBy      Int?      @map("reviewed_by")
+  reviewedAt      DateTime? @map("reviewed_at")
+  submittedAt     DateTime  @default(now()) @map("submitted_at")
+
+  fisher   Fisher       @relation(fields: [fisherId], references: [id])
+  zone     FishingZone  @relation(fields: [zoneId], references: [id])
+  reviewer User?        @relation("CatchReviewer", fields: [reviewedBy], references: [id])
+  listings MarketplaceListing[]
+  violations Violation[]
+
+  @@map("catch_submissions")
+}
+
+model MarketplaceListing {
+  id                  Int      @id @default(autoincrement())
+  catchId             Int      @map("catch_id")
+  fisherId            Int      @map("fisher_id")
+  species             String
+  quantityAvailableKg Float    @map("quantity_available_kg")
+  pricePerKg          Float    @map("price_per_kg")
+  status              String   @default("ACTIVE")
+  listedAt            DateTime @default(now()) @map("listed_at")
+  description         String?
+
+  catchRow CatchSubmission @relation(fields: [catchId], references: [id])
+  fisher   Fisher          @relation(fields: [fisherId], references: [id])
+  orders   Order[]
+
+  @@map("marketplace_listings")
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  referenceId String   @unique @map("reference_id")
+  listingId   Int      @map("listing_id")
+  buyerId     Int      @map("buyer_id")
+  quantityKg  Float    @map("quantity_kg")
+  pricePerKg  Float    @map("price_per_kg")
+  totalPrice  Float    @map("total_price")
+  status      String   @default("CONFIRMED")
+  orderedAt   DateTime @default(now()) @map("ordered_at")
+
+  listing MarketplaceListing @relation(fields: [listingId], references: [id])
+
+  @@map("orders")
+}
+
+model SpeciesQuota {
+  id              Int      @id @default(autoincrement())
+  species         String
+  monthlyLimitKg  Float    @map("monthly_limit_kg")
+  currentMonthKg  Float    @default(0) @map("current_month_kg")
+  month           Int
+  year            Int
+  updatedAt       DateTime @default(now()) @map("updated_at")
+
+  @@unique([species, month, year])
+  @@map("species_quotas")
+}
+
+model Alert {
+  id                Int      @id @default(autoincrement())
+  type              String
+  title             String
+  message           String
+  severity          String   @default("INFO")
+  isRead            Boolean  @default(false) @map("is_read")
+  relatedEntityType String?  @map("related_entity_type")
+  relatedEntityId   Int?     @map("related_entity_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("alerts")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  actorUserId Int?     @map("actor_user_id")
+  action      String
+  entityType  String?  @map("entity_type")
+  entityId    Int?     @map("entity_id")
+  payloadJson String   @default("{}") @map("payload_json")
+  ip          String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id])
+
+  @@map("audit_log")
+}
+
+model PriceHistory {
+  id         Int      @id @default(autoincrement())
+  species    String
+  zoneId     Int?     @map("zone_id")
+  pricePerKg Float    @map("price_per_kg")
+  recordedAt DateTime @default(now()) @map("recorded_at")
+  source     String
+
+  @@index([species, recordedAt(sort: Desc)])
+  @@map("price_history")
+}
+
+model MarketSnapshot {
+  id            Int      @id @default(autoincrement())
+  snapshotDate  DateTime @map("snapshot_date") @db.Date
+  species       String
+  totalListedKg Float    @default(0) @map("total_listed_kg")
+  totalSoldKg   Float    @default(0) @map("total_sold_kg")
+  avgPrice      Float?   @map("avg_price")
+  orderCount    Int      @default(0) @map("order_count")
+
+  @@unique([snapshotDate, species])
+  @@map("market_snapshots")
+}
+
+model ZoneSeasonRule {
+  id          Int     @id @default(autoincrement())
+  zoneId      Int     @map("zone_id")
+  species     String
+  seasonStart String  @map("season_start")
+  seasonEnd   String  @map("season_end")
+  ruleType    String  @map("rule_type")
+  maxKg       Float?  @map("max_kg")
+  notes       String?
+
+  zone FishingZone @relation(fields: [zoneId], references: [id])
+
+  @@map("zone_season_rules")
+}
+
+model DomainEvent {
+  id          Int      @id @default(autoincrement())
+  eventType   String   @map("event_type")
+  payloadJson String   @default("{}") @map("payload_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("domain_events")
+}
+
+model FisherCompliance {
+  fisherId         Int       @id @map("fisher_id")
+  score            Int       @default(100)
+  violationsCount  Int       @default(0) @map("violations_count")
+  openViolations   Int       @default(0) @map("open_violations")
+  lastViolationAt  DateTime? @map("last_violation_at")
+  updatedAt        DateTime  @default(now()) @map("updated_at")
+
+  fisher Fisher @relation(fields: [fisherId], references: [id])
+
+  @@map("fisher_compliance")
+}
+
+model Inspection {
+  id           Int       @id @default(autoincrement())
+  referenceId  String    @unique @map("reference_id")
+  inspectorId  Int       @map("inspector_id")
+  fisherId     Int?      @map("fisher_id")
+  zoneId       Int?      @map("zone_id")
+  title        String
+  instructions String?
+  status       String    @default("ASSIGNED")
+  outcome      String?
+  notes        String?
+  scheduledAt  DateTime? @map("scheduled_at")
+  completedAt  DateTime? @map("completed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  inspector User         @relation("Inspector", fields: [inspectorId], references: [id])
+  fisher    Fisher?      @relation(fields: [fisherId], references: [id])
+  zone      FishingZone? @relation(fields: [zoneId], references: [id])
+  violations Violation[]
+
+  @@index([inspectorId, status])
+  @@map("inspections")
+}
+
+model Violation {
+  id                Int       @id @default(autoincrement())
+  referenceId       String    @unique @map("reference_id")
+  fisherId          Int       @map("fisher_id")
+  boatId            Int?      @map("boat_id")
+  zoneId            Int?      @map("zone_id")
+  catchId           Int?      @map("catch_id")
+  inspectionId      Int?      @map("inspection_id")
+  type              String
+  severity          String
+  description       String
+  lat               Float?
+  lng               Float?
+  status            String    @default("OPEN")
+  fineAmount        Float?    @map("fine_amount")
+  fineStatus        String?   @map("fine_status")
+  reportedByUserId  Int       @map("reported_by_user_id")
+  reviewedBy        Int?      @map("reviewed_by")
+  evidenceUrls      String    @default("[]") @map("evidence_urls")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  resolvedAt        DateTime? @map("resolved_at")
+
+  fisher     Fisher       @relation(fields: [fisherId], references: [id])
+  boat       Boat?        @relation(fields: [boatId], references: [id])
+  zone       FishingZone? @relation(fields: [zoneId], references: [id])
+  catchRow   CatchSubmission? @relation(fields: [catchId], references: [id])
+  inspection Inspection?  @relation(fields: [inspectionId], references: [id])
+  reporter   User         @relation("ViolationReporter", fields: [reportedByUserId], references: [id])
+  reviewer   User?        @relation("ViolationReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([fisherId])
+  @@map("violations")
+}
