@@ -1,8 +1,14 @@
 import { useEffect } from 'react'
 import { MapContainer, TileLayer, Circle, CircleMarker, Popup, Polygon, Polyline } from 'react-leaflet'
+import {
+  LAKE_TANA_BOUNDS,
+  LAKE_TANA_CENTER,
+  LAKE_TANA_MAX_ZOOM,
+  LAKE_TANA_MIN_ZOOM,
+} from '../../lib/lakeTana'
+import { cn } from '@/lib/utils'
+import MapResizeFix from './MapResizeFix'
 
-const DEFAULT_CENTER = [11.75, 37.35]
-const DEFAULT_ZOOM = 10
 const ZONE_RADIUS = 2000
 
 const zoneColors = {
@@ -31,7 +37,8 @@ function parsePolygon(zone) {
 
 export default function CommandMap({
   layers,
-  height = '480px',
+  height,
+  className,
   route = [],
   highlightBoatId = null,
   mapKey = 'default',
@@ -40,8 +47,9 @@ export default function CommandMap({
 }) {
   const mapCenter = center
     ? [center.lat ?? center[0], center.lng ?? center[1]]
-    : DEFAULT_CENTER
-  const mapZoom = zoom ?? DEFAULT_ZOOM
+    : [LAKE_TANA_CENTER.lat, LAKE_TANA_CENTER.lng]
+  const mapZoom = zoom ?? LAKE_TANA_CENTER.zoom
+
   useEffect(() => {
     document.getElementById('command-map')?.scrollIntoView({ block: 'nearest' })
   }, [])
@@ -52,14 +60,26 @@ export default function CommandMap({
   const routePositions = route.filter((p) => p.lat != null && p.lng != null).map((p) => [p.lat, p.lng])
 
   return (
-    <div id="command-map" style={{ height }} className="rounded-lg overflow-hidden border border-border z-0">
+    <div
+      id="command-map"
+      style={height ? { height } : undefined}
+      className={cn(
+        'rounded-lg overflow-hidden border border-border z-0 w-full min-h-[260px] h-[min(50vh,420px)] sm:min-h-[320px] sm:h-[min(55vh,520px)]',
+        className,
+      )}
+    >
       <MapContainer
         key={mapKey}
         center={mapCenter}
         zoom={mapZoom}
-        style={{ height: '100%', width: '100%' }}
+        minZoom={LAKE_TANA_MIN_ZOOM}
+        maxZoom={LAKE_TANA_MAX_ZOOM}
+        maxBounds={LAKE_TANA_BOUNDS}
+        maxBoundsViscosity={1}
+        style={{ height: '100%', width: '100%', minHeight: '260px' }}
         scrollWheelZoom
       >
+        <MapResizeFix />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"

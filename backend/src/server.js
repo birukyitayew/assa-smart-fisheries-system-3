@@ -6,8 +6,10 @@ const rateLimit = require('express-rate-limit');
 const path = require('path');
 const pino = require('pino');
 const pinoHttp = require('pino-http');
+const crypto = require('crypto');
 
 const { env, corsOrigins } = require('./config/env');
+const { prisma } = require('./database/prisma');
 
 const authRoutes        = require('./routes/auth.routes');
 const catchesRoutes     = require('./routes/catches.routes');
@@ -21,31 +23,71 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
-const logger = pino({ level: process.env.LOG_LEVEL || (env.NODE_ENV === 'production' ? 'info' : 'debug') });
-app.use(pinoHttp({ logger }));
+const logger = pino({
+  level: process.env.LOG_LEVEL || (env.NODE_ENV === 'production' ? 'info' : 'debug')
+});
 
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
+// Trace correlation middleware: unique ID per request
+app.use((req, res, next) => {
+  req.id = req.headers['x-request-id'] || crypto.randomUUID();
+  res.setHeader('X-Request-Id', req.id);
+  next();
+});
+
+app.use(pinoHttp({
+  logger,
+  genReqId: (req) => req.id,
+  customLogLevel: (res, err) => {
+    if (res.statusCode >= 500 || err) return 'error';
+    if (res.statusCode >= 400) return 'warn';
+    return 'info';
+  }
 }));
 
+// Production Helmet config with strict CSP & HSTS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https://res.cloudinary.com",
+        "https://*.tile.openstreetmap.org"
+      ],
+      connectSrc: ["'self'", "https://api.cloudinary.com"]
+    }
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Always-on request limits, scaled by environment
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: env.NODE_ENV === 'production' ? 15 : 100,
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: 'Too many login attempts. Try again in 15 minutes.' }
 });
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  limit: 300,
+  limit: env.NODE_ENV === 'production' ? 300 : 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  message: { error: 'Too many requests. Please try again later.' }
 });
 
-if (env.NODE_ENV === 'production') {
-  app.use('/api/auth/login', authLimiter);
-  app.use('/api', apiLimiter);
-}
+app.use('/api/auth/login', authLimiter);
+app.use('/api', apiLimiter);
 
 app.use(cors({
   origin(origin, cb) {
@@ -61,10 +103,17 @@ app.use(cors({
   },
   credentials: true,
 }));
+
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Cloudinary image store vs disk static fallback check
+if (process.env.CLOUDINARY_URL) {
+  logger.info('Cloudinary configured as cloud image store.');
+} else {
+  logger.warn('WARNING: CLOUDINARY_URL not set. Falling back to local static uploads.');
+  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+}
 
 app.use('/api/auth',        authRoutes);
 app.use('/api',             catchesRoutes);
@@ -91,6 +140,33 @@ app.use((err, req, res, _next) => {
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, () => {
   logger.info({ port: env.PORT }, 'ASSA Backend listening');
 });
+
+// Graceful connection and DB drain on process teardown
+const gracefulShutdown = (signal) => {
+  logger.info(`${signal} signal received: closing HTTP server`);
+
+  server.close(() => {
+    logger.info('HTTP server closed');
+    prisma.$disconnect()
+      .then(() => {
+        logger.info('Database connection closed');
+        process.exit(0);
+      })
+      .catch((err) => {
+        logger.error({ err }, 'Error closing database connection');
+        process.exit(1);
+      });
+  });
+
+  // Force-close connections if they exceed 10 seconds
+  setTimeout(() => {
+    logger.error('Could not close connections in time, forcefully shutting down');
+    process.exit(1);
+  }, 10000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));

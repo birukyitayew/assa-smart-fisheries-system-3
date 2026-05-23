@@ -1,5 +1,11 @@
 /**
- * In-process event bus for SSE fan-out (SQLite MVP; Redis in Phase 4).
+ * In-process event bus for SSE fan-out.
+ *
+ * NOTE ON ARCHITECTURE (Option B - Single Instance Force):
+ * This is an in-process, memory-based event bus that is optimized for single-server setups.
+ * It is completely stateless and cost-free, but requires that the application is run on a
+ * single instance (not horizontally scaled across multiple app servers).
+ * If scaling becomes necessary in the future, migrate this to a Redis Pub/Sub backend.
  */
 
 const listeners = new Set();

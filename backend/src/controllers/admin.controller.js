@@ -74,44 +74,60 @@ async function getRegionSummary(req, res) {
 
 async function getDashboardStats(req, res) {
   const { regionId } = await regionService.resolveRegionFilter(req);
-  const today = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toISOString().split('T')[0];
+  const today = new Date(`${todayStr}T00:00:00.000Z`);
+  const tomorrow = new Date(today.getTime() + 86400000);
 
-  const [fishers, boats, todayCatch, listings, alerts, pending, sold] = await Promise.all([
-    prisma.$queryRaw`
-      SELECT COUNT(*)::int as cnt FROM fishers f WHERE 1=1 ${fisherRegionSql(regionId)}
-    `,
-    prisma.$queryRaw`
-      SELECT COUNT(*)::int as cnt FROM boats b
-      JOIN fishers f ON b.fisher_id = f.id WHERE 1=1 ${fisherRegionSql(regionId)}
-    `,
-    prisma.$queryRaw`
-      SELECT COALESCE(SUM(quantity_kg), 0) as total
-      FROM catch_submissions cs
-      WHERE fishing_date = ${today}::date AND status = 'VERIFIED' ${catchRegionSql(regionId)}
-    `,
-    prisma.$queryRaw`
-      SELECT COUNT(*)::int as cnt FROM marketplace_listings ml
-      WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
-    `,
-    prisma.$queryRaw`SELECT COUNT(*)::int as cnt FROM alerts WHERE is_read = false`,
-    prisma.$queryRaw`
-      SELECT COUNT(*)::int as cnt FROM catch_submissions cs
-      WHERE status = 'PENDING' ${catchRegionSql(regionId)}
-    `,
-    prisma.$queryRaw`
-      SELECT COALESCE(SUM(o.quantity_kg), 0) as total
-      FROM orders o WHERE o.ordered_at::date = ${today}::date ${orderRegionSql(regionId)}
-    `,
+  const regionFilter = regionId != null ? { zone: { regionId } } : {};
+  const fisherRegionFilter = regionId != null ? { fisher: { zone: { regionId } } } : {};
+  const catchRegionFilter = regionId != null ? { zone: { regionId } } : {};
+  const listingRegionFilter = regionId != null ? { fisher: { zone: { regionId } } } : {};
+  const orderRegionFilter = regionId != null ? { listing: { fisher: { zone: { regionId } } } } : {};
+
+  const [totalFishers, totalBoats, todayCatch, activeListings, activeAlerts, pendingCatches, sold] = await Promise.all([
+    prisma.fisher.count({ where: regionFilter }),
+    prisma.boat.count({ where: fisherRegionFilter }),
+    prisma.catchSubmission.aggregate({
+      where: {
+        fishingDate: today,
+        status: 'VERIFIED',
+        ...catchRegionFilter,
+      },
+      _sum: { quantityKg: true },
+    }),
+    prisma.marketplaceListing.count({
+      where: {
+        status: 'ACTIVE',
+        ...listingRegionFilter,
+      },
+    }),
+    prisma.alert.count({ where: { isRead: false } }),
+    prisma.catchSubmission.count({
+      where: {
+        status: 'PENDING',
+        ...catchRegionFilter,
+      },
+    }),
+    prisma.order.aggregate({
+      where: {
+        orderedAt: {
+          gte: today,
+          lt: tomorrow,
+        },
+        ...orderRegionFilter,
+      },
+      _sum: { quantityKg: true },
+    }),
   ]);
 
   res.json({
-    totalFishers: num(fishers[0]?.cnt),
-    totalBoats: num(boats[0]?.cnt),
-    todayCatchKg: num(todayCatch[0]?.total),
-    activeListings: num(listings[0]?.cnt),
-    activeAlerts: num(alerts[0]?.cnt),
-    pendingCatches: num(pending[0]?.cnt),
-    fishSoldToday: num(sold[0]?.total),
+    totalFishers,
+    totalBoats,
+    todayCatchKg: num(todayCatch._sum.quantityKg),
+    activeListings,
+    activeAlerts,
+    pendingCatches,
+    fishSoldToday: num(sold._sum.quantityKg),
   });
 }
 
@@ -227,11 +243,34 @@ async function getCatch(req, res) {
 
 async function approveCatch(req, res) {
   const { regionId } = await regionService.resolveRegionFilter(req);
-  const rows = await prisma.$queryRaw`
-    SELECT * FROM catch_submissions WHERE id = ${Number(req.params.id)}
-  `;
-  const catchRow = rows[0];
-  if (!catchRow) return res.status(404).json({ error: 'Catch not found' });
+  const catchRowRaw = await prisma.catchSubmission.findUnique({
+    where: { id: Number(req.params.id) },
+  });
+  if (!catchRowRaw) return res.status(404).json({ error: 'Catch not found' });
+
+  // Map to snake_case structure to keep existing service logic fully backward compatible
+  const catchRow = {
+    id: catchRowRaw.id,
+    reference_id: catchRowRaw.referenceId,
+    fisher_id: catchRowRaw.fisherId,
+    species: catchRowRaw.species,
+    quantity_kg: catchRowRaw.quantityKg,
+    numberOfFish: catchRowRaw.numberOfFish,
+    fishingGear: catchRowRaw.fishingGear,
+    fishingDate: catchRowRaw.fishingDate,
+    fishingTime: catchRowRaw.fishingTime,
+    zoneId: catchRowRaw.zoneId,
+    gpsLat: catchRowRaw.gpsLat,
+    gpsLng: catchRowRaw.gpsLng,
+    photoUrls: catchRowRaw.photoUrls,
+    zoneFlag: catchRowRaw.zoneFlag,
+    status: catchRowRaw.status,
+    rejectionReason: catchRowRaw.rejectionReason,
+    reviewedBy: catchRowRaw.reviewedBy,
+    reviewedAt: catchRowRaw.reviewedAt,
+    submittedAt: catchRowRaw.submittedAt,
+  };
+
   await regionService.assertCatchInRegion(catchRow.id, regionId);
   if (catchRow.status !== 'PENDING') {
     return res.status(400).json({ error: 'Only pending catches can be approved' });
@@ -242,26 +281,35 @@ async function approveCatch(req, res) {
     return res.status(409).json({ error: quotaCheck.message });
   }
 
-  await prisma.catchSubmission.update({
-    where: { id: catchRow.id },
-    data: {
-      status: 'VERIFIED',
-      reviewedBy: req.user.id,
-      reviewedAt: new Date(),
-    },
+  // Execute database writes atomically in a transaction
+  const listing = await prisma.$transaction(async (tx) => {
+    await tx.catchSubmission.update({
+      where: { id: catchRow.id },
+      data: {
+        status: 'VERIFIED',
+        reviewedBy: req.user.id,
+        reviewedAt: new Date(),
+      },
+    });
+
+    const newListing = await listingService.createListing(catchRow, tx);
+    await quotaService.updateQuota(catchRow.species, catchRow.quantity_kg, tx);
+    return newListing;
   });
 
-  const listing = await listingService.createListing(catchRow);
-  await quotaService.updateQuota(catchRow.species, catchRow.quantity_kg);
+  const fisher = await prisma.fisher.findUnique({
+    where: { id: catchRow.fisher_id },
+    select: { userId: true },
+  });
 
-  const fisherRows = await prisma.$queryRaw`SELECT * FROM fishers WHERE id = ${catchRow.fisher_id}`;
-  const fisher = fisherRows[0];
-  await notificationService.notifyFisher(
-    fisher.user_id,
-    'CATCH_APPROVED',
-    'Catch Approved',
-    `Your catch ${catchRow.reference_id} has been approved and is now listed in the marketplace.`,
-  );
+  if (fisher) {
+    await notificationService.notifyFisher(
+      fisher.userId,
+      'CATCH_APPROVED',
+      'Catch Approved',
+      `Your catch ${catchRow.reference_id} has been approved and is now listed in the marketplace.`,
+    );
+  }
 
   auditFromReq(req, 'catch.approved', 'catch', catchRow.id, {
     reference_id: catchRow.reference_id,
@@ -293,11 +341,21 @@ async function rejectCatch(req, res) {
   }
 
   const { regionId } = await regionService.resolveRegionFilter(req);
-  const rows = await prisma.$queryRaw`
-    SELECT * FROM catch_submissions WHERE id = ${Number(req.params.id)}
-  `;
-  const catchRow = rows[0];
-  if (!catchRow) return res.status(404).json({ error: 'Catch not found' });
+  const catchRowRaw = await prisma.catchSubmission.findUnique({
+    where: { id: Number(req.params.id) },
+  });
+  if (!catchRowRaw) return res.status(404).json({ error: 'Catch not found' });
+
+  // Map to snake_case structure
+  const catchRow = {
+    id: catchRowRaw.id,
+    reference_id: catchRowRaw.referenceId,
+    fisher_id: catchRowRaw.fisherId,
+    species: catchRowRaw.species,
+    quantity_kg: catchRowRaw.quantityKg,
+    status: catchRowRaw.status,
+  };
+
   await regionService.assertCatchInRegion(catchRow.id, regionId);
   if (catchRow.status !== 'PENDING') {
     return res.status(400).json({ error: 'Only pending catches can be rejected' });
@@ -313,14 +371,19 @@ async function rejectCatch(req, res) {
     },
   });
 
-  const fisherRows = await prisma.$queryRaw`SELECT * FROM fishers WHERE id = ${catchRow.fisher_id}`;
-  const fisher = fisherRows[0];
-  await notificationService.notifyFisher(
-    fisher.user_id,
-    'CATCH_REJECTED',
-    'Catch Not Approved',
-    `Your catch ${catchRow.reference_id} was not approved. Reason: ${reason.trim()}`,
-  );
+  const fisher = await prisma.fisher.findUnique({
+    where: { id: catchRow.fisher_id },
+    select: { userId: true },
+  });
+
+  if (fisher) {
+    await notificationService.notifyFisher(
+      fisher.userId,
+      'CATCH_REJECTED',
+      'Catch Not Approved',
+      `Your catch ${catchRow.reference_id} was not approved. Reason: ${reason.trim()}`,
+    );
+  }
 
   auditFromReq(req, 'catch.rejected', 'catch', catchRow.id, { reason: reason.trim() });
   eventBus.emit('catch.rejected', {
@@ -390,11 +453,24 @@ async function getFisher(req, res) {
 async function getQuotas(req, res) {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
-  const quotas = await prisma.$queryRaw`
-    SELECT *, ROUND((current_month_kg * 100.0 / monthly_limit_kg)::numeric, 1) as usage_pct
-    FROM species_quotas WHERE month = ${currentMonth} AND year = ${currentYear}
-    ORDER BY usage_pct DESC
-  `;
+  const rows = await prisma.speciesQuota.findMany({
+    where: { month: currentMonth, year: currentYear },
+  });
+
+  const quotas = rows.map((q) => {
+    const usage_pct = q.monthlyLimitKg > 0 ? Number(((q.currentMonthKg * 100) / q.monthlyLimitKg).toFixed(1)) : 0;
+    return {
+      id: q.id,
+      species: q.species,
+      monthly_limit_kg: q.monthlyLimitKg,
+      current_month_kg: q.currentMonthKg,
+      month: q.month,
+      year: q.year,
+      updated_at: q.updatedAt,
+      usage_pct,
+    };
+  }).sort((a, b) => b.usage_pct - a.usage_pct);
+
   res.json({ quotas });
 }
 
@@ -412,13 +488,28 @@ async function updateQuota(req, res) {
 }
 
 async function getAlerts(req, res) {
-  const alerts = await prisma.$queryRaw`
-    SELECT * FROM alerts ORDER BY created_at DESC LIMIT 50
-  `;
-  const unreadRows = await prisma.$queryRaw`
-    SELECT COUNT(*)::int as cnt FROM alerts WHERE is_read = false
-  `;
-  res.json({ alerts, unreadCount: num(unreadRows[0]?.cnt) });
+  const alertsRaw = await prisma.alert.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 50,
+  });
+
+  const unreadCount = await prisma.alert.count({
+    where: { isRead: false },
+  });
+
+  const alerts = alertsRaw.map((a) => ({
+    id: a.id,
+    type: a.type,
+    title: a.title,
+    message: a.message,
+    severity: a.severity,
+    is_read: a.isRead,
+    related_entity_type: a.relatedEntityType,
+    related_entity_id: a.relatedEntityId,
+    created_at: a.createdAt,
+  }));
+
+  res.json({ alerts, unreadCount });
 }
 
 async function markAlertRead(req, res) {
@@ -913,15 +1004,16 @@ async function deleteSeasonRule(req, res) {
 
 async function getRecentEvents(req, res) {
   const limit = Math.min(Number(req.query.limit) || 20, 50);
-  const events = await prisma.$queryRaw`
-    SELECT id, event_type, payload_json, created_at FROM domain_events
-    ORDER BY id DESC LIMIT ${limit}
-  `;
+  const events = await prisma.domainEvent.findMany({
+    orderBy: { id: 'desc' },
+    take: limit,
+  });
+
   res.json({
     events: events.map((e) => ({
-      type: e.event_type,
-      payload: JSON.parse(e.payload_json || '{}'),
-      timestamp: e.created_at,
+      type: e.eventType,
+      payload: JSON.parse(e.payloadJson || '{}'),
+      timestamp: e.createdAt,
     })),
   });
 }

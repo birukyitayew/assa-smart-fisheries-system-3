@@ -29,7 +29,7 @@ async function checkQuotaBeforeApprove(species, quantityKg) {
   return { allowed: true, quota };
 }
 
-async function updateQuota(species, quantityKg) {
+async function updateQuota(species, quantityKg, tx = prisma) {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
@@ -41,14 +41,14 @@ async function updateQuota(species, quantityKg) {
     'Barbus (Ganfo)': 1000,
   };
 
-  const existing = await prisma.speciesQuota.findUnique({
+  const existing = await tx.speciesQuota.findUnique({
     where: {
       species_month_year: { species, month: currentMonth, year: currentYear },
     },
   });
 
   if (!existing) {
-    await prisma.speciesQuota.create({
+    await tx.speciesQuota.create({
       data: {
         species,
         monthlyLimitKg: defaults[species] || 2000,
@@ -58,7 +58,7 @@ async function updateQuota(species, quantityKg) {
       },
     });
   } else {
-    await prisma.speciesQuota.update({
+    await tx.speciesQuota.update({
       where: {
         species_month_year: { species, month: currentMonth, year: currentYear },
       },
@@ -66,7 +66,7 @@ async function updateQuota(species, quantityKg) {
     });
   }
 
-  const quota = await prisma.speciesQuota.findUnique({
+  const quota = await tx.speciesQuota.findUnique({
     where: {
       species_month_year: { species, month: currentMonth, year: currentYear },
     },
@@ -75,33 +75,32 @@ async function updateQuota(species, quantityKg) {
   if (!quota) return;
 
   const pct = (quota.currentMonthKg / quota.monthlyLimitKg) * 100;
-  const monthPad = String(currentMonth).padStart(2, '0');
-  const yearStr = String(currentYear);
 
-  const existingAlerts = await prisma.$queryRaw`
-    SELECT id FROM alerts
-    WHERE type IN ('QUOTA_WARNING', 'QUOTA_EXCEEDED')
-      AND related_entity_type = 'quota'
-      AND related_entity_id = ${quota.id}
-      AND EXTRACT(MONTH FROM created_at) = ${currentMonth}
-      AND EXTRACT(YEAR FROM created_at) = ${currentYear}
-    LIMIT 1
-  `;
-  const existingAlert = existingAlerts[0];
+  // Use date range instead of SQL EXTRACT to ensure the created_at index can be leveraged
+  const startOfMonth = new Date(currentYear, currentMonth - 1, 1);
+  const endOfMonth = new Date(currentYear, currentMonth, 1); // Start of the next month
 
-  if (pct >= 100 && !existingAlert) {
-    await prisma.alert.create({
-      data: {
-        type: 'QUOTA_EXCEEDED',
-        title: `${species} Quota Exceeded`,
-        message: `Monthly ${species} quota has been exceeded (${Math.round(quota.currentMonthKg)} / ${quota.monthlyLimitKg} kg). No further catches should be approved.`,
-        severity: 'CRITICAL',
-        relatedEntityType: 'quota',
-        relatedEntityId: quota.id,
+  const existingAlerts = await tx.alert.findMany({
+    where: {
+      relatedEntityType: 'quota',
+      relatedEntityId: quota.id,
+      createdAt: {
+        gte: startOfMonth,
+        lt: endOfMonth,
       },
-    });
-  } else if (pct >= 90 && !existingAlert) {
-    await prisma.alert.create({
+    },
+    select: {
+      id: true,
+      type: true,
+    },
+  });
+
+  const hasWarning = existingAlerts.some((a) => a.type === 'QUOTA_WARNING');
+  const hasExceeded = existingAlerts.some((a) => a.type === 'QUOTA_EXCEEDED');
+
+  // Trigger warning if >= 90% and no warning has fired yet this month
+  if (pct >= 90 && !hasWarning) {
+    await tx.alert.create({
       data: {
         type: 'QUOTA_WARNING',
         title: `${species} Quota at ${Math.round(pct)}%`,
@@ -117,6 +116,20 @@ async function updateQuota(species, quantityKg) {
       current_month_kg: quota.currentMonthKg,
       monthly_limit_kg: quota.monthlyLimitKg,
       quota_id: quota.id,
+    });
+  }
+
+  // Trigger exceeded if >= 100% and no exceeded alert has fired yet this month
+  if (pct >= 100 && !hasExceeded) {
+    await tx.alert.create({
+      data: {
+        type: 'QUOTA_EXCEEDED',
+        title: `${species} Quota Exceeded`,
+        message: `Monthly ${species} quota has been exceeded (${Math.round(quota.currentMonthKg)} / ${quota.monthlyLimitKg} kg). No further catches should be approved.`,
+        severity: 'CRITICAL',
+        relatedEntityType: 'quota',
+        relatedEntityId: quota.id,
+      },
     });
   }
 }

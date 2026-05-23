@@ -69,7 +69,6 @@ export default function CommandMapPage() {
         <CardContent>
           <CommandMap
             layers={layers}
-            height="min(560px, 55vh)"
             center={mapCenter}
             zoom={mapCenter.zoom}
             mapKey={`map-${selectedRegionId}`}

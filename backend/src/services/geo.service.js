@@ -18,7 +18,7 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 }
 
 /** Max distance (km) device GPS may be from zone center while still considered in-zone */
-const ZONE_MATCH_RADIUS_KM = 25;
+const ZONE_MATCH_RADIUS_KM = 3;
 
 function pointInPolygon(lat, lng, polygon) {
   if (!polygon || polygon.length < 3) return null;

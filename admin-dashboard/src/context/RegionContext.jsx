@@ -1,11 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import api from '../services/api'
+import { lakeTanaMapCenter } from '../lib/lakeTana'
 import { useAuth } from './AuthContext'
 
 const STORAGE_KEY = 'assa_region_id'
 const RegionContext = createContext(null)
-
-const NATIONAL_CENTER = { lat: 9.5, lng: 38.0, zoom: 6 }
 
 export function RegionProvider({ children }) {
   const { user } = useAuth()
@@ -58,16 +57,7 @@ export function RegionProvider({ children }) {
     [regions, effectiveRegionId],
   )
 
-  const mapCenter = useMemo(() => {
-    if (selectedRegion?.centerLat != null && selectedRegion?.centerLng != null) {
-      return {
-        lat: selectedRegion.centerLat,
-        lng: selectedRegion.centerLng,
-        zoom: 11,
-      }
-    }
-    return NATIONAL_CENTER
-  }, [selectedRegion])
+  const mapCenter = useMemo(() => lakeTanaMapCenter(selectedRegion), [selectedRegion])
 
   const value = {
     regions,

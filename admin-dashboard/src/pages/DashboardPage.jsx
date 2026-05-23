@@ -8,6 +8,7 @@ import { usePolling } from '../hooks/usePolling'
 import { useRealtime } from '../context/RealtimeContext'
 import LiveActivityFeed from '../components/command/LiveActivityFeed'
 import CommandQuickLinks from '../components/command/CommandQuickLinks'
+import CommandMap from '../components/command/CommandMap'
 import KpiCard from '../components/cards/KpiCard'
 import QuotaBar from '../components/cards/QuotaBar'
 import AlertItem from '../components/cards/AlertItem'
@@ -26,7 +27,7 @@ import {
 
 export default function DashboardPage() {
   const { events } = useRealtime()
-  const { selectedRegionId } = useRegion()
+  const { selectedRegionId, mapCenter } = useRegion()
   const [liveStats, setLiveStats] = useState(null)
   const [stats, setStats] = useState(null)
   const [timeData, setTimeData] = useState([])
@@ -34,10 +35,12 @@ export default function DashboardPage() {
   const [quotas, setQuotas] = useState([])
   const [alerts, setAlerts] = useState([])
   const [recentCatches, setRecentCatches] = useState([])
+  const [mapLayers, setMapLayers] = useState({ zones: [], fleet: [], catches: [] })
 
   const fetchAll = useCallback(async () => {
     try {
-      const [liveRes, statsRes, timeRes, speciesRes, quotasRes, alertsRes, catchesRes] = await Promise.all([
+      const [liveRes, statsRes, timeRes, speciesRes, quotasRes, alertsRes, catchesRes, mapRes] =
+        await Promise.all([
         api.get('/admin/command/live-stats'),
         api.get('/admin/dashboard/stats'),
         api.get('/admin/dashboard/catches-over-time'),
@@ -45,6 +48,7 @@ export default function DashboardPage() {
         api.get('/admin/quotas'),
         api.get('/admin/alerts'),
         api.get('/admin/catches?limit=5'),
+        api.get('/admin/map/layers'),
       ])
       setLiveStats(liveRes.data)
       setStats(statsRes.data)
@@ -53,6 +57,7 @@ export default function DashboardPage() {
       setQuotas(quotasRes.data.quotas)
       setAlerts(alertsRes.data.alerts.slice(0, 5))
       setRecentCatches(catchesRes.data.catches)
+      setMapLayers(mapRes.data)
     } catch (err) {
       console.error('Dashboard fetch error:', err)
     }
@@ -77,6 +82,24 @@ export default function DashboardPage() {
       />
 
       <CommandQuickLinks />
+
+      <Card className="min-w-0">
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle className="text-base">Lake Tana — Live Map</CardTitle>
+          <Link to="/map" className="text-sm text-primary hover:underline shrink-0">
+            Full screen →
+          </Link>
+        </CardHeader>
+        <CardContent className="min-w-0 pt-0">
+          <CommandMap
+            layers={mapLayers}
+            center={mapCenter}
+            zoom={mapCenter.zoom}
+            mapKey={`dashboard-map-${selectedRegionId}`}
+            className="h-[min(45vh,380px)] min-h-[240px] sm:min-h-[280px]"
+          />
+        </CardContent>
+      </Card>
 
       <div className="kpi-grid">
         <KpiCard

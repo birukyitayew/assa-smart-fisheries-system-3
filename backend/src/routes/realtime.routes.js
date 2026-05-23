@@ -5,11 +5,11 @@ const marketSseMiddleware = require('../middleware/marketSse.middleware');
 const sseService = require('../services/sse.service');
 
 router.get('/stream', sseAuthMiddleware, (req, res) => {
-  sseService.addClient(res);
+  sseService.addClient(req, res);
 });
 
 router.get('/market/stream', marketSseMiddleware, (req, res) => {
-  sseService.addMarketClient(res);
+  sseService.addMarketClient(req, res);
 });
 
 router.get('/status', sseAuthMiddleware, (req, res) => {

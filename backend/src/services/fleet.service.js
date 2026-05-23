@@ -28,6 +28,24 @@ async function getActiveTripForBoat(boatId) {
 }
 
 async function startTrip(fisherId) {
+  const fisher = await prisma.fisher.findUnique({
+    where: { id: fisherId },
+    select: {
+      licenseStatus: true,
+      licenseExpiry: true,
+      user: {
+        select: { name: true },
+      },
+    },
+  });
+  if (!fisher) return { error: 'Fisher profile not found', status: 404 };
+  if (fisher.licenseStatus !== 'VALID') {
+    return { error: 'Valid license required to start a trip', status: 403 };
+  }
+  if (new Date(fisher.licenseExpiry) < new Date()) {
+    return { error: 'License has expired. Cannot start a trip.', status: 403 };
+  }
+
   const boat = await getBoatForFisher(fisherId);
   if (!boat) return { error: 'No registered boat found', status: 400 };
 
@@ -73,20 +91,12 @@ async function startTrip(fisherId) {
     return created;
   });
 
-  const fisherRows = await prisma.$queryRaw`
-    SELECT u.name FROM fishers f
-    JOIN users u ON f.user_id = u.id
-    WHERE f.id = ${fisherId}
-    LIMIT 1
-  `;
-  const fisher = fisherRows[0];
-
   eventBus.emit('boat.trip.started', {
     trip_id: trip.id,
     boat_id: boat.id,
     boat_name: boat.boatName,
     fisher_id: fisherId,
-    fisher_name: fisher?.name,
+    fisher_name: fisher?.user?.name,
   });
 
   return { trip, boat };
@@ -156,11 +166,12 @@ async function getFleetList(regionId = null) {
 }
 
 async function getBoatHistory(boatId, hours = 24) {
+  const cutoff = new Date(Date.now() - hours * 3600000);
   return prisma.$queryRaw`
     SELECT lat, lng, status, recorded_at, trip_id
     FROM boat_positions
     WHERE boat_id = ${boatId}
-      AND recorded_at >= NOW() - (${hours}::text || ' hours')::interval
+      AND recorded_at >= ${cutoff}
     ORDER BY recorded_at ASC
   `;
 }

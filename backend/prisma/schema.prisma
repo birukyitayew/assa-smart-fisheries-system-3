@@ -32,6 +32,7 @@ model User {
   failedLoginCount Int       @default(0) @map("failed_login_count")
   lockedUntil      DateTime? @map("locked_until")
   createdAt        DateTime  @default(now()) @map("created_at")
+  deletedAt        DateTime? @map("deleted_at")
 
   region         Region?  @relation("RegionalAdmin", fields: [regionId], references: [id])
   fisher         Fisher?
@@ -90,6 +91,7 @@ model Fisher {
   zoneId          Int?     @map("zone_id")
   profilePhotoUrl String?  @map("profile_photo_url")
   createdAt       DateTime @default(now()) @map("created_at")
+  deletedAt       DateTime? @map("deleted_at")
 
   user       User              @relation(fields: [userId], references: [id])
   zone       FishingZone?      @relation(fields: [zoneId], references: [id])
@@ -191,6 +193,7 @@ model CatchSubmission {
   listings MarketplaceListing[]
   violations Violation[]
 
+  @@index([status, submittedAt])
   @@map("catch_submissions")
 }
 
@@ -209,6 +212,7 @@ model MarketplaceListing {
   fisher   Fisher          @relation(fields: [fisherId], references: [id])
   orders   Order[]
 
+  @@index([status, listedAt])
   @@map("marketplace_listings")
 }
 
@@ -225,6 +229,7 @@ model Order {
 
   listing MarketplaceListing @relation(fields: [listingId], references: [id])
 
+  @@index([buyerId, orderedAt])
   @@map("orders")
 }
 
@@ -252,6 +257,7 @@ model Alert {
   relatedEntityId   Int?     @map("related_entity_id")
   createdAt         DateTime @default(now()) @map("created_at")
 
+  @@index([isRead, createdAt])
   @@map("alerts")
 }
 
@@ -264,6 +270,7 @@ model Notification {
   isRead    Boolean  @default(false) @map("is_read")
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([userId, isRead])
   @@map("notifications")
 }
 

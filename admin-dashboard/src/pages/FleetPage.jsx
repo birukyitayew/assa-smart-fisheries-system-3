@@ -110,7 +110,7 @@ export default function FleetPage() {
       )}
 
       <div className="content-grid">
-        <Card className="lg:col-span-1">
+        <Card className="lg:col-span-1 order-2 lg:order-1">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Ship className="h-4 w-4" />
@@ -154,7 +154,7 @@ export default function FleetPage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 order-1 lg:order-2 min-w-0">
           <CardHeader>
             <CardTitle className="text-base">
               {selected
@@ -162,7 +162,7 @@ export default function FleetPage() {
                 : 'Select a boat to view route history'}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <CommandMap
               layers={layers}
               route={route}
@@ -170,7 +170,6 @@ export default function FleetPage() {
               mapKey={`fleet-${selectedRegionId}-${selectedId}-${route.length}`}
               center={mapCenter}
               zoom={mapCenter.zoom}
-              height="520px"
             />
           </CardContent>
         </Card>

@@ -23,12 +23,12 @@ const eventBus = require('./eventBus');
 const priceHistoryService = require('./price-history.service');
 const { prisma } = require('../database/prisma');
 
-async function createListing(catchRow) {
+async function createListing(catchRow, tx = prisma) {
   const pricePerKg = PRICES[catchRow.species] || 120;
   const description =
     DESCRIPTIONS[catchRow.species] || 'Fresh fish from Lake Tana, government-verified.';
 
-  const listing = await prisma.marketplaceListing.create({
+  const listing = await tx.marketplaceListing.create({
     data: {
       catchId: catchRow.id,
       fisherId: catchRow.fisher_id ?? catchRow.fisherId,
@@ -42,17 +42,17 @@ async function createListing(catchRow) {
 
   await priceHistoryService.recordPrice({
     species: catchRow.species,
-    zoneId: catchRow.zone_id,
+    zoneId: catchRow.zone_id ?? catchRow.zoneId,
     pricePerKg,
     source: 'listing',
-  });
+  }, tx);
 
   eventBus.emit('listing.created', {
     listing_id: listing.id,
     catch_id: catchRow.id,
-    fisher_id: catchRow.fisher_id,
+    fisher_id: catchRow.fisher_id ?? catchRow.fisherId,
     species: catchRow.species,
-    quantity_kg: catchRow.quantity_kg,
+    quantity_kg: catchRow.quantity_kg ?? catchRow.quantityKg,
     price_per_kg: pricePerKg,
   });
 

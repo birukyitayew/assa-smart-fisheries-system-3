@@ -17,7 +17,21 @@ const env = cleanEnv(process.env, {
   JWT_ACCESS_EXPIRES_IN: str({ default: '30m' }),
   REFRESH_TOKEN_DAYS: str({ default: '7' }),
   CORS_ORIGINS: str({ default: 'http://localhost:3001,http://localhost:3002,http://localhost:3003' }),
+  CLOUDINARY_URL: str({ default: '', desc: 'Cloudinary connection string' }),
+  LOG_LEVEL: str({ default: 'info', desc: 'Logging level threshold' }),
+  SESSION_COOKIE_DOMAIN: str({ default: '', desc: 'Domain configuration for cookie storage' }),
 });
+
+// Guard against weak secrets in production
+if (env.NODE_ENV === 'production') {
+  if (
+    !env.JWT_SECRET ||
+    env.JWT_SECRET === 'change_me' ||
+    env.JWT_SECRET.startsWith('development-only-')
+  ) {
+    throw new Error('CRITICAL CONFIGURATION ERROR: A secure, strong JWT_SECRET must be provided in production environments.');
+  }
+}
 
 module.exports = {
   env,

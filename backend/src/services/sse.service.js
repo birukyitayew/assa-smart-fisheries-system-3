@@ -1,5 +1,11 @@
 /**
  * SSE client registry and broadcast for admin command center.
+ *
+ * NOTE ON ARCHITECTURE (Option B - Single Instance Force):
+ * This service runs entirely in-memory and is designed for a single-instance Node.js deployment.
+ * Horizontal scaling (multiple API instances) is not supported under this layout because SSE events
+ * from one instance will not be received by clients connected to another.
+ * To support horizontal scale-out in the future, migrate eventBus.js to Redis Pub/Sub.
  */
 
 const eventBus = require('./eventBus');
@@ -10,26 +16,39 @@ const marketClients = new Set();
 const MARKET_EVENTS = new Set(['listing.created', 'order.placed']);
 const MAX_REPLAY = 50;
 
+/**
+ * Persist event to the database and return its auto-incremented ID.
+ */
 async function persistEvent(eventType, payload) {
   try {
-    await prisma.domainEvent.create({
+    const created = await prisma.domainEvent.create({
       data: {
         eventType,
         payloadJson: JSON.stringify(payload),
       },
     });
 
-    const countRows = await prisma.$queryRaw`SELECT COUNT(*) as cnt FROM domain_events`;
-    const count = Number(countRows[0]?.cnt ?? 0);
+    // Keep database size bounded by removing events older than the replay window
+    const count = await prisma.domainEvent.count();
     if (count > MAX_REPLAY * 2) {
-      await prisma.$executeRaw`
-        DELETE FROM domain_events WHERE id NOT IN (
-          SELECT id FROM domain_events ORDER BY id DESC LIMIT ${MAX_REPLAY}
-        )
-      `;
+      const oldestToKeep = await prisma.domainEvent.findMany({
+        orderBy: { id: 'desc' },
+        take: MAX_REPLAY,
+        select: { id: true },
+      });
+      if (oldestToKeep.length > 0) {
+        const minIdToKeep = oldestToKeep[oldestToKeep.length - 1].id;
+        await prisma.domainEvent.deleteMany({
+          where: {
+            id: { lt: minIdToKeep },
+          },
+        });
+      }
     }
-  } catch {
-    // DB may not be ready during startup
+    return created.id;
+  } catch (err) {
+    // Database is unavailable or busy; fallback to a timestamp-based ID
+    return Date.now();
   }
 }
 
@@ -43,10 +62,14 @@ function anonymizeForMarket(eventType, payload) {
   return payload;
 }
 
-function broadcast(eventType, payload) {
-  void persistEvent(eventType, payload);
-  const data = JSON.stringify({ type: eventType, payload, timestamp: new Date().toISOString() });
-  const message = `event: ${eventType}\ndata: ${data}\n\n`;
+/**
+ * Broadcaster that pushes events to all connected clients and appends SSE unique IDs.
+ */
+async function broadcast(eventType, payload) {
+  const eventId = await persistEvent(eventType, payload);
+  const data = JSON.stringify({ type: eventType, payload, timestamp: new Date().toISOString(), id: eventId });
+  const message = `id: ${eventId}\nevent: ${eventType}\ndata: ${data}\n\n`;
+
   clients.forEach((client) => {
     try {
       client.res.write(message);
@@ -61,8 +84,9 @@ function broadcast(eventType, payload) {
       type: eventType,
       payload: marketPayload,
       timestamp: new Date().toISOString(),
+      id: eventId,
     });
-    const marketMessage = `event: ${eventType}\ndata: ${marketData}\n\n`;
+    const marketMessage = `id: ${eventId}\nevent: ${eventType}\ndata: ${marketData}\n\n`;
     marketClients.forEach((client) => {
       try {
         client.res.write(marketMessage);
@@ -74,9 +98,12 @@ function broadcast(eventType, payload) {
 }
 
 eventBus.subscribe((event) => {
-  broadcast(event.type, event.payload);
+  void broadcast(event.type, event.payload);
 });
 
+/**
+ * Replay the most recent N events.
+ */
 async function replayRecentEvents(res, limit, filterTypes = null) {
   const recent = await prisma.domainEvent.findMany({
     where: filterTypes ? { eventType: { in: filterTypes } } : undefined,
@@ -92,12 +119,39 @@ async function replayRecentEvents(res, limit, filterTypes = null) {
       payload,
       timestamp: row.createdAt,
       replay: true,
+      id: row.id,
     });
-    res.write(`event: ${row.eventType}\ndata: ${data}\n\n`);
+    res.write(`id: ${row.id}\nevent: ${row.eventType}\ndata: ${data}\n\n`);
   });
 }
 
-function addClient(res) {
+/**
+ * Replay missed events since Last-Event-ID for self-healing network drops.
+ */
+async function replayEventsSince(res, lastId, filterTypes = null) {
+  const missed = await prisma.domainEvent.findMany({
+    where: {
+      id: { gt: lastId },
+      eventType: filterTypes ? { in: filterTypes } : undefined,
+    },
+    orderBy: { id: 'asc' },
+  });
+
+  missed.forEach((row) => {
+    const rawPayload = JSON.parse(row.payloadJson || '{}');
+    const payload = filterTypes ? anonymizeForMarket(row.eventType, rawPayload) : rawPayload;
+    const data = JSON.stringify({
+      type: row.eventType,
+      payload,
+      timestamp: row.createdAt,
+      replay: true,
+      id: row.id,
+    });
+    res.write(`id: ${row.id}\nevent: ${row.eventType}\ndata: ${data}\n\n`);
+  });
+}
+
+function addClient(req, res) {
   const client = { res, connectedAt: Date.now() };
   clients.add(client);
 
@@ -109,7 +163,15 @@ function addClient(res) {
   });
   res.write(': connected\n\n');
 
-  replayRecentEvents(res, MAX_REPLAY).catch(() => {});
+  // Check for Last-Event-ID header or query string
+  const lastEventIdStr = req.headers['last-event-id'] || req.query.lastEventId;
+  const lastEventId = lastEventIdStr ? Number(lastEventIdStr) : null;
+
+  if (Number.isFinite(lastEventId) && lastEventId > 0) {
+    replayEventsSince(res, lastEventId).catch(() => {});
+  } else {
+    replayRecentEvents(res, MAX_REPLAY).catch(() => {});
+  }
 
   const heartbeat = setInterval(() => {
     try {
@@ -128,7 +190,7 @@ function addClient(res) {
   return client;
 }
 
-function addMarketClient(res) {
+function addMarketClient(req, res) {
   const client = { res, connectedAt: Date.now() };
   marketClients.add(client);
 
@@ -140,7 +202,16 @@ function addMarketClient(res) {
   });
   res.write(': connected\n\n');
 
-  replayRecentEvents(res, 20, ['listing.created', 'order.placed']).catch(() => {});
+  const lastEventIdStr = req.headers['last-event-id'] || req.query.lastEventId;
+  const lastEventId = lastEventIdStr ? Number(lastEventIdStr) : null;
+
+  const marketFilters = ['listing.created', 'order.placed'];
+
+  if (Number.isFinite(lastEventId) && lastEventId > 0) {
+    replayEventsSince(res, lastEventId, marketFilters).catch(() => {});
+  } else {
+    replayRecentEvents(res, 20, marketFilters).catch(() => {});
+  }
 
   const heartbeat = setInterval(() => {
     try {

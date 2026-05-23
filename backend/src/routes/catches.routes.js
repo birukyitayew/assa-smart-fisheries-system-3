@@ -4,6 +4,7 @@ const { body } = require('express-validator');
 const authMiddleware = require('../middleware/auth.middleware');
 const requireRole = require('../middleware/role.middleware');
 const controller = require('../controllers/catches.controller');
+const { upload } = require('../middleware/upload.middleware');
 
 const catchValidation = [
   body('species').notEmpty().withMessage('Species is required'),
@@ -28,6 +29,9 @@ router.get('/fisher/catches/:id', authMiddleware, requireRole('fisher'), control
 
 // ── POST /api/catches — submit a new catch ────────────────────────────────────
 router.post('/catches', authMiddleware, requireRole('fisher'), catchValidation, controller.submitCatch);
+
+// ── POST /api/catches/upload — upload a catch photo ───────────────────────────
+router.post('/catches/upload', authMiddleware, requireRole('fisher'), upload.single('photo'), controller.uploadCatchPhoto);
 
 // ── Fisher trips (Phase 3) ────────────────────────────────────────────────────
 router.get('/fisher/trips/active', authMiddleware, requireRole('fisher'), controller.getActiveTrip);

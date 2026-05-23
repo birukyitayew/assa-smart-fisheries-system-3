@@ -4,9 +4,9 @@
 
 const { prisma } = require('../database/prisma');
 
-async function recordPrice({ species, zoneId = null, pricePerKg, source }) {
+async function recordPrice({ species, zoneId = null, pricePerKg, source }, tx = prisma) {
   if (!species || pricePerKg == null) return;
-  await prisma.priceHistory.create({
+  await tx.priceHistory.create({
     data: {
       species,
       zoneId,

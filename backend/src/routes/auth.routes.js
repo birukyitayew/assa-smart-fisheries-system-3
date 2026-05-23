@@ -97,7 +97,7 @@ router.post('/refresh', asyncHandler(async (req, res) => {
 }));
 
 // POST /api/auth/logout
-router.post('/logout', asyncHandler(async (req, res) => {
+router.post('/logout', authMiddleware, asyncHandler(async (req, res) => {
   const refreshToken = req.body.refreshToken || req.body.refresh_token;
   const userId = req.user?.id;
   await authService.logout(refreshToken, userId);
