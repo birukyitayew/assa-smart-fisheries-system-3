@@ -1,7 +1,8 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { Home, Plus, Fish, Bell, Map, LogOut } from 'lucide-react'
+import { Home, Plus, Fish, Bell, Map, LogOut, WifiOff } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useOffline } from '../hooks/useOffline'
 import AppLogo from './brand/AppLogo'
 import api from '../services/api'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ const navItems = [
 
 export default function AppShell() {
   const { user, logout } = useAuth()
+  const isOffline = useOffline()
   const [unread, setUnread] = useState(0)
 
   useEffect(() => {
@@ -45,6 +47,13 @@ export default function AppShell() {
           </Button>
         </div>
       </header>
+
+      {isOffline && (
+        <div className="flex items-center gap-2 bg-amber-500/90 text-white text-xs font-medium px-4 py-2">
+          <WifiOff className="h-3.5 w-3.5 shrink-0" />
+          <span>No internet connection. Some features may not work.</span>
+        </div>
+      )}
 
       <main className="flex-1 overflow-y-auto pb-20">
         <Outlet />

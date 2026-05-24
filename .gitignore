@@ -32,3 +32,6 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# Uploads
+backend/uploads/

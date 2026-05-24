@@ -20,6 +20,8 @@ export default function Step2Location({
   onCaptureGps,
   gpsLoading,
   gpsError,
+  gpsTakingTooLong,
+  onSkipGps,
 }) {
   const selectedZone = zones.find((z) => z.id === Number(form.zone_id))
 
@@ -66,11 +68,29 @@ export default function Step2Location({
         variant="outline"
         className="w-full"
         onClick={onCaptureGps}
-        disabled={gpsLoading}
+        disabled={gpsLoading && !gpsTakingTooLong}
       >
         <MapPin className="h-4 w-4 mr-2" />
         {gpsLoading ? 'Getting GPS…' : 'Refresh device GPS'}
       </Button>
+
+      {gpsLoading && gpsTakingTooLong && (
+        <Card className="border-warning/30 bg-warning/5 p-3 text-xs space-y-2">
+          <p className="text-warning-foreground font-medium">
+            GPS capture is taking longer than expected. You can skip and use the zone's center coordinates.
+          </p>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onSkipGps}
+            className="w-full h-8 text-warning-foreground hover:bg-warning/10 text-xs border border-warning/30 font-semibold"
+          >
+            Use Zone Center Instead
+          </Button>
+        </Card>
+      )}
+
       {gpsError && <p className="text-xs text-warning">{gpsError}</p>}
 
       {form.gps_lat && (

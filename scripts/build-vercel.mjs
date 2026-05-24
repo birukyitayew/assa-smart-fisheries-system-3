@@ -21,6 +21,15 @@ async function run() {
 
   for (const app of apps) {
     const cwd = path.join(repoRoot, app.dir);
+    // Install dependencies in sub-app first before building
+    console.log(`\n--- Installing dependencies for ${app.dir} ---`);
+    try {
+      await execa('npm', ['ci'], { cwd, stdio: 'inherit' });
+    } catch {
+      await execa('npm', ['install'], { cwd, stdio: 'inherit' });
+    }
+
+    console.log(`--- Building ${app.dir} ---`);
     await execa('npm', ['run', 'build'], { cwd, stdio: 'inherit' });
 
     const from = path.join(cwd, 'dist');

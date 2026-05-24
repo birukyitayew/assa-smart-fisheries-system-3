@@ -18,6 +18,7 @@ import {
   TrendingUp,
   ClipboardCheck,
   AlertTriangle,
+  UserPlus,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import AppLogo from '../brand/AppLogo'
@@ -33,6 +34,7 @@ export const adminNav = [
   { to: '/market', labelKey: 'nav.market', icon: TrendingUp },
   { to: '/catches', labelKey: 'nav.catches', icon: Fish },
   { to: '/fishermen', labelKey: 'nav.fishers', icon: Users },
+  { to: '/users/create', label: 'Onboard User', icon: UserPlus },
   { to: '/quotas', labelKey: 'nav.quotas', icon: Ruler },
   { to: '/zones', labelKey: 'nav.zones', icon: Map },
   { to: '/alerts', labelKey: 'nav.alerts', icon: Bell },

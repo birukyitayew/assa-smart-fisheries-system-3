@@ -81,4 +81,7 @@ router.get('/violations/:id', ...isAdmin, inspectorController.getViolation);
 router.put('/violations/:id', ...isAdmin, inspectorController.updateViolationFine);
 router.get('/enforcement/suspicious-fishers', ...isAdmin, inspectorController.getSuspiciousFishers);
 
+// ── User Management ───────────────────────────────────────────────────────────
+router.post('/users', ...isAdmin, controller.createUser);
+
 module.exports = router;

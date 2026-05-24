@@ -18,6 +18,7 @@ export default function DailyCatchesPage() {
   const [search, setSearch] = useState('')
   const [date, setDate] = useState('')
   const [page, setPage] = useState(1)
+  const [selectedIds, setSelectedIds] = useState([])
 
   const fetchCatches = useCallback(async () => {
     try {
@@ -28,12 +29,26 @@ export default function DailyCatchesPage() {
       const res = await api.get(`/admin/catches?${params}`)
       setCatches(res.data.catches)
       setTotal(res.data.total)
+      setSelectedIds([]) // Reset selections when data changes
     } catch (err) {
       console.error(err)
     }
   }, [activeTab, search, date, page, selectedRegionId])
 
   usePolling(fetchCatches, 10000)
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.length === 0) return
+    const confirmApprove = window.confirm(`Are you sure you want to approve ${selectedIds.length} selected catches?`)
+    if (!confirmApprove) return
+    try {
+      await Promise.all(selectedIds.map(id => api.put(`/admin/catches/${id}/approve`)))
+      setSelectedIds([])
+      fetchCatches()
+    } catch (err) {
+      alert('Error approving some catches: ' + (err.response?.data?.error || err.message))
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -80,13 +95,40 @@ export default function DailyCatchesPage() {
       </Card>
 
       <Card className="overflow-hidden">
-        <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+        <div className="px-5 py-3 border-b border-border flex items-center justify-between min-h-[50px]">
           <span className="text-sm text-muted-foreground">
             {total} result{total !== 1 ? 's' : ''}
           </span>
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-lg border border-emerald-500/20">
+              <span className="text-xs font-semibold">
+                {selectedIds.length} selected
+              </span>
+              <Button
+                size="sm"
+                onClick={handleBulkApprove}
+                className="bg-emerald-600 text-white hover:bg-emerald-700 px-2.5 py-1 text-[11px] h-auto font-bold"
+              >
+                Approve Selected
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedIds([])}
+                className="text-muted-foreground hover:text-foreground text-[11px] px-1 py-1 h-auto"
+              >
+                Clear
+              </Button>
+            </div>
+          )}
         </div>
 
-        <CatchesTable catches={catches} />
+        <CatchesTable 
+          catches={catches} 
+          selectedIds={selectedIds} 
+          onSelectChange={setSelectedIds} 
+          onRefresh={fetchCatches}
+        />
 
         {total > 20 && (
           <div className="px-5 py-3 border-t border-border flex items-center justify-between text-sm">

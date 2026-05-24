@@ -10,7 +10,7 @@ import StatusBadge from '../components/StatusBadge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 
-const STEP_LABELS = ['Details', 'Location', 'Photo', 'Review']
+const STEP_LABELS = ['Details', 'Location', 'Photo (Optional)', 'Review']
 
 export default function SubmitCatchPage() {
   const navigate = useNavigate()
@@ -35,6 +35,7 @@ export default function SubmitCatchPage() {
 
   const [gpsLoading, setGpsLoading] = useState(false)
   const [gpsError, setGpsError] = useState('')
+  const [gpsTakingTooLong, setGpsTakingTooLong] = useState(false)
 
   useEffect(() => {
     api.get('/zones').then((res) => setZones(res.data.zones))
@@ -47,15 +48,25 @@ export default function SubmitCatchPage() {
     }
     setGpsLoading(true)
     setGpsError('')
+    setGpsTakingTooLong(false)
+
+    const timer = setTimeout(() => {
+      setGpsTakingTooLong(true)
+    }, 3000)
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        clearTimeout(timer)
         set('gps_lat', pos.coords.latitude)
         set('gps_lng', pos.coords.longitude)
         setGpsLoading(false)
+        setGpsTakingTooLong(false)
       },
       () => {
+        clearTimeout(timer)
         setGpsError('Could not get location. Zone center will be used.')
         setGpsLoading(false)
+        setGpsTakingTooLong(false)
       },
       { enableHighAccuracy: true, timeout: 15000 },
     )
@@ -107,12 +118,12 @@ export default function SubmitCatchPage() {
     setStep((s) => s + 1)
   }
 
-  function addPhoto() {
-    const photos = ['tilapia', 'catfish', 'nile_perch', 'carp', 'barbus']
-    const species =
-      form.species?.toLowerCase().replace(/\s/g, '_') || photos[Math.floor(Math.random() * photos.length)]
-    const url = `/uploads/fish_${species}_${form.photo_urls.length + 1}.jpg`
+  function addPhoto(url) {
     set('photo_urls', [...form.photo_urls, url])
+  }
+
+  function removePhoto(index) {
+    set('photo_urls', form.photo_urls.filter((_, i) => i !== index))
   }
 
   async function handleSubmit() {
@@ -223,9 +234,21 @@ export default function SubmitCatchPage() {
           onCaptureGps={captureDeviceGps}
           gpsLoading={gpsLoading}
           gpsError={gpsError}
+          gpsTakingTooLong={gpsTakingTooLong}
+          onSkipGps={() => {
+            setGpsLoading(false)
+            setGpsTakingTooLong(false)
+            if (form.zone_id) {
+              const zone = zones.find((z) => z.id === Number(form.zone_id))
+              if (zone) {
+                set('gps_lat', zone.gps_lat)
+                set('gps_lng', zone.gps_lng)
+              }
+            }
+          }}
         />
       )}
-      {step === 3 && <Step3Photo photos={form.photo_urls} onAddPhoto={addPhoto} />}
+      {step === 3 && <Step3Photo photos={form.photo_urls} onAddPhoto={addPhoto} onRemove={removePhoto} />}
       {step === 4 && <Step4Review form={form} selectedZone={selectedZone} />}
 
       {step === 4 && errors.submit && <p className="text-destructive text-sm">{errors.submit}</p>}

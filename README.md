@@ -8,13 +8,13 @@ A three-module connected platform demonstrating a complete fisheries management 
 
 ## Modules & Ports
 
-| Module | Port | URL | Credentials |
-|--------|------|-----|-------------|
-| **Admin / Command Center** | 3001 | http://localhost:3001 | dawit@fisheries.gov.et / admin123 |
-| **Inspector (same app)** | 3001 | http://localhost:3001 | solomon@fisheries.gov.et / inspector123 |
-| **Fisher App** | 3002 | http://localhost:3002 | tesfaye@fisher.et / fisher123 |
-| **Fish Market** | 3003 | http://localhost:3003 | mesfin@buyer.et / buyer123 |
-| **Backend API** | 4000 | http://localhost:4000/api/health | — |
+| Module                     | Port | URL                              | Credentials                             |
+| -------------------------- | ---- | -------------------------------- | --------------------------------------- |
+| **Admin / Command Center** | 3001 | http://localhost:3001            | dawit@fisheries.gov.et / admin123       |
+| **Inspector (same app)**   | 3001 | http://localhost:3001            | solomon@fisheries.gov.et / inspector123 |
+| **Fisher App**             | 3002 | http://localhost:3002            | tesfaye@fisher.et / fisher123           |
+| **Fish Market**            | 3003 | http://localhost:3003            | mesfin@buyer.et / buyer123              |
+| **Backend API**            | 4000 | http://localhost:4000/api/health | —                                       |
 
 ---
 
@@ -27,10 +27,7 @@ A three-module connected platform demonstrating a complete fisheries management 
 From the project root:
 
 ```bash
-npm install
-npm run install:all
-npm run seed
-npm run dev
+i
 ```
 
 ### Environment variables
@@ -39,6 +36,7 @@ npm run dev
 - Do not commit real secrets (like a production `JWT_SECRET`) to the repository.
 
 That starts all four services:
+
 - Backend API: http://localhost:4000/api/health
 - Admin Dashboard: http://localhost:3001
 - Fisher App: http://localhost:3002
@@ -86,13 +84,13 @@ npm run reset
 
 The admin dashboard is now a **live command center** with:
 
-| Route | Feature |
-|-------|---------|
-| `/` | Command Overview — live KPIs, activity feed, charts |
-| `/live` | Live Operations — transaction ticker, pending queue |
-| `/map` | Lake Command Map — zones, fleet, catch pins |
+| Route     | Feature                                                |
+| --------- | ------------------------------------------------------ |
+| `/`       | Command Overview — live KPIs, activity feed, charts    |
+| `/live`   | Live Operations — transaction ticker, pending queue    |
+| `/map`    | Lake Command Map — zones, fleet, catch pins            |
 | `/market` | Market Monitor — buyers, sellers, prices, supply chain |
-| `/audit` | Audit Log — government accountability trail |
+| `/audit`  | Audit Log — government accountability trail            |
 
 **LIVE indicator** in the header shows SSE connection status. Events propagate across apps without page refresh.
 
@@ -106,11 +104,11 @@ npm run simulate:boats
 
 ## Phase 2: Inspector & Enforcement
 
-| Route | Feature |
-|-------|---------|
-| `/inspections` | Assign and track field inspections |
-| `/violations` | Violation reports, fines, suspicious fishers |
-| Fisher home | Digital license QR, compliance score, open violations |
+| Route          | Feature                                               |
+| -------------- | ----------------------------------------------------- |
+| `/inspections` | Assign and track field inspections                    |
+| `/violations`  | Violation reports, fines, suspicious fishers          |
+| Fisher home    | Digital license QR, compliance score, open violations |
 
 **Inspector login (same admin app, limited nav):** `solomon@fisheries.gov.et` / `inspector123`
 
@@ -122,21 +120,23 @@ Device GPS is captured on catch submit; catches far from the selected zone trigg
 
 ## Phase 3: Fleet & Intelligence
 
-| Route | Feature |
-|-------|---------|
-| `/fleet` | **GC-05** Fleet ops — boat list, status, 24h route polyline on map |
-| `/intelligence` | **GC-10** Market intelligence — price trends, snapshots, shortage table |
-| Fisher home | **FI-07** Start/end fishing trip (requires valid license + boat) |
-| Marketplace | Live SSE toasts (`listing.created`, `order.placed`); price sparkline on cards |
+| Route           | Feature                                                                       |
+| --------------- | ----------------------------------------------------------------------------- |
+| `/fleet`        | **GC-05** Fleet ops — boat list, status, 24h route polyline on map            |
+| `/intelligence` | **GC-10** Market intelligence — price trends, snapshots, shortage table       |
+| Fisher home     | **FI-07** Start/end fishing trip (requires valid license + boat)              |
+| Marketplace     | Live SSE toasts (`listing.created`, `order.placed`); price sparkline on cards |
 
 **New tables:** `boat_trips`, `price_history`, `market_snapshots`, `zone_season_rules`, `geo_polygon` on zones.
 
 **Fisher trip APIs:**
+
 - `POST /api/fisher/trips/start` — one active trip per boat/fisher
 - `POST /api/fisher/trips/end`
 - `GET  /api/fisher/trips/active`
 
 **Fleet & intelligence APIs:**
+
 - `GET  /api/admin/fleet` — boats + active trip + last position
 - `GET  /api/admin/fleet/:boatId/history?hours=24` — route points for polyline
 - `GET  /api/admin/intelligence/overview` — charts data
@@ -157,42 +157,55 @@ Start a trip in the fisher app first, then run the simulator to see route histor
 
 ## Phase 4: Production Hardening
 
-| Area | What changed |
-|------|----------------|
-| Database | **PostgreSQL** (Docker local, Neon/Render prod) via **Prisma** |
-| Auth | Refresh tokens + rotation; login rate limit; optional account lockout |
-| Security | `SECURITY.md`, stratified rate limits, `npm audit` in CI |
-| i18n | English + **Amharic** toggle (`assa_lang` in localStorage) on critical screens |
-| E2E | Playwright `e2e/demo-workflow.spec.js` |
-| Deploy | Vite `base` paths (`/admin/`, `/fisher/`, `/market/`), `backend/Dockerfile`, `render.yaml`, `vercel.json` |
+| Area        | What changed                                                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Database    | **PostgreSQL** (Docker local, Neon/Render prod) via **Prisma**                                                                                              |
+| Auth        | Refresh tokens + rotation; login rate limit; optional account lockout; secure **Password Reset flow**                                                       |
+| Security    | `SECURITY.md`, stratified rate limits, `npm audit` in CI, HS256 JWT pinning                                                                                 |
+| i18n        | English + **Amharic** toggle (`assa_lang` in localStorage) on critical screens                                                                              |
+| Diagnostics | `/api/health/detailed` active deep diagnostic probe checking database & Cloudinary                                                                          |
+| Testing     | Native Node test runner (`node --test tests/`) with Auth, Catches, Quotas, and E2E integration tests                                                        |
+| Deploy      | Vite `base` paths (`/admin/`, `/fisher/`, `/market/`), `backend/Dockerfile`, `render.yaml` with Starter tier database and daily backup crons, `vercel.json` |
 
 ### Local PostgreSQL
 
 ```bash
 docker compose up -d
 cd backend && cp .env.example .env
-npx prisma migrate deploy
+npx prisma migrate dev
 npm run seed
 ```
 
 ### Run (same ports; use path prefixes in browser)
 
-| App | URL |
-|-----|-----|
-| Admin | http://localhost:3001/admin/ |
-| Fisher | http://localhost:3002/fisher/ |
-| Market | http://localhost:3003/market/ |
-| API | http://localhost:4000/api/health |
+| App         | URL                                       |
+| ----------- | ----------------------------------------- |
+| Admin       | http://localhost:3001/admin/              |
+| Fisher      | http://localhost:3002/fisher/             |
+| Market      | http://localhost:3003/market/             |
+| API         | http://localhost:4000/api/health          |
+| Diagnostics | http://localhost:4000/api/health/detailed |
 
 ```bash
 npm run dev
 ```
 
-### Auth refresh
+### Auth refresh & reset
 
-Login returns `accessToken` + `refreshToken`. Frontends store refresh in `sessionStorage` and retry once on HTTP 401 via `/api/auth/refresh`.
+- Login returns `accessToken` + `refreshToken`. Frontends store refresh in `sessionStorage` and retry once on HTTP 401 via `/api/auth/refresh`.
+- **Forgot Password**: `POST /api/auth/forgot-password` generates a cryptographic reset token.
+- **Reset Password**: `POST /api/auth/reset-password` hashes and updates the password in a single transactional query.
 
-### E2E tests
+### E2E and Backend Integration Tests
+
+To run the complete test suite (14 passes, 0 failures) validating login, catches, quotas, rejection workflows, out-of-stock ordering, and admin onboarding:
+
+```bash
+# In backend/ directory:
+npm run test
+```
+
+For Playwright browser tests:
 
 ```bash
 npm run dev   # in one terminal
@@ -200,21 +213,14 @@ npm run test:e2e
 npm run test:e2e:ui   # interactive
 ```
 
-### Backups
+### Backups & Operations
 
-```bash
-DATABASE_URL=postgresql://assa:assa@localhost:5432/assa ./scripts/backup-db.sh
-```
-
-Restore: `gunzip -c backups/assa-*.sql.gz | psql $DATABASE_URL`
-
-### Production checklist
-
-- Set strong `JWT_SECRET` (never `change_me` in prod)
-- Set `CORS_ORIGINS` to your Vercel URL(s)
-- Point `vercel.json` API rewrite to your Render/Fly host
-- Run API on a long-running instance (SSE requires it)
-- Enable Neon backups / PITR for production DB
+- Automated backups are configured daily at midnight via Render cron service in `render.yaml`.
+- Manual back up script:
+  ```bash
+  DATABASE_URL=postgresql://assa:assa@localhost:5432/assa ./scripts/backup-db.sh
+  ```
+- Detailed operations, uptime heartbeats (UptimeRobot), and Sentry profiling configs are outlined in [uptime_monitoring.md](Docs/uptime_monitoring.md).
 
 ---
 
@@ -222,27 +228,30 @@ Restore: `gunzip -c backups/assa-*.sql.gz | psql $DATABASE_URL`
 
 National scale across **Lake Tana**, **Lake Ziway**, and **Lake Hawassa** (SMS, Redis cluster SSE, offline inspector sync, and national ID remain deferred).
 
-| Area | What changed |
-|------|----------------|
-| Data | `regions` table; `fishing_zones.region_id`; optional `users.region_id` for `regional_admin` |
-| API | `region.service.js` — `X-Region-Id` / `?region_id=` for national admins; forced scope for `regional_admin` |
-| Admin reads | Dashboard, fleet, map, catches, market, intelligence filtered by region |
-| UI | Header region selector; `RegionContext` + `sessionStorage` (`assa_region_id`); map centers per lake |
-| Seed | Ziway/Hawassa zones, fishers, catches; `regional@ziway.gov.et` / `admin123` |
-| E2E | `e2e/regional.spec.js` |
+| Area        | What changed                                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------------------- |
+| Data        | `regions` table; `fishing_zones.region_id`; optional `users.region_id` for `regional_admin`                |
+| API         | `region.service.js` — `X-Region-Id` / `?region_id=` for national admins; forced scope for `regional_admin` |
+| Admin reads | Dashboard, fleet, map, catches, market, intelligence filtered by region                                    |
+| UI          | Header region selector; `RegionContext` + `sessionStorage` (`assa_region_id`); map centers per lake        |
+| Seed        | Ziway/Hawassa zones, fishers, catches; `regional@ziway.gov.et` / `admin123`                                |
+| E2E         | `e2e/regional.spec.js`                                                                                     |
 
-### Verify multi-region
+---
 
-1. Login `dawit@fisheries.gov.et` → header **All lakes (national)** → aggregated KPIs  
-2. Select **Lake Ziway** → fleet/catches show Ziway data only; map centers on Ziway  
-3. Login `regional@ziway.gov.et` → fixed Lake Ziway scope; cannot view Tana catches  
-4. `npm run test:e2e` (includes regional spec)
+## Phase 6: Post-Launch Operations (Administrative Onboarding)
+
+Admins can onboard new Cooperative members, port authorities, and marketplace buyers directly from the **Onboard User** tab on the side navigation menu:
+
+- **UI Component**: React `UsersPage.jsx` integrated into Route `/users/create`.
+- **API Handler**: `POST /api/admin/users` executing atomic profile updates (fisher licenses, default boat registration, or buyer location) using transactional rollbacks.
 
 ---
 
 ## Demo Workflow (7 minutes)
 
 Open 4 browser tabs:
+
 - **Admin Command Center:** http://localhost:3001/admin/ (login: dawit@fisheries.gov.et / admin123)
 - **Fisher App:** http://localhost:3002/fisher/ (375px width) — tesfaye@fisher.et / fisher123
 - **Fish Market:** http://localhost:3003/market/ — mesfin@buyer.et / buyer123
@@ -258,7 +267,7 @@ Open 4 browser tabs:
 **Step 6** — Buyer: Place order 10 kg  
 **Step 7** — Admin: Revenue KPI updates; open **Market Monitor**, **Intelligence**, and **Lake Map** (zone polygons)  
 **Step 8** — Market: Sonner toast on new listing/order; listing cards show 7-day price sparkline  
-**Step 9** — Admin: **Audit Log** shows approve/order actions  
+**Step 9** — Admin: **Audit Log** shows approve/order actions
 
 **Quota enforcement:** Approving a catch that would exceed monthly species quota returns HTTP 409.
 
@@ -287,10 +296,14 @@ assa-smart-fisheries-system/
 ## API Endpoints
 
 ### Auth
+
 - `POST /api/auth/login` — Login (all roles)
 - `GET  /api/auth/me` — Current user
+- `POST /api/auth/forgot-password` — Generate secure password reset token
+- `POST /api/auth/reset-password` — Reset password using token
 
 ### Fisher
+
 - `GET  /api/fisher/profile` — Fisher profile + today's summary + active trip
 - `POST /api/fisher/trips/start` — Start fishing trip
 - `POST /api/fisher/trips/end` — End active trip
@@ -301,6 +314,7 @@ assa-smart-fisheries-system/
 - `GET  /api/zones` — All fishing zones
 
 ### Admin / Command Center
+
 - `GET  /api/admin/dashboard/stats` — KPI cards
 - `GET  /api/admin/command/live-stats` — Live command KPIs
 - `GET  /api/admin/map/layers` — Zones, fleet, catch pins
@@ -320,12 +334,20 @@ assa-smart-fisheries-system/
 - `PUT  /api/admin/catches/:id/reject` — Reject catch
 - `GET  /api/admin/quotas` — Species quota usage
 - `GET  /api/admin/alerts` — System alerts
+- `POST /api/admin/users` — Onboard new platform user (Admin-only)
+
+### Diagnostics
+
+- `GET  /api/health` — Basic health check
+- `GET  /api/health/detailed` — Deep diagnostic health check (database, uptime, memory, storage)
 
 ### Marketplace
+
 - `GET  /api/marketplace/listings` — Active listings (with price_trend, shortage_flags)
 - `GET  /api/marketplace/price-history/:species` — 7-day price series
 - `GET  /api/marketplace/listings/:id` — Listing detail
 - `POST /api/marketplace/orders` — Place order (buyer auth required)
 - `GET  /api/marketplace/stats` — Market overview stats
 - `GET  /api/marketplace/activity` — Recent activity feed
+
 # assa-smart-fisheries-system-3

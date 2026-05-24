@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
 export default function CatchesLineChart({ data }) {
   return (
@@ -12,7 +12,7 @@ export default function CatchesLineChart({ data }) {
         />
         <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
         <Tooltip
-          formatter={(v) => [`${v} kg`, 'Catch']}
+          formatter={(v, name) => [`${Math.round(v)} kg`, name]}
           labelFormatter={(l) => `Date: ${l}`}
           contentStyle={{
             background: 'var(--card)',
@@ -20,12 +20,23 @@ export default function CatchesLineChart({ data }) {
             borderRadius: '8px',
           }}
         />
+        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
         <Line
           type="monotone"
-          dataKey="total_kg"
-          stroke="var(--chart-1)"
+          dataKey="verified_kg"
+          name="Verified"
+          stroke="#10b981"
           strokeWidth={2}
-          dot={{ r: 3, fill: 'var(--chart-1)' }}
+          dot={{ r: 3, fill: '#10b981' }}
+        />
+        <Line
+          type="monotone"
+          dataKey="pending_kg"
+          name="Pending"
+          stroke="#f59e0b"
+          strokeWidth={2}
+          strokeDasharray="5 5"
+          dot={{ r: 3, fill: '#f59e0b' }}
         />
       </LineChart>
     </ResponsiveContainer>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import LanguageToggle from '../components/LanguageToggle'
@@ -14,6 +14,9 @@ export default function LoginPage() {
   const { t } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  // Restore the page the user was trying to view before being redirected to login
+  const from = location.state?.from || '/'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -25,7 +28,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await login(email.trim(), password)
-      navigate('/')
+      navigate(from, { replace: true })
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Login failed')
     } finally {

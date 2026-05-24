@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
+import ErrorBoundary from './components/ErrorBoundary'
 import InspectorHomePage from './pages/InspectorHomePage'
 import Layout from './components/layout/Layout'
 import LoginPage from './pages/LoginPage'
@@ -19,6 +20,7 @@ import InspectionsPage from './pages/InspectionsPage'
 import ViolationsPage from './pages/ViolationsPage'
 import FleetPage from './pages/FleetPage'
 import IntelligencePage from './pages/IntelligencePage'
+import UsersPage from './pages/UsersPage'
 
 function HomeRoute() {
   const { user } = useAuth()
@@ -39,22 +41,23 @@ export default function App() {
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-        <Route index element={<HomeRoute />} />
-        <Route path="live" element={<LiveOperationsPage />} />
-        <Route path="map" element={<CommandMapPage />} />
-        <Route path="fleet" element={<FleetPage />} />
-        <Route path="intelligence" element={<IntelligencePage />} />
-        <Route path="market" element={<MarketMonitorPage />} />
-        <Route path="inspections" element={<InspectionsPage />} />
-        <Route path="violations" element={<ViolationsPage />} />
-        <Route path="audit" element={<AuditLogPage />} />
-        <Route path="catches" element={<DailyCatchesPage />} />
-        <Route path="catches/:id" element={<CatchDetailPage />} />
-        <Route path="fishermen" element={<FishermanPage />} />
-        <Route path="quotas" element={<QuotasPage />} />
-        <Route path="alerts" element={<AlertsPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="zones" element={<ZonesPage />} />
+        <Route index element={<ErrorBoundary><HomeRoute /></ErrorBoundary>} />
+        <Route path="live" element={<ErrorBoundary><LiveOperationsPage /></ErrorBoundary>} />
+        <Route path="map" element={<ErrorBoundary><CommandMapPage /></ErrorBoundary>} />
+        <Route path="fleet" element={<ErrorBoundary><FleetPage /></ErrorBoundary>} />
+        <Route path="intelligence" element={<ErrorBoundary><IntelligencePage /></ErrorBoundary>} />
+        <Route path="market" element={<ErrorBoundary><MarketMonitorPage /></ErrorBoundary>} />
+        <Route path="inspections" element={<ErrorBoundary><InspectionsPage /></ErrorBoundary>} />
+        <Route path="violations" element={<ErrorBoundary><ViolationsPage /></ErrorBoundary>} />
+        <Route path="audit" element={<ErrorBoundary><AuditLogPage /></ErrorBoundary>} />
+        <Route path="catches" element={<ErrorBoundary><DailyCatchesPage /></ErrorBoundary>} />
+        <Route path="catches/:id" element={<ErrorBoundary><CatchDetailPage /></ErrorBoundary>} />
+        <Route path="fishermen" element={<ErrorBoundary><FishermanPage /></ErrorBoundary>} />
+        <Route path="users/create" element={<ErrorBoundary><UsersPage /></ErrorBoundary>} />
+        <Route path="quotas" element={<ErrorBoundary><QuotasPage /></ErrorBoundary>} />
+        <Route path="alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
+        <Route path="reports" element={<ErrorBoundary><ReportsPage /></ErrorBoundary>} />
+        <Route path="zones" element={<ErrorBoundary><ZonesPage /></ErrorBoundary>} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

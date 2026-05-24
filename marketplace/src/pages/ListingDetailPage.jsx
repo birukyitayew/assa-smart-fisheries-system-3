@@ -11,12 +11,13 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const FISH_IMAGES = {
-  Tilapia: 'https://commons.wikimedia.org/wiki/Special:FilePath/Oreochromis_niloticus.jpg',
-  Catfish: 'https://commons.wikimedia.org/wiki/Special:FilePath/Clarias_gariepinus.jpg',
-  'Nile Perch': 'https://commons.wikimedia.org/wiki/Special:FilePath/Lates_niloticus.jpg',
-  Carp: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cyprinus_carpio.jpg',
-  'Barbus (Ganfo)': 'https://commons.wikimedia.org/wiki/Special:FilePath/Barbus_barbus.jpg',
+const FISH_COLORS = {
+  Tilapia: { bg: '#0e7490', emoji: '🐟' },
+  Catfish: { bg: '#92400e', emoji: '🐠' },
+  'Nile Perch': { bg: '#065f46', emoji: '🐡' },
+  Carp: { bg: '#1e40af', emoji: '🐟' },
+  'Barbus (Ganfo)': { bg: '#6d28d9', emoji: '🐠' },
+  default: { bg: '#334155', emoji: '🐟' },
 }
 
 function formatKg(value) {
@@ -42,7 +43,7 @@ export default function ListingDetailPage() {
 
   async function handleOrder() {
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: `/listing/${id}` } })
       return
     }
     setOrdering(true)
@@ -70,9 +71,9 @@ export default function ListingDetailPage() {
     )
   }
 
+  const fish = FISH_COLORS[listing.species] || FISH_COLORS.default
   const totalPrice = (quantity * listing.price_per_kg).toFixed(0)
   const isAvailable = listing.status === 'ACTIVE' && listing.quantity_available_kg > 0
-  const imageUrl = FISH_IMAGES[listing.species] || FISH_IMAGES.Tilapia
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -81,16 +82,14 @@ export default function ListingDetailPage() {
       </Button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="relative h-72 rounded-xl overflow-hidden bg-muted">
-          <img
-            src={imageUrl}
-            alt={`${listing.species} verified catch`}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+        <div
+          className="relative h-72 rounded-xl overflow-hidden"
+          style={{ backgroundColor: fish.bg }}
+        >
+          <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-30 select-none">
+            {fish.emoji}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
             <div className="text-white font-semibold text-lg">{listing.species}</div>
             <Badge className="bg-background text-primary">ASSA Verified</Badge>
@@ -148,9 +147,18 @@ export default function ListingDetailPage() {
                     min="1"
                     max={listing.quantity_available_kg}
                     value={quantity}
-                    onChange={(e) =>
-                      setQuantity(Math.min(Number(e.target.value), listing.quantity_available_kg))
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? '' : Number(e.target.value)
+                      setQuantity(val)
+                    }}
+                    onBlur={() => {
+                      const num = Number(quantity)
+                      if (isNaN(num) || num < 1) {
+                        setQuantity(1)
+                      } else {
+                        setQuantity(Math.min(num, listing.quantity_available_kg))
+                      }
+                    }}
                     className="w-20 text-center text-lg font-semibold"
                   />
                   <Button
@@ -176,7 +184,7 @@ export default function ListingDetailPage() {
 
               <Button
                 className="w-full"
-                onClick={() => (user ? setShowModal(true) : navigate('/login'))}
+                onClick={() => (user ? setShowModal(true) : navigate('/login', { state: { from: `/listing/${id}` } }))}
               >
                 {user ? 'Order Now' : 'Sign in to Order'}
               </Button>

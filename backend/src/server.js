@@ -23,9 +23,7 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
-const logger = pino({
-  level: process.env.LOG_LEVEL || (env.NODE_ENV === 'production' ? 'info' : 'debug')
-});
+const logger = require('./utils/logger');
 
 // Trace correlation middleware: unique ID per request
 app.use((req, res, next) => {
@@ -131,6 +129,28 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/api/health/detailed', async (req, res) => {
+  const health = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    db: 'unknown',
+    storage: process.env.CLOUDINARY_URL ? 'cloudinary' : 'local-disk',
+  };
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    health.db = 'connected';
+  } catch (err) {
+    health.status = 'error';
+    health.db = `error: ${err.message}`;
+  }
+
+  const statusCode = health.status === 'ok' ? 200 : 503;
+  res.status(statusCode).json(health);
+});
+
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
 });
@@ -140,28 +160,33 @@ app.use((err, req, res, _next) => {
   res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
-const server = app.listen(env.PORT, () => {
-  logger.info({ port: env.PORT }, 'ASSA Backend listening');
-});
+let server;
+if (require.main === module) {
+  server = app.listen(env.PORT, () => {
+    logger.info({ port: env.PORT }, 'ASSA Backend listening');
+  });
+}
 
-// Graceful connection and DB drain on process teardown
 const gracefulShutdown = (signal) => {
   logger.info(`${signal} signal received: closing HTTP server`);
 
-  server.close(() => {
-    logger.info('HTTP server closed');
-    prisma.$disconnect()
-      .then(() => {
-        logger.info('Database connection closed');
-        process.exit(0);
-      })
-      .catch((err) => {
-        logger.error({ err }, 'Error closing database connection');
-        process.exit(1);
-      });
-  });
+  if (server) {
+    server.close(() => {
+      logger.info('HTTP server closed');
+      prisma.$disconnect()
+        .then(() => {
+          logger.info('Database connection closed');
+          process.exit(0);
+        })
+        .catch((err) => {
+          logger.error({ err }, 'Error closing database connection');
+          process.exit(1);
+        });
+    });
+  } else {
+    prisma.$disconnect().then(() => process.exit(0));
+  }
 
-  // Force-close connections if they exceed 10 seconds
   setTimeout(() => {
     logger.error('Could not close connections in time, forcefully shutting down');
     process.exit(1);
@@ -170,3 +195,5 @@ const gracefulShutdown = (signal) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+module.exports = { app, server };

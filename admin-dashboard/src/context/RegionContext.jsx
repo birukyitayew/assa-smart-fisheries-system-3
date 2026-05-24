@@ -1,75 +1,20 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import api from '../services/api'
-import { lakeTanaMapCenter } from '../lib/lakeTana'
-import { useAuth } from './AuthContext'
+import { createContext, useContext, useMemo } from 'react'
+import { LAKE_TANA_CENTER } from '../lib/lakeTana'
 
-const STORAGE_KEY = 'assa_region_id'
 const RegionContext = createContext(null)
 
 export function RegionProvider({ children }) {
-  const { user } = useAuth()
-  const [regions, setRegions] = useState([])
-  const [selectedRegionId, setSelectedRegionId] = useState(() => {
-    const stored = sessionStorage.getItem(STORAGE_KEY)
-    if (stored === 'all' || stored === '' || stored == null) return null
-    const n = Number(stored)
-    return Number.isFinite(n) && n > 0 ? n : null
-  })
-  const [loading, setLoading] = useState(false)
-
-  const isRegionalAdmin = user?.role === 'regional_admin'
-  const forcedRegionId = isRegionalAdmin ? (user?.region_id ?? null) : null
-  const effectiveRegionId = forcedRegionId ?? selectedRegionId
-
-  const loadRegions = useCallback(async () => {
-    if (!user) return
-    setLoading(true)
-    try {
-      const res = await api.get('/admin/regions')
-      setRegions(res.data.regions || [])
-    } catch {
-      setRegions([])
-    } finally {
-      setLoading(false)
-    }
-  }, [user])
-
-  useEffect(() => {
-    loadRegions()
-  }, [loadRegions])
-
-  useEffect(() => {
-    if (isRegionalAdmin && user?.region_id) {
-      setSelectedRegionId(user.region_id)
-      sessionStorage.setItem(STORAGE_KEY, String(user.region_id))
-    }
-  }, [isRegionalAdmin, user?.region_id])
-
-  function selectRegion(id) {
-    if (isRegionalAdmin) return
-    const next = id == null || id === 'all' ? null : Number(id)
-    setSelectedRegionId(next)
-    sessionStorage.setItem(STORAGE_KEY, next == null ? 'all' : String(next))
-  }
-
-  const selectedRegion = useMemo(
-    () => regions.find((r) => r.id === effectiveRegionId) ?? null,
-    [regions, effectiveRegionId],
-  )
-
-  const mapCenter = useMemo(() => lakeTanaMapCenter(selectedRegion), [selectedRegion])
-
-  const value = {
-    regions,
-    loading,
-    selectedRegionId: effectiveRegionId,
-    selectedRegion,
-    selectRegion,
-    isRegionalAdmin,
-    canSelectRegion: !isRegionalAdmin,
-    mapCenter,
-    regionLabel: selectedRegion?.name ?? (effectiveRegionId == null ? 'All lakes (national)' : 'Unknown region'),
-  }
+  const value = useMemo(() => ({
+    regions: [],
+    loading: false,
+    selectedRegionId: null,
+    selectedRegion: null,
+    selectRegion: () => {},
+    isRegionalAdmin: false,
+    canSelectRegion: false,
+    mapCenter: LAKE_TANA_CENTER,
+    regionLabel: 'Lake Tana',
+  }), [])
 
   return <RegionContext.Provider value={value}>{children}</RegionContext.Provider>
 }

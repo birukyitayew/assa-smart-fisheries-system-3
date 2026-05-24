@@ -4,16 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Bell, Radio } from 'lucide-react'
 import api from '../../services/api'
 import { useRealtime } from '../../context/RealtimeContext'
-import { useRegion } from '../../context/RegionContext'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import ThemeToggle from '../ThemeToggle'
 import MobileNav from './MobileNav'
@@ -21,14 +13,6 @@ import MobileNav from './MobileNav'
 export default function Header() {
   const { t } = useTranslation()
   const { connected } = useRealtime()
-  const {
-    regions,
-    selectedRegionId,
-    selectRegion,
-    canSelectRegion,
-    regionLabel,
-    isRegionalAdmin,
-  } = useRegion()
   const [alertCount, setAlertCount] = useState(0)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
@@ -44,7 +28,7 @@ export default function Header() {
     fetchAlerts()
     const id = setInterval(fetchAlerts, 15000)
     return () => clearInterval(id)
-  }, [selectedRegionId])
+  }, [])
 
   return (
     <header className="bg-card/80 backdrop-blur-sm border-b border-border px-4 sm:px-6 py-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between flex-shrink-0">
@@ -57,32 +41,9 @@ export default function Header() {
               {t('header.subtitle')}
             </p>
           </div>
-          {canSelectRegion ? (
-            <Select
-              value={selectedRegionId == null ? 'all' : String(selectedRegionId)}
-              onValueChange={(v) => selectRegion(v === 'all' ? null : v)}
-            >
-              <SelectTrigger
-                className="h-8 w-full sm:w-[200px] text-xs shrink-0"
-                aria-label={t('region.selectorLabel')}
-              >
-                <SelectValue placeholder={t('region.allLakes')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('region.allLakes')}</SelectItem>
-                {regions.map((r) => (
-                  <SelectItem key={r.id} value={String(r.id)}>
-                    {r.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <span className="text-xs font-medium text-primary px-2 py-1 rounded-md bg-primary/10 w-fit max-w-full truncate">
-              {regionLabel}
-              {isRegionalAdmin ? ` · ${t('region.regionalScope')}` : ''}
-            </span>
-          )}
+          <span className="text-xs font-medium text-primary px-2 py-1 rounded-md bg-primary/10 w-fit max-w-full truncate shrink-0">
+            Lake Tana
+          </span>
         </div>
       </div>
 

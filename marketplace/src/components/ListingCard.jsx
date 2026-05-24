@@ -5,12 +5,13 @@ import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import PriceSparkline from './PriceSparkline'
 
-const FISH_IMAGES = {
-  Tilapia: 'https://commons.wikimedia.org/wiki/Special:FilePath/Oreochromis_niloticus.jpg',
-  Catfish: 'https://commons.wikimedia.org/wiki/Special:FilePath/Clarias_gariepinus.jpg',
-  'Nile Perch': 'https://commons.wikimedia.org/wiki/Special:FilePath/Lates_niloticus.jpg',
-  Carp: 'https://commons.wikimedia.org/wiki/Special:FilePath/Cyprinus_carpio.jpg',
-  'Barbus (Ganfo)': 'https://commons.wikimedia.org/wiki/Special:FilePath/Barbus_barbus.jpg',
+const FISH_COLORS = {
+  Tilapia: { bg: 'linear-gradient(135deg, #0e7490, #155e75)', emoji: '🐟' },
+  Catfish: { bg: 'linear-gradient(135deg, #92400e, #78350f)', emoji: '🐠' },
+  'Nile Perch': { bg: 'linear-gradient(135deg, #065f46, #064e3b)', emoji: '🐡' },
+  Carp: { bg: 'linear-gradient(135deg, #1e40af, #1e3a8a)', emoji: '🐟' },
+  'Barbus (Ganfo)': { bg: 'linear-gradient(135deg, #6d28d9, #5b21b6)', emoji: '🐠' },
+  default: { bg: 'linear-gradient(135deg, #334155, #1e293b)', emoji: '🐟' },
 }
 
 function formatKg(value) {
@@ -30,22 +31,19 @@ function ListingBadge({ listing }) {
 
 export default function ListingCard({ listing }) {
   const { t } = useTranslation()
-  const imageUrl = FISH_IMAGES[listing.species] || FISH_IMAGES.Tilapia
+  const fish = FISH_COLORS[listing.species] || FISH_COLORS.default
 
   return (
     <Link to={`/listing/${listing.id}`}>
       <Card className="overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all h-full">
-        <div className="h-40 bg-muted relative overflow-hidden">
-          <img
-            src={imageUrl}
-            alt={`${listing.species} catch`}
-            loading="lazy"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        <div
+          className="h-40 relative overflow-hidden flex items-center justify-center"
+          style={{ background: fish.bg }}
+        >
+          <div className="text-6xl opacity-35 select-none transition-transform duration-500 hover:scale-110">
+            {fish.emoji}
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute top-3 left-3">
             <ListingBadge listing={listing} />
           </div>

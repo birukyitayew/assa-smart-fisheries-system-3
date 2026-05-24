@@ -5,13 +5,6 @@ const api = axios.create({ baseURL: '/api' });
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('assa_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  const regionStored = sessionStorage.getItem('assa_region_id');
-  if (regionStored && regionStored !== 'all') {
-    const regionId = Number(regionStored);
-    if (Number.isFinite(regionId) && regionId > 0) {
-      config.headers['X-Region-Id'] = String(regionId);
-    }
-  }
   return config;
 });
 

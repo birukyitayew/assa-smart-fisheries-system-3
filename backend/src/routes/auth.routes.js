@@ -143,4 +143,78 @@ router.get('/me', authMiddleware, asyncHandler(async (req, res) => {
   });
 }));
 
+// POST /api/auth/forgot-password
+router.post('/forgot-password', asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    // For security, don't reveal if user exists, but for ease of demo/dev we can return a success message
+    return res.json({
+      success: true,
+      message: 'If a user with that email exists, a password reset token has been generated.',
+    });
+  }
+
+  const crypto = require('crypto');
+  const token = crypto.randomBytes(20).toString('hex');
+  const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+
+  await prisma.passwordResetToken.upsert({
+    where: { email },
+    update: { token, expiresAt },
+    create: { email, token, expiresAt },
+  });
+
+  req.log?.info({ email, token }, 'Password reset requested (simulated email)');
+
+  res.json({
+    success: true,
+    message: 'Password reset token generated successfully.',
+    token, // Return token for easy local/testing access
+  });
+}));
+
+// POST /api/auth/reset-password
+router.post('/reset-password', asyncHandler(async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Token and password are required' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+  }
+
+  const resetRecord = await prisma.passwordResetToken.findUnique({
+    where: { token },
+  });
+
+  if (!resetRecord || resetRecord.expiresAt < new Date()) {
+    return res.status(400).json({ error: 'Invalid or expired password reset token' });
+  }
+
+  const bcrypt = require('bcryptjs');
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { email: resetRecord.email },
+      data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+    }),
+    prisma.passwordResetToken.delete({
+      where: { id: resetRecord.id },
+    }),
+  ]);
+
+  req.log?.info({ email: resetRecord.email }, 'Password reset completed successfully');
+
+  res.json({
+    success: true,
+    message: 'Your password has been reset successfully.',
+  });
+}));
+
 module.exports = router;

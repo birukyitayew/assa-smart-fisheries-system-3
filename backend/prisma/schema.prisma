@@ -408,3 +408,13 @@ model Violation {
   @@index([fisherId])
   @@map("violations")
 }
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("password_reset_tokens")
+}

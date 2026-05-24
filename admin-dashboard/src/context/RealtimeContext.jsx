@@ -83,6 +83,10 @@ export function RealtimeProvider({ children }) {
 
     loadRecent()
 
+    // Exponential backoff state (local to this effect, not React state)
+    let retryDelay = 1000
+    let lastEventId = null
+
     const connect = () => {
       const token = localStorage.getItem('assa_token')
       if (!token) return
@@ -91,21 +95,30 @@ export function RealtimeProvider({ children }) {
         esRef.current.close()
       }
 
-      const url = `/api/realtime/stream?token=${encodeURIComponent(token)}`
+      let url = `/api/realtime/stream?token=${encodeURIComponent(token)}`
+      if (lastEventId) url += `&lastEventId=${encodeURIComponent(lastEventId)}`
+
       const es = new EventSource(url)
       esRef.current = es
 
-      es.onopen = () => setConnected(true)
+      es.onopen = () => {
+        setConnected(true)
+        retryDelay = 1000 // reset backoff on successful connect
+      }
 
       const onError = () => {
         setConnected(false)
         es.close()
-        retryRef.current = setTimeout(connect, 5000)
+        retryRef.current = setTimeout(() => {
+          retryDelay = Math.min(retryDelay * 2, 30000)
+          connect()
+        }, retryDelay)
       }
       es.onerror = onError
 
       EVENT_TYPES.forEach((type) => {
         es.addEventListener(type, (ev) => {
+          if (ev.lastEventId) lastEventId = ev.lastEventId
           try {
             const data = JSON.parse(ev.data)
             if (!data.replay) {

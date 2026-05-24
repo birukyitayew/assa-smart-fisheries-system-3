@@ -42,7 +42,7 @@ export default function LiveOperationsPage() {
     }
   }, [selectedRegionId])
 
-  usePolling(fetchAll, 8000)
+  usePolling(fetchAll, 8000, !connected)
 
   useEffect(() => {
     const orderEvents = events.filter((e) =>

@@ -84,7 +84,7 @@ async function getDashboardStats(req, res) {
   const listingRegionFilter = regionId != null ? { fisher: { zone: { regionId } } } : {};
   const orderRegionFilter = regionId != null ? { listing: { fisher: { zone: { regionId } } } } : {};
 
-  const [totalFishers, totalBoats, todayCatch, activeListings, activeAlerts, pendingCatches, sold] = await Promise.all([
+  const [totalFishers, totalBoats, todayCatch, activeListings, activeAlerts, pendingCatches, sold, todayPendingCatch] = await Promise.all([
     prisma.fisher.count({ where: regionFilter }),
     prisma.boat.count({ where: fisherRegionFilter }),
     prisma.catchSubmission.aggregate({
@@ -118,12 +118,21 @@ async function getDashboardStats(req, res) {
       },
       _sum: { quantityKg: true },
     }),
+    prisma.catchSubmission.aggregate({
+      where: {
+        fishingDate: today,
+        status: 'PENDING',
+        ...catchRegionFilter,
+      },
+      _sum: { quantityKg: true },
+    }),
   ]);
 
   res.json({
     totalFishers,
     totalBoats,
     todayCatchKg: num(todayCatch._sum.quantityKg),
+    todayPendingKg: num(todayPendingCatch._sum.quantityKg),
     activeListings,
     activeAlerts,
     pendingCatches,
@@ -134,9 +143,12 @@ async function getDashboardStats(req, res) {
 async function getCatchesOverTime(req, res) {
   const { regionId } = await regionService.resolveRegionFilter(req);
   const rows = await prisma.$queryRaw`
-    SELECT fishing_date as date, COALESCE(SUM(quantity_kg), 0) as total_kg
+    SELECT 
+      fishing_date as date,
+      COALESCE(SUM(CASE WHEN status = 'VERIFIED' THEN quantity_kg ELSE 0 END), 0) as verified_kg,
+      COALESCE(SUM(CASE WHEN status = 'PENDING' THEN quantity_kg ELSE 0 END), 0) as pending_kg
     FROM catch_submissions cs
-    WHERE status = 'VERIFIED' AND fishing_date >= CURRENT_DATE - interval '6 days'
+    WHERE status IN ('VERIFIED', 'PENDING') AND fishing_date >= CURRENT_DATE - interval '6 days'
     ${catchRegionSql(regionId)}
     GROUP BY fishing_date ORDER BY fishing_date ASC
   `;
@@ -148,7 +160,12 @@ async function getCatchesOverTime(req, res) {
       const rd = r.date instanceof Date ? r.date.toISOString().split('T')[0] : String(r.date).split('T')[0];
       return rd === d;
     });
-    result.push({ date: d, total_kg: found ? num(found.total_kg) : 0 });
+    result.push({ 
+      date: d, 
+      verified_kg: found ? num(found.verified_kg) : 0, 
+      pending_kg: found ? num(found.pending_kg) : 0,
+      total_kg: found ? num(found.verified_kg) + num(found.pending_kg) : 0 
+    });
   }
 
   res.json({ data: result });
@@ -158,9 +175,13 @@ async function getSpeciesBreakdown(req, res) {
   const { regionId } = await regionService.resolveRegionFilter(req);
   const today = new Date().toISOString().split('T')[0];
   const rows = await prisma.$queryRaw`
-    SELECT species, COALESCE(SUM(quantity_kg), 0) as total_kg
+    SELECT 
+      species, 
+      COALESCE(SUM(CASE WHEN status = 'VERIFIED' THEN quantity_kg ELSE 0 END), 0) as verified_kg,
+      COALESCE(SUM(CASE WHEN status = 'PENDING' THEN quantity_kg ELSE 0 END), 0) as pending_kg,
+      COALESCE(SUM(quantity_kg), 0) as total_kg
     FROM catch_submissions cs
-    WHERE status = 'VERIFIED' AND fishing_date = ${today}::date
+    WHERE status IN ('VERIFIED', 'PENDING') AND fishing_date = ${today}::date
     ${catchRegionSql(regionId)}
     GROUP BY species ORDER BY total_kg DESC
   `;
@@ -587,7 +608,7 @@ async function getLiveStats(req, res) {
   const today = new Date().toISOString().split('T')[0];
   const oneHourAgo = new Date(Date.now() - 3600000);
 
-  const [catchKg, pending, ordersHour, revenue, boats, listingsKg, fishers] = await Promise.all([
+  const [catchKg, pending, ordersHour, revenue, boats, listingsKg, fishers, pendingKgTodayResult] = await Promise.all([
     prisma.$queryRaw`
       SELECT COALESCE(SUM(quantity_kg), 0) as total
       FROM catch_submissions cs
@@ -624,11 +645,17 @@ async function getLiveStats(req, res) {
       WHERE fishing_date = ${today}::date AND status IN ('PENDING', 'VERIFIED')
       ${catchRegionSql(regionId)}
     `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(quantity_kg), 0) as total
+      FROM catch_submissions cs
+      WHERE fishing_date = ${today}::date AND status = 'PENDING' ${catchRegionSql(regionId)}
+    `,
   ]);
 
   res.json({
     catchKgToday: num(catchKg[0]?.total),
     pendingCatches: num(pending[0]?.cnt),
+    pendingKgToday: num(pendingKgTodayResult[0]?.total),
     ordersLastHour: num(ordersHour[0]?.cnt),
     revenueToday: num(revenue[0]?.total),
     activeBoats: num(boats[0]?.cnt),
@@ -734,11 +761,17 @@ async function getMarketOverview(req, res) {
     `,
   ]);
 
+  const formattedTopSpecies = topSpecies.map((s) => ({
+    species: s.species,
+    kg_sold: num(s.kg_sold),
+    revenue: num(s.revenue),
+  }));
+
   res.json({
     revenueToday: num(revenue[0]?.total),
     ordersToday: num(orders[0]?.cnt),
     activeListingsKg: num(listings[0]?.total),
-    topSpecies,
+    topSpecies: formattedTopSpecies,
   });
 }
 
@@ -755,7 +788,15 @@ async function getMarketBuyers(req, res) {
     GROUP BY u.id, u.name, u.email, b.location
     ORDER BY total_spend DESC
   `;
-  res.json({ buyers });
+
+  const formattedBuyers = buyers.map((b) => ({
+    ...b,
+    order_count: num(b.order_count),
+    total_kg: num(b.total_kg),
+    total_spend: num(b.total_spend),
+  }));
+
+  res.json({ buyers: formattedBuyers });
 }
 
 async function getMarketSellers(req, res) {
@@ -777,7 +818,15 @@ async function getMarketSellers(req, res) {
     GROUP BY f.id, u.name, f.license_number
     ORDER BY revenue DESC
   `;
-  res.json({ sellers });
+
+  const formattedSellers = sellers.map((s) => ({
+    ...s,
+    verified_kg: num(s.verified_kg),
+    listed_kg: num(s.listed_kg),
+    revenue: num(s.revenue),
+  }));
+
+  res.json({ sellers: formattedSellers });
 }
 
 async function getMarketSpeciesPrices(req, res) {
@@ -798,11 +847,26 @@ async function getMarketSpeciesPrices(req, res) {
     WHERE status = 'ACTIVE' ${listingRegionSql(regionId)}
     GROUP BY species
   `;
-  const listingMap = Object.fromEntries(fromListings.map((r) => [r.species, r.avg_listing_price]));
-  const data = fromOrders.map((r) => ({
-    ...r,
-    avg_listing_price: listingMap[r.species] ?? null,
-  }));
+
+  // Combine both sets of species to ensure complete visibility even if no orders exist yet
+  const speciesSet = new Set([
+    ...fromOrders.map((r) => r.species),
+    ...fromListings.map((r) => r.species),
+  ]);
+
+  const listingMap = Object.fromEntries(fromListings.map((r) => [r.species, num(r.avg_listing_price)]));
+  const orderMap = Object.fromEntries(fromOrders.map((r) => [r.species, r]));
+
+  const data = Array.from(speciesSet).map((species) => {
+    const oRow = orderMap[species];
+    return {
+      species,
+      avg_order_price: oRow ? num(oRow.avg_order_price) : null,
+      avg_listing_price: listingMap[species] ?? null,
+      order_count: oRow ? num(oRow.order_count) : 0,
+    };
+  });
+
   res.json({ data });
 }
 
@@ -810,10 +874,12 @@ async function getMarketShortages(req, res) {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
+  // Safeguard against division by zero with monthly_limit_kg > 0
   const quotaShortages = await prisma.$queryRaw`
     SELECT species, monthly_limit_kg, current_month_kg,
            ROUND((current_month_kg * 100.0 / monthly_limit_kg)::numeric, 1) as usage_pct
     FROM species_quotas WHERE month = ${currentMonth} AND year = ${currentYear}
+      AND monthly_limit_kg > 0
       AND (current_month_kg * 100.0 / monthly_limit_kg) >= 85
     ORDER BY usage_pct DESC
   `;
@@ -829,7 +895,20 @@ async function getMarketShortages(req, res) {
     ORDER BY available_kg ASC
   `;
 
-  res.json({ quotaShortages, stockLow });
+  const formattedQuotaShortages = quotaShortages.map((q) => ({
+    ...q,
+    monthly_limit_kg: num(q.monthly_limit_kg),
+    current_month_kg: num(q.current_month_kg),
+    usage_pct: num(q.usage_pct),
+  }));
+
+  const formattedStockLow = stockLow.map((s) => ({
+    ...s,
+    available_kg: num(s.available_kg),
+    listing_count: num(s.listing_count),
+  }));
+
+  res.json({ quotaShortages: formattedQuotaShortages, stockLow: formattedStockLow });
 }
 
 async function getMarketTransactions(req, res) {
@@ -848,7 +927,15 @@ async function getMarketTransactions(req, res) {
     WHERE o.status != 'CANCELLED' ${orderRegionSql(regionId)}
     ORDER BY o.ordered_at DESC LIMIT ${limit}
   `;
-  res.json({ transactions });
+
+  const formattedTransactions = transactions.map((t) => ({
+    ...t,
+    quantity_kg: num(t.quantity_kg),
+    price_per_kg: num(t.price_per_kg),
+    total_price: num(t.total_price),
+  }));
+
+  res.json({ transactions: formattedTransactions });
 }
 
 async function getMarketNetwork(req, res) {
@@ -864,7 +951,14 @@ async function getMarketNetwork(req, res) {
     WHERE o.status != 'CANCELLED' ${orderRegionSql(regionId)}
     ORDER BY o.ordered_at DESC LIMIT 50
   `;
-  res.json({ edges });
+
+  const formattedEdges = edges.map((e) => ({
+    ...e,
+    quantity_kg: num(e.quantity_kg),
+    total_price: num(e.total_price),
+  }));
+
+  res.json({ edges: formattedEdges });
 }
 
 async function getAuditLog(req, res) {
@@ -1058,4 +1152,79 @@ module.exports = {
   getMarketNetwork: asyncHandler(getMarketNetwork),
   getAuditLog: asyncHandler(getAuditLog),
   getRecentEvents: asyncHandler(getRecentEvents),
+  createUser: asyncHandler(createUser),
 };
+
+async function createUser(req, res) {
+  const { name, email, password, role, phone, licenseNumber, location, boatName, registrationNumber, capacityKg } = req.body;
+
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: 'Name, email, password, and role are required' });
+  }
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) {
+    return res.status(400).json({ error: 'User with this email already exists' });
+  }
+
+  const bcrypt = require('bcryptjs');
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Create main User record
+    const user = await tx.user.create({
+      data: {
+        name,
+        email,
+        passwordHash,
+        role,
+        phone,
+      },
+    });
+
+    // 2. Create specific profile based on role
+    if (role === 'fisher') {
+      const fisher = await tx.fisher.create({
+        data: {
+          userId: user.id,
+          licenseNumber: licenseNumber || `LIC-${Date.now().toString().slice(-6)}`,
+          licenseStatus: 'ACTIVE',
+          licenseExpiry: new Date(Date.now() + 365 * 24 * 3600 * 1000), // 1 year expiry
+        },
+      });
+
+      // Also create a default boat for the fisher
+      await tx.boat.create({
+        data: {
+          fisherId: fisher.id,
+          boatName: boatName || `${name}'s Boat`,
+          registrationNumber: registrationNumber || `REG-${Date.now().toString().slice(-6)}`,
+          capacityKg: Number(capacityKg) || 500,
+        },
+      });
+    } else if (role === 'buyer') {
+      await tx.buyer.create({
+        data: {
+          userId: user.id,
+          location: location || 'Bahir Dar',
+        },
+      });
+    }
+
+    return user;
+  });
+
+  auditFromReq(req, 'user.created', 'user', result.id, { email, role });
+
+  res.status(201).json({
+    success: true,
+    message: `User created successfully with role ${role}.`,
+    user: {
+      id: result.id,
+      name: result.name,
+      email: result.email,
+      role: result.role,
+      phone: result.phone,
+    },
+  });
+}

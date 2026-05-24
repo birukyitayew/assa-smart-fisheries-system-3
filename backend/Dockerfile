@@ -10,7 +10,7 @@ COPY prisma ./prisma/
 RUN npm ci --omit=dev && npx prisma generate
 
 COPY src ./src/
-COPY uploads ./uploads/
+RUN mkdir -p uploads
 
 ENV NODE_ENV=production
 EXPOSE 4000

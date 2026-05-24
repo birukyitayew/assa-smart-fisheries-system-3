@@ -1,29 +1,48 @@
+# render.yaml — Free-tier deployment for ASSA Smart Fisheries System
+# Deploy at: https://dashboard.render.com/select-repo
+#
+# IMPORTANT: Render's free PostgreSQL was discontinued in Nov 2023.
+# Use Neon (https://neon.tech) for free PostgreSQL → paste connection string
+# into DATABASE_URL below after creating a Neon project.
+
 services:
   - type: web
     name: assa-api
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    plan: starter
+    plan: free                      # ← FREE tier (was: starter/paid)
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
+
+      # ── Database (Neon PostgreSQL — free at https://neon.tech) ───────────
+      # After creating a Neon project, copy the connection string here.
+      # Format: postgresql://user:password@host/dbname?sslmode=require
       - key: DATABASE_URL
-        fromDatabase:
-          name: assa-db
-          property: connectionString
+        sync: false                 # Set manually in Render dashboard
+
+      # ── Authentication ────────────────────────────────────────────────────
       - key: JWT_SECRET
-        generateValue: true
-      - key: CORS_ORIGINS
-        sync: false
+        generateValue: true         # Render auto-generates a secure random value
       - key: JWT_ACCESS_EXPIRES_IN
         value: 30m
       - key: REFRESH_TOKEN_DAYS
         value: 7
 
-databases:
-  - name: assa-db
-    plan: free
-    databaseName: assa
-    user: assa
+      # ── CORS (add your Vercel frontend URL after deployment) ─────────────
+      # Example: https://your-project.vercel.app
+      # Multiple origins: https://your-project.vercel.app,https://custom-domain.com
+      - key: CORS_ORIGINS
+        sync: false                 # Set manually in Render dashboard
+
+      # ── Cloudinary (REQUIRED for persistent image storage on free tier) ──
+      # Free account at: https://cloudinary.com
+      # Format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+      - key: CLOUDINARY_URL
+        sync: false                 # Set manually in Render dashboard
+
+      # ── Logging ──────────────────────────────────────────────────────────
+      - key: LOG_LEVEL
+        value: info

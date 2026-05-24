@@ -25,7 +25,7 @@
     "docker:up": "docker compose up -d"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.60.0",
     "concurrently": "9.1.2",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
@@ -34,5 +34,8 @@
     "execa": "^9.6.0",
     "prettier": "^3.6.2",
     "wait-on": "^8.0.3"
+  },
+  "dependencies": {
+    "playwright": "^1.60.0"
   }
 }

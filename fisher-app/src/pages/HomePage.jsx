@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import LanguageToggle from '../components/LanguageToggle'
 import ThemeToggle from '../components/ThemeToggle'
-import { Plus, Fish, Bell, Map, Store } from 'lucide-react'
+import { Plus, Fish, Bell, Map, Store, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import LicenseCard from '../components/LicenseCard'
@@ -13,13 +13,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
+const MARKETPLACE_URL = import.meta.env.VITE_MARKETPLACE_URL || 'http://localhost:3003'
+
 export default function HomePage() {
+  const [showLicenseWarning, setShowLicenseWarning] = useState(false)
   const { t } = useTranslation()
   const { user } = useAuth()
   const [profile, setProfile] = useState(null)
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [profileError, setProfileError] = useState(false)
 
   const loadProfile = () => {
-    api.get('/fisher/profile').then((res) => setProfile(res.data))
+    setProfileLoading(true)
+    setProfileError(false)
+    api
+      .get('/fisher/profile')
+      .then((res) => setProfile(res.data))
+      .catch(() => setProfileError(true))
+      .finally(() => setProfileLoading(false))
   }
 
   useEffect(() => {
@@ -56,6 +67,26 @@ export default function HomePage() {
           <LanguageToggle />
         </div>
       </div>
+
+      {profileLoading && !profile && (
+        <div className="space-y-3">
+          <div className="h-24 rounded-xl bg-muted animate-pulse" />
+          <div className="h-16 rounded-xl bg-muted animate-pulse" />
+        </div>
+      )}
+
+      {profileError && !profile && (
+        <Card className="border-destructive/30">
+          <CardContent className="pt-6 flex flex-col items-center gap-3 text-center">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+            <div>
+              <p className="font-semibold text-foreground">Could not load your profile</p>
+              <p className="text-xs text-muted-foreground mt-1">Check your connection and try again.</p>
+            </div>
+            <Button size="sm" onClick={loadProfile}>Retry</Button>
+          </CardContent>
+        </Card>
+      )}
 
       {profile && <LicenseCard profile={profile.profile} compliance={profile.compliance} />}
 
@@ -99,11 +130,17 @@ export default function HomePage() {
               <Link
                 key={action.to}
                 to={action.disabled ? '#' : action.to}
-                onClick={(e) => action.disabled && e.preventDefault()}
+                aria-disabled={action.disabled}
+                onClick={(e) => {
+                  if (action.disabled) {
+                    e.preventDefault()
+                    if (action.primary) setShowLicenseWarning(true)
+                  }
+                }}
                 className={cn(
                   'flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-colors border',
                   action.primary && canSubmit && 'bg-primary text-primary-foreground border-primary',
-                  action.primary && !canSubmit && 'opacity-50 cursor-not-allowed',
+                  action.primary && !canSubmit && 'opacity-50 cursor-not-allowed bg-muted/50 border-border',
                   !action.primary && 'bg-muted/50 hover:bg-muted border-border',
                 )}
               >
@@ -112,6 +149,20 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+          {showLicenseWarning && (
+            <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+              <div>
+                <strong>License required</strong> — Your fishing license is not active. Contact the Fisheries Office to renew before submitting catches.
+                <button
+                  className="block mt-1 text-xs underline opacity-70"
+                  onClick={() => setShowLicenseWarning(false)}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -132,7 +183,7 @@ export default function HomePage() {
       <Card className="hover:bg-muted/30 transition-colors">
         <CardContent className="pt-6">
           <a
-            href="http://localhost:3003"
+            href={MARKETPLACE_URL}
             target="_blank"
             rel="noreferrer"
             className="flex items-center justify-between"

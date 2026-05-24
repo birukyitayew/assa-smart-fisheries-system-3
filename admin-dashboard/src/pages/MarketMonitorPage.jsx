@@ -68,7 +68,7 @@ export default function MarketMonitorPage() {
         description="Total market visibility — buyers, sellers, prices, shortages, supply chain"
       />
 
-      <div className="stat-grid">
+      <div className="kpi-grid">
         <KpiCard
           icon={Banknote}
           label="Revenue Today"
@@ -136,30 +136,32 @@ export default function MarketMonitorPage() {
             <CardHeader>
               <CardTitle className="text-base">Top Species Sold (7 days)</CardTitle>
             </CardHeader>
-            <CardContent className="min-w-0">
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={overview?.topSpecies || []}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="species" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
-                  <Tooltip
-                    contentStyle={{
-                      background: 'var(--card)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                    }}
-                    formatter={(v) => [`${v} kg`, 'Sold']}
-                  />
-                  <Bar dataKey="kg_sold" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <CardContent className="p-6 pt-0">
+              <div className="w-full h-[260px] min-w-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={overview?.topSpecies || []} margin={{ top: 10, right: 5, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="species" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
+                    <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
+                    <Tooltip
+                      contentStyle={{
+                        background: 'var(--card)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '8px',
+                      }}
+                      formatter={(v) => [`${v} kg`, 'Sold']}
+                    />
+                    <Bar dataKey="kg_sold" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="buyers" className="mt-4">
-          <Card>
-            <CardContent className="p-0 pt-4">
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -180,15 +182,22 @@ export default function MarketMonitorPage() {
                       <TableCell>{Math.round(b.total_spend).toLocaleString()}</TableCell>
                     </TableRow>
                   ))}
+                  {buyers.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
+                        No buyer statistics available
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
-            </CardContent>
+            </div>
           </Card>
         </TabsContent>
 
         <TabsContent value="sellers" className="mt-4">
-          <Card>
-            <CardContent className="p-0 pt-4">
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -209,15 +218,22 @@ export default function MarketMonitorPage() {
                       <TableCell>{Math.round(s.revenue).toLocaleString()}</TableCell>
                     </TableRow>
                   ))}
+                  {sellers.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
+                        No fisher statistics available
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
-            </CardContent>
+            </div>
           </Card>
         </TabsContent>
 
         <TabsContent value="prices" className="mt-4">
-          <Card>
-            <CardContent className="p-0 pt-4">
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -231,22 +247,31 @@ export default function MarketMonitorPage() {
                   {speciesPrices.map((r) => (
                     <TableRow key={r.species}>
                       <TableCell className="font-medium">{r.species}</TableCell>
-                      <TableCell>ETB {r.avg_order_price}/kg</TableCell>
+                      <TableCell>
+                        {r.avg_order_price != null ? `ETB ${r.avg_order_price}/kg` : '—'}
+                      </TableCell>
                       <TableCell>
                         {r.avg_listing_price != null ? `ETB ${r.avg_listing_price}/kg` : '—'}
                       </TableCell>
                       <TableCell>{r.order_count}</TableCell>
                     </TableRow>
                   ))}
+                  {speciesPrices.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-10 text-center text-muted-foreground">
+                        No pricing statistics available
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
-            </CardContent>
+            </div>
           </Card>
         </TabsContent>
 
         <TabsContent value="transactions" className="mt-4">
-          <Card>
-            <CardContent className="p-0 pt-4">
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -273,18 +298,25 @@ export default function MarketMonitorPage() {
                       </TableCell>
                     </TableRow>
                   ))}
+                  {transactions.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                        No recent transactions
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
-            </CardContent>
+            </div>
           </Card>
         </TabsContent>
 
         <TabsContent value="network" className="mt-4">
-          <Card>
+          <Card className="overflow-hidden">
             <CardHeader>
               <CardTitle className="text-base">Fisher → Buyer Transaction Network</CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -307,9 +339,16 @@ export default function MarketMonitorPage() {
                       <TableCell className="font-mono text-xs">{e.reference_id}</TableCell>
                     </TableRow>
                   ))}
+                  {network.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                        No network connections mapped yet
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
-            </CardContent>
+            </div>
           </Card>
         </TabsContent>
       </Tabs>
