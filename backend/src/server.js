@@ -17,6 +17,7 @@ const adminRoutes = require('./routes/admin.routes');
 const marketplaceRoutes = require('./routes/marketplace.routes');
 const realtimeRoutes = require('./routes/realtime.routes');
 const inspectorRoutes = require('./routes/inspector.routes');
+const securityAssistantRoutes = require('./routes/securityAssistant.routes');
 
 const app = express();
 
@@ -124,6 +125,7 @@ if (process.env.CLOUDINARY_URL) {
 
 app.use('/api/auth', authRoutes);
 app.use('/api', catchesRoutes);
+app.use('/api/admin/security-assistant', securityAssistantRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/realtime', realtimeRoutes);

@@ -24,6 +24,15 @@ const env = cleanEnv(process.env, {
   CLOUDINARY_URL: str({ default: '', desc: 'Cloudinary connection string' }),
   LOG_LEVEL: str({ default: 'info', desc: 'Logging level threshold' }),
   SESSION_COOKIE_DOMAIN: str({ default: '', desc: 'Domain configuration for cookie storage' }),
+  GROQ_API_KEY: str({ default: '', desc: 'Groq Cloud API key for the AI Security Assistant' }),
+  GROQ_MODEL: str({
+    default: 'llama-3.3-70b-versatile',
+    desc: 'Groq model id used by the AI Security Assistant',
+  }),
+  GROQ_BASE_URL: str({
+    default: 'https://api.groq.com/openai/v1',
+    desc: 'Groq OpenAI-compatible base URL',
+  }),
 });
 
 // Guard against weak secrets in production

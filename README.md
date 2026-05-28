@@ -240,7 +240,9 @@ Verify a production build locally by serving `fisher-app/dist/` from the same or
 
 ## AI Security Assistant (admin dashboard)
 
-A floating chat assistant lives inside the admin command center (`admin-dashboard/src/components/security/AiSecurityAssistant.jsx`). It surfaces simulated threat analysis on demand — quota breaches, zone violations, license-expiry incidents, suspicious activity patterns — with quick-prompt buttons for the most common questions. The simulated responses use the same incident model as the dashboard so the narrative stays consistent with what an operator sees on the other pages.
+A floating chat assistant lives inside the admin command center (`admin-dashboard/src/components/security/AiSecurityAssistant.jsx`). It surfaces threat analysis on demand — quota breaches, zone violations, license-expiry incidents, suspicious activity patterns — with quick-prompt buttons for the most common questions.
+
+The assistant is backed by **Groq Cloud** via a server-side proxy (`POST /api/admin/security-assistant/chat`); the API key never leaves the backend. Set `GROQ_API_KEY` in `backend/.env` to enable live LLM responses (default model: `llama-3.3-70b-versatile`, overridable via `GROQ_MODEL`). If the key is missing or the provider is unreachable, the widget transparently falls back to a built-in library of canned responses so the demo keeps working offline. Access is restricted to `admin`, `superadmin`, `regional_admin`, and `inspector` roles, and a dedicated rate limiter is applied on top of the global one.
 
 ## Sidebar Notification Indicators
 
