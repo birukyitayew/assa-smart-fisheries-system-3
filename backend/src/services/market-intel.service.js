@@ -15,7 +15,7 @@ async function buildDailySnapshot(dateStr) {
     const listedRows = await prisma.$queryRaw`
       SELECT COALESCE(SUM(quantity_available_kg), 0) as kg
       FROM marketplace_listings
-      WHERE species = ${species} AND status = 'ACTIVE' AND date(listed_at) <= ${dateStr}
+      WHERE species = ${species} AND status = 'ACTIVE' AND date(listed_at) <= ${dateStr}::date
     `;
     const listed = listedRows[0];
 
@@ -25,7 +25,7 @@ async function buildDailySnapshot(dateStr) {
              COUNT(*) as order_count
       FROM orders o
       JOIN marketplace_listings ml ON o.listing_id = ml.id
-      WHERE ml.species = ${species} AND date(o.ordered_at) = ${dateStr} AND o.status != 'CANCELLED'
+      WHERE ml.species = ${species} AND date(o.ordered_at) = ${dateStr}::date AND o.status != 'CANCELLED'
     `;
     const sold = soldRows[0];
 
