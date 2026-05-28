@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { Zap, Send, X, Maximize2, Minimize2, Bot, User, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import api from '@/services/api';
 
 const QUICK_PROMPTS = [
-  'Summarize today\'s threats',
+  "Summarize today's threats",
   'Explain the zone violation',
   'What is the current risk level?',
   'Suggest mitigations for quota breach',
@@ -15,7 +16,7 @@ const QUICK_PROMPTS = [
 ];
 
 const SIMULATED_RESPONSES = {
-  'Summarize today\'s threats': {
+  "Summarize today's threats": {
     text: `**Daily Threat Summary — ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}**
 
 **Overall Risk Level: ELEVATED (67/100)**
@@ -134,9 +135,18 @@ function TypingIndicator() {
   return (
     <div className="flex items-center gap-1 px-3 py-2">
       <div className="flex gap-1">
-        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-        <span className="w-2 h-2 bg-primary/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        <span
+          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+          style={{ animationDelay: '0ms' }}
+        />
+        <span
+          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+          style={{ animationDelay: '150ms' }}
+        />
+        <span
+          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+          style={{ animationDelay: '300ms' }}
+        />
       </div>
       <span className="text-xs text-muted-foreground ml-2">ASSA AI analyzing...</span>
     </div>
@@ -149,7 +159,8 @@ export default function AiSecurityAssistant() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Welcome to ASSA AI Security Assistant. I can help you analyze threats, assess risk levels, explain incidents, and suggest mitigations. How can I help?',
+      content:
+        'Welcome to ASSA AI Security Assistant. I can help you analyze threats, assess risk levels, explain incidents, and suggest mitigations. How can I help?',
       timestamp: new Date().toISOString(),
     },
   ]);
@@ -163,23 +174,70 @@ export default function AiSecurityAssistant() {
     }
   }, [messages, isTyping]);
 
-  function handleSend(text) {
-    const query = text || input.trim();
-    if (!query || isTyping) return;
-
-    const userMsg = { role: 'user', content: query, timestamp: new Date().toISOString() };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput('');
-    setIsTyping(true);
-
+  function appendSimulatedResponse(query) {
     const response = SIMULATED_RESPONSES[query] || FALLBACK_RESPONSE;
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: response.text, timestamp: new Date().toISOString() },
+        {
+          role: 'assistant',
+          content: response.text,
+          timestamp: new Date().toISOString(),
+          simulated: true,
+        },
       ]);
       setIsTyping(false);
     }, response.delay);
+  }
+
+  async function handleSend(text) {
+    const query = text || input.trim();
+    if (!query || isTyping) return;
+
+    const userMsg = { role: 'user', content: query, timestamp: new Date().toISOString() };
+    const history = [...messages, userMsg]
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .slice(-12)
+      .map((m) => ({ role: m.role, content: m.content }));
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInput('');
+    setIsTyping(true);
+
+    try {
+      const { data } = await api.post('/admin/security-assistant/chat', { messages: history });
+      if (data?.content) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: data.content,
+            timestamp: new Date().toISOString(),
+            model: data.model,
+          },
+        ]);
+        setIsTyping(false);
+        return;
+      }
+      appendSimulatedResponse(query);
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 503) {
+        // Backend says assistant isn't configured -> stay on canned responses.
+        appendSimulatedResponse(query);
+        return;
+      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: "I couldn't reach the AI service just now. Showing a cached analysis instead.",
+          timestamp: new Date().toISOString(),
+          error: true,
+        },
+      ]);
+      appendSimulatedResponse(query);
+    }
   }
 
   if (!isOpen) {
@@ -198,9 +256,7 @@ export default function AiSecurityAssistant() {
     <Card
       className={cn(
         'fixed z-50 shadow-2xl border-border/60 flex flex-col transition-all duration-200',
-        isExpanded
-          ? 'inset-4 sm:inset-8'
-          : 'bottom-6 right-6 w-[420px] h-[560px]',
+        isExpanded ? 'inset-4 sm:inset-8' : 'bottom-6 right-6 w-[420px] h-[560px]',
       )}
     >
       <CardHeader className="pb-2 shrink-0 border-b border-border flex flex-row items-center justify-between">
@@ -209,11 +265,22 @@ export default function AiSecurityAssistant() {
             <Zap className="h-4 w-4 text-primary" />
           </div>
           ASSA AI Security Assistant
-          <Badge variant="outline" className="text-[10px] py-0">AI</Badge>
+          <Badge variant="outline" className="text-[10px] py-0">
+            AI
+          </Badge>
         </CardTitle>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? (
+              <Minimize2 className="h-3.5 w-3.5" />
+            ) : (
+              <Maximize2 className="h-3.5 w-3.5" />
+            )}
           </Button>
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}>
             <X className="h-3.5 w-3.5" />
@@ -225,10 +292,7 @@ export default function AiSecurityAssistant() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={cn(
-              'flex gap-2',
-              msg.role === 'user' ? 'justify-end' : 'justify-start',
-            )}
+            className={cn('flex gap-2', msg.role === 'user' ? 'justify-end' : 'justify-start')}
           >
             {msg.role === 'assistant' && (
               <div className="w-6 h-6 rounded-md bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
@@ -293,7 +357,12 @@ export default function AiSecurityAssistant() {
             className="text-sm"
             disabled={isTyping}
           />
-          <Button type="submit" size="icon" disabled={!input.trim() || isTyping} className="shrink-0">
+          <Button
+            type="submit"
+            size="icon"
+            disabled={!input.trim() || isTyping}
+            className="shrink-0"
+          >
             {isTyping ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>
