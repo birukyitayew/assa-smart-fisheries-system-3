@@ -1,36 +1,36 @@
-import { useState } from 'react'
-import api from '../services/api'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { CheckCircle2, AlertCircle, UserPlus, Info } from 'lucide-react'
+import { useState } from 'react';
+import api from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CheckCircle2, AlertCircle, UserPlus, Info } from 'lucide-react';
 
 export default function UsersPage() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [role, setRole] = useState('fisher')
-  const [phone, setPhone] = useState('')
-  
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('fisher');
+  const [phone, setPhone] = useState('');
+
   // Fisher specific fields
-  const [licenseNumber, setLicenseNumber] = useState('')
-  const [boatName, setBoatName] = useState('')
-  const [registrationNumber, setRegistrationNumber] = useState('')
-  const [capacityKg, setCapacityKg] = useState('500')
+  const [licenseNumber, setLicenseNumber] = useState('');
+  const [boatName, setBoatName] = useState('');
+  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [capacityKg, setCapacityKg] = useState('500');
 
   // Buyer specific fields
-  const [location, setLocation] = useState('Bahir Dar')
+  const [location, setLocation] = useState('Bahir Dar');
 
   // Status indicators
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(null)
-  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setSuccess(null)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setSuccess(null);
+    setError(null);
 
     const payload = {
       name,
@@ -38,37 +38,37 @@ export default function UsersPage() {
       password,
       role,
       phone: phone || null,
-    }
+    };
 
     if (role === 'fisher') {
-      payload.licenseNumber = licenseNumber || null
-      payload.boatName = boatName || null
-      payload.registrationNumber = registrationNumber || null
-      payload.capacityKg = Number(capacityKg) || null
+      payload.licenseNumber = licenseNumber || null;
+      payload.boatName = boatName || null;
+      payload.registrationNumber = registrationNumber || null;
+      payload.capacityKg = Number(capacityKg) || null;
     } else if (role === 'buyer') {
-      payload.location = location || null
+      payload.location = location || null;
     }
 
     try {
-      const res = await api.post('/admin/users', payload)
+      const res = await api.post('/admin/users', payload);
       if (res.data.success) {
-        setSuccess(`User "${name}" created successfully as ${role.toUpperCase()}!`)
+        setSuccess(`User "${name}" created successfully as ${role.toUpperCase()}!`);
         // Reset form fields
-        setName('')
-        setEmail('')
-        setPassword('')
-        setPhone('')
-        setLicenseNumber('')
-        setBoatName('')
-        setRegistrationNumber('')
-        setCapacityKg('500')
+        setName('');
+        setEmail('');
+        setPassword('');
+        setPhone('');
+        setLicenseNumber('');
+        setBoatName('');
+        setRegistrationNumber('');
+        setCapacityKg('500');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create user. Please try again.')
+      setError(err.response?.data?.error || 'Failed to create user. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -105,13 +105,17 @@ export default function UsersPage() {
       <Card className="shadow-lg border-border/60 bg-card/60 backdrop-blur-md">
         <CardHeader>
           <CardTitle>User Details</CardTitle>
-          <CardDescription>Enter name, email, credentials, and select account role.</CardDescription>
+          <CardDescription>
+            Enter name, email, credentials, and select account role.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Full Name</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Full Name
+                </label>
                 <Input
                   type="text"
                   placeholder="e.g. Abebe Kebede"
@@ -122,7 +126,9 @@ export default function UsersPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email Address</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Email Address
+                </label>
                 <Input
                   type="email"
                   placeholder="e.g. abebe@fisher.et"
@@ -135,7 +141,9 @@ export default function UsersPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Password</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Password
+                </label>
                 <Input
                   type="password"
                   placeholder="Min 6 characters"
@@ -146,7 +154,9 @@ export default function UsersPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Phone Number</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Phone Number
+                </label>
                 <Input
                   type="tel"
                   placeholder="e.g. +251912345678"
@@ -157,7 +167,9 @@ export default function UsersPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Platform Role</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Platform Role
+              </label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
@@ -180,7 +192,9 @@ export default function UsersPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">License Number</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      License Number
+                    </label>
                     <Input
                       type="text"
                       placeholder="e.g. LIC-998822 (auto-generated if empty)"
@@ -190,7 +204,9 @@ export default function UsersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Boat Name</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Boat Name
+                    </label>
                     <Input
                       type="text"
                       placeholder="e.g. Tanash-1"
@@ -202,7 +218,9 @@ export default function UsersPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vessel Reg Number</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Vessel Reg Number
+                    </label>
                     <Input
                       type="text"
                       placeholder="e.g. REG-08241 (auto-generated if empty)"
@@ -212,7 +230,9 @@ export default function UsersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vessel Capacity (kg)</label>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Vessel Capacity (kg)
+                    </label>
                     <Input
                       type="number"
                       placeholder="e.g. 500"
@@ -233,7 +253,9 @@ export default function UsersPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Marketplace Location / City</label>
+                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Marketplace Location / City
+                  </label>
                   <Input
                     type="text"
                     placeholder="e.g. Bahir Dar, Gondar, Woreta"
@@ -252,5 +274,5 @@ export default function UsersPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

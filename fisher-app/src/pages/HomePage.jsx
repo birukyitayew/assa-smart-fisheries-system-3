@@ -1,66 +1,72 @@
-import { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import LanguageToggle from '../components/LanguageToggle'
-import ThemeToggle from '../components/ThemeToggle'
-import { Plus, Fish, Bell, Map, Store, AlertTriangle } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import api from '../services/api'
-import LicenseCard from '../components/LicenseCard'
-import TodaySummary from '../components/TodaySummary'
-import TripCard from '../components/TripCard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import LanguageToggle from '../components/LanguageToggle';
+import ThemeToggle from '../components/ThemeToggle';
+import { Plus, Fish, Bell, Map, Store, AlertTriangle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import LicenseCard from '../components/LicenseCard';
+import TodaySummary from '../components/TodaySummary';
+import TripCard from '../components/TripCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-const MARKETPLACE_URL = import.meta.env.VITE_MARKETPLACE_URL || 'http://localhost:3003'
+const MARKETPLACE_URL = import.meta.env.VITE_MARKETPLACE_URL || 'http://localhost:3003';
 
 export default function HomePage() {
-  const [showLicenseWarning, setShowLicenseWarning] = useState(false)
-  const { t } = useTranslation()
-  const { user } = useAuth()
-  const [profile, setProfile] = useState(null)
-  const [profileLoading, setProfileLoading] = useState(true)
-  const [profileError, setProfileError] = useState(false)
+  const [showLicenseWarning, setShowLicenseWarning] = useState(false);
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState(false);
 
   const loadProfile = () => {
-    setProfileLoading(true)
-    setProfileError(false)
+    setProfileLoading(true);
+    setProfileError(false);
     api
       .get('/fisher/profile')
       .then((res) => setProfile(res.data))
       .catch(() => setProfileError(true))
-      .finally(() => setProfileLoading(false))
-  }
+      .finally(() => setProfileLoading(false));
+  };
 
   useEffect(() => {
-    loadProfile()
-  }, [])
+    loadProfile();
+  }, []);
 
   const today = new Date().toLocaleDateString('en-ET', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
+  });
 
-  const canSubmit = profile?.profile?.license_status === 'VALID'
+  const canSubmit = profile?.profile?.license_status === 'VALID';
 
   const actions = [
-    { to: '/submit', icon: Plus, label: t('home.submitCatch'), primary: true, disabled: !canSubmit },
+    {
+      to: '/submit',
+      icon: Plus,
+      label: t('home.submitCatch'),
+      primary: true,
+      disabled: !canSubmit,
+    },
     { to: '/catches', icon: Fish, label: 'My Catches' },
     { to: '/notifications', icon: Bell, label: 'Notifications' },
     { to: '/zones', icon: Map, label: 'Fishing Zones' },
-  ]
+  ];
 
   return (
     <div className="p-4 space-y-4">
       <div className="pt-2 flex justify-between items-start">
         <div>
-        <p className="text-muted-foreground text-sm">{today}</p>
-        <h1 className="text-2xl font-bold text-foreground mt-1">
-          Welcome, {user?.name?.split(' ')[0]}
-        </h1>
+          <p className="text-muted-foreground text-sm">{today}</p>
+          <h1 className="text-2xl font-bold text-foreground mt-1">
+            Welcome, {user?.name?.split(' ')[0]}
+          </h1>
         </div>
         <div className="flex items-center gap-1">
           <ThemeToggle />
@@ -81,9 +87,13 @@ export default function HomePage() {
             <AlertTriangle className="h-8 w-8 text-destructive" />
             <div>
               <p className="font-semibold text-foreground">Could not load your profile</p>
-              <p className="text-xs text-muted-foreground mt-1">Check your connection and try again.</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Check your connection and try again.
+              </p>
             </div>
-            <Button size="sm" onClick={loadProfile}>Retry</Button>
+            <Button size="sm" onClick={loadProfile}>
+              Retry
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -97,7 +107,10 @@ export default function HomePage() {
           </CardHeader>
           <CardContent className="space-y-2">
             {profile.openViolations.map((v) => (
-              <div key={v.reference_id} className="text-sm border-b border-border/50 pb-2 last:border-0">
+              <div
+                key={v.reference_id}
+                className="text-sm border-b border-border/50 pb-2 last:border-0"
+              >
                 <span className="font-mono text-xs text-muted-foreground">{v.reference_id}</span>
                 <p className="mt-0.5">{v.description}</p>
                 <p className="text-xs text-muted-foreground">
@@ -133,14 +146,18 @@ export default function HomePage() {
                 aria-disabled={action.disabled}
                 onClick={(e) => {
                   if (action.disabled) {
-                    e.preventDefault()
-                    if (action.primary) setShowLicenseWarning(true)
+                    e.preventDefault();
+                    if (action.primary) setShowLicenseWarning(true);
                   }
                 }}
                 className={cn(
                   'flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-colors border',
-                  action.primary && canSubmit && 'bg-primary text-primary-foreground border-primary',
-                  action.primary && !canSubmit && 'opacity-50 cursor-not-allowed bg-muted/50 border-border',
+                  action.primary &&
+                    canSubmit &&
+                    'bg-primary text-primary-foreground border-primary',
+                  action.primary &&
+                    !canSubmit &&
+                    'opacity-50 cursor-not-allowed bg-muted/50 border-border',
                   !action.primary && 'bg-muted/50 hover:bg-muted border-border',
                 )}
               >
@@ -153,7 +170,8 @@ export default function HomePage() {
             <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
               <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
               <div>
-                <strong>License required</strong> — Your fishing license is not active. Contact the Fisheries Office to renew before submitting catches.
+                <strong>License required</strong> — Your fishing license is not active. Contact the
+                Fisheries Office to renew before submitting catches.
                 <button
                   className="block mt-1 text-xs underline opacity-70"
                   onClick={() => setShowLicenseWarning(false)}
@@ -171,7 +189,9 @@ export default function HomePage() {
           <CardContent className="pt-6 flex items-center justify-between">
             <div>
               <div className="text-xs text-primary font-medium">Assigned Zone</div>
-              <div className="font-semibold text-foreground mt-0.5">{profile.profile.zone_name}</div>
+              <div className="font-semibold text-foreground mt-0.5">
+                {profile.profile.zone_name}
+              </div>
             </div>
             <Button variant="link" size="sm" asChild>
               <Link to="/zones">View Map →</Link>
@@ -200,5 +220,5 @@ export default function HomePage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

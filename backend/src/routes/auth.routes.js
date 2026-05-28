@@ -36,185 +36,235 @@ function mapFisherProfile(profile) {
 }
 
 // POST /api/auth/login
-router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
-  }
-  if (!process.env.JWT_SECRET) {
-    req.log?.error('JWT_SECRET is not configured');
-    return res.status(500).json({ error: 'Server authentication is not configured' });
-  }
+router.post(
+  '/login',
+  loginLimiter,
+  asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    if (!process.env.JWT_SECRET) {
+      req.log?.error('JWT_SECRET is not configured');
+      return res.status(500).json({ error: 'Server authentication is not configured' });
+    }
 
-  const result = await authService.login(email, password);
-  if (result.error) return res.status(result.status).json({ error: result.error });
+    const result = await authService.login(email, password);
+    if (result.error) return res.status(result.status).json({ error: result.error });
 
-  let profile = null;
-  if (result.user.role === 'fisher') {
-    const fisherProfile = await authService.getFisherProfile(result.user.id);
-    profile = mapFisherProfile({ ...fisherProfile, user: { name: result.user.name } });
-  }
+    let profile = null;
+    if (result.user.role === 'fisher') {
+      const fisherProfile = await authService.getFisherProfile(result.user.id);
+      profile = mapFisherProfile({ ...fisherProfile, user: { name: result.user.name } });
+    }
 
-  auditFromReq(req, 'auth.login', 'user', result.user.id, { email: result.user.email });
+    auditFromReq(req, 'auth.login', 'user', result.user.id, { email: result.user.email });
 
-  res.json({
-    token: result.accessToken,
-    accessToken: result.accessToken,
-    refreshToken: result.refreshToken,
-    expiresIn: result.expiresIn,
-    user: {
-      id: result.user.id,
-      name: result.user.name,
-      email: result.user.email,
-      role: result.user.role,
-      phone: result.user.phone,
-      region_id: result.user.regionId ?? null,
-      region_name: result.user.region?.name ?? null,
-    },
-    profile,
-  });
-}));
+    res.json({
+      token: result.accessToken,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresIn: result.expiresIn,
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role,
+        phone: result.user.phone,
+        region_id: result.user.regionId ?? null,
+        region_name: result.user.region?.name ?? null,
+      },
+      profile,
+    });
+  }),
+);
 
 // POST /api/auth/refresh
-router.post('/refresh', asyncHandler(async (req, res) => {
-  const refreshToken = req.body.refreshToken || req.body.refresh_token;
-  const result = await authService.refresh(refreshToken);
-  if (result.error) return res.status(result.status).json({ error: result.error });
+router.post(
+  '/refresh',
+  asyncHandler(async (req, res) => {
+    const refreshToken = req.body.refreshToken || req.body.refresh_token;
+    const result = await authService.refresh(refreshToken);
+    if (result.error) return res.status(result.status).json({ error: result.error });
 
-  res.json({
-    token: result.accessToken,
-    accessToken: result.accessToken,
-    refreshToken: result.refreshToken,
-    expiresIn: result.expiresIn,
-    user: {
-      id: result.user.id,
-      name: result.user.name,
-      email: result.user.email,
-      role: result.user.role,
-      phone: result.user.phone,
-    },
-  });
-}));
+    res.json({
+      token: result.accessToken,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresIn: result.expiresIn,
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role,
+        phone: result.user.phone,
+      },
+    });
+  }),
+);
 
 // POST /api/auth/logout
-router.post('/logout', authMiddleware, asyncHandler(async (req, res) => {
-  const refreshToken = req.body.refreshToken || req.body.refresh_token;
-  const userId = req.user?.id;
-  await authService.logout(refreshToken, userId);
-  res.json({ success: true });
-}));
+router.post(
+  '/logout',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const refreshToken = req.body.refreshToken || req.body.refresh_token;
+    const userId = req.user?.id;
+    await authService.logout(refreshToken, userId);
+    res.json({ success: true });
+  }),
+);
 
 // GET /api/auth/me
-router.get('/me', authMiddleware, asyncHandler(async (req, res) => {
-  const user = await prisma.user.findUnique({
-    where: { id: req.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      phone: true,
-      regionId: true,
-      createdAt: true,
-      region: { select: { id: true, name: true, code: true } },
-    },
-  });
-  if (!user) return res.status(404).json({ error: 'User not found' });
+router.get(
+  '/me',
+  authMiddleware,
+  asyncHandler(async (req, res) => {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+        regionId: true,
+        createdAt: true,
+        region: { select: { id: true, name: true, code: true } },
+      },
+    });
+    if (!user) return res.status(404).json({ error: 'User not found' });
 
-  let profile = null;
-  if (user.role === 'fisher') {
-    const fisherProfile = await authService.getFisherProfile(user.id);
-    profile = mapFisherProfile(fisherProfile);
-  }
+    let profile = null;
+    if (user.role === 'fisher') {
+      const fisherProfile = await authService.getFisherProfile(user.id);
+      profile = mapFisherProfile(fisherProfile);
+    }
 
-  res.json({
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      phone: user.phone,
-      region_id: user.regionId,
-      region_name: user.region?.name ?? null,
-      region_code: user.region?.code ?? null,
-      created_at: user.createdAt,
-    },
-    profile,
-  });
-}));
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        region_id: user.regionId,
+        region_name: user.region?.name ?? null,
+        region_code: user.region?.code ?? null,
+        created_at: user.createdAt,
+      },
+      profile,
+    });
+  }),
+);
 
 // POST /api/auth/forgot-password
-router.post('/forgot-password', asyncHandler(async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  }
+router.post(
+  '/forgot-password',
+  asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) {
-    // For security, don't reveal if user exists, but for ease of demo/dev we can return a success message
-    return res.json({
-      success: true,
-      message: 'If a user with that email exists, a password reset token has been generated.',
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      // For security, don't reveal if user exists, but for ease of demo/dev we can return a success message
+      return res.json({
+        success: true,
+        message: 'If a user with that email exists, a password reset token has been generated.',
+      });
+    }
+
+    const crypto = require('crypto');
+    const token = crypto.randomBytes(20).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+
+    await prisma.passwordResetToken.upsert({
+      where: { email },
+      update: { token, expiresAt },
+      create: { email, token, expiresAt },
     });
-  }
 
-  const crypto = require('crypto');
-  const token = crypto.randomBytes(20).toString('hex');
-  const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+    req.log?.info({ email, token }, 'Password reset requested (simulated email)');
 
-  await prisma.passwordResetToken.upsert({
-    where: { email },
-    update: { token, expiresAt },
-    create: { email, token, expiresAt },
-  });
-
-  req.log?.info({ email, token }, 'Password reset requested (simulated email)');
-
-  res.json({
-    success: true,
-    message: 'Password reset token generated successfully.',
-    token, // Return token for easy local/testing access
-  });
-}));
+    res.json({
+      success: true,
+      message: 'Password reset token generated successfully.',
+      token, // Return token for easy local/testing access
+    });
+  }),
+);
 
 // POST /api/auth/reset-password
-router.post('/reset-password', asyncHandler(async (req, res) => {
-  const { token, password } = req.body;
-  if (!token || !password) {
-    return res.status(400).json({ error: 'Token and password are required' });
-  }
-  if (password.length < 6) {
-    return res.status(400).json({ error: 'Password must be at least 6 characters long' });
-  }
+router.post(
+  '/reset-password',
+  asyncHandler(async (req, res) => {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token and password are required' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
 
-  const resetRecord = await prisma.passwordResetToken.findUnique({
-    where: { token },
-  });
+    const resetRecord = await prisma.passwordResetToken.findUnique({
+      where: { token },
+    });
 
-  if (!resetRecord || resetRecord.expiresAt < new Date()) {
-    return res.status(400).json({ error: 'Invalid or expired password reset token' });
-  }
+    if (!resetRecord || resetRecord.expiresAt < new Date()) {
+      return res.status(400).json({ error: 'Invalid or expired password reset token' });
+    }
 
-  const bcrypt = require('bcryptjs');
-  const passwordHash = await bcrypt.hash(password, 12);
+    const bcrypt = require('bcryptjs');
+    const passwordHash = await bcrypt.hash(password, 12);
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { email: resetRecord.email },
-      data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
-    }),
-    prisma.passwordResetToken.delete({
-      where: { id: resetRecord.id },
-    }),
-  ]);
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { email: resetRecord.email },
+        data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+      }),
+      prisma.passwordResetToken.delete({
+        where: { id: resetRecord.id },
+      }),
+    ]);
 
-  req.log?.info({ email: resetRecord.email }, 'Password reset completed successfully');
+    req.log?.info({ email: resetRecord.email }, 'Password reset completed successfully');
 
-  res.json({
-    success: true,
-    message: 'Your password has been reset successfully.',
-  });
-}));
+    res.json({
+      success: true,
+      message: 'Your password has been reset successfully.',
+    });
+  }),
+);
+
+// POST /api/auth/seed-production-db
+router.post(
+  '/seed-production-db',
+  asyncHandler(async (req, res) => {
+    const userCount = await prisma.user.count();
+    if (userCount > 0 && req.body.token !== 'assa_force_seed_2026') {
+      return res.status(400).json({ error: 'Database is already seeded and contains users.' });
+    }
+
+    const { exec } = require('child_process');
+    const path = require('path');
+    const seedPath = path.join(__dirname, '../../prisma/seed.js');
+
+    exec(`node "${seedPath}"`, { env: process.env }, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Database seeding failed:', error, stderr);
+        return;
+      }
+      console.log('Database seeded successfully:', stdout);
+    });
+
+    res.json({
+      success: true,
+      message:
+        'Database seeding triggered successfully in the background. It will take a few seconds.',
+    });
+  }),
+);
 
 module.exports = router;

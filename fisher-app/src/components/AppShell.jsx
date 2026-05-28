@@ -1,13 +1,13 @@
-import { Outlet, NavLink } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import { Home, Plus, Fish, Bell, Map, LogOut, WifiOff } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import { useOffline } from '../hooks/useOffline'
-import AppLogo from './brand/AppLogo'
-import api from '../services/api'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { Outlet, NavLink } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Home, Plus, Fish, Bell, Map, LogOut, WifiOff } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useOffline } from '../hooks/useOffline';
+import AppLogo from './brand/AppLogo';
+import api from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   { to: '/', icon: Home, label: 'Home', end: true },
@@ -15,26 +15,26 @@ const navItems = [
   { to: '/catches', icon: Fish, label: 'Catches' },
   { to: '/notifications', icon: Bell, label: 'Alerts', badge: true },
   { to: '/zones', icon: Map, label: 'Zones' },
-]
+];
 
 export default function AppShell() {
-  const { user, logout } = useAuth()
-  const isOffline = useOffline()
-  const [unread, setUnread] = useState(0)
+  const { user, logout } = useAuth();
+  const isOffline = useOffline();
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     const fetchNotifs = async () => {
       try {
-        const res = await api.get('/notifications')
-        setUnread(res.data.unreadCount || 0)
+        const res = await api.get('/notifications');
+        setUnread(res.data.unreadCount || 0);
       } catch {
         /* ignore */
       }
-    }
-    fetchNotifs()
-    const id = setInterval(fetchNotifs, 10000)
-    return () => clearInterval(id)
-  }, [])
+    };
+    fetchNotifs();
+    const id = setInterval(fetchNotifs, 10000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-background max-w-[430px] mx-auto">
@@ -88,5 +88,5 @@ export default function AppShell() {
         ))}
       </nav>
     </div>
-  )
+  );
 }

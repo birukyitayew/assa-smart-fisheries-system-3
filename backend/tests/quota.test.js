@@ -112,8 +112,8 @@ test.describe('Quota Service', () => {
     alerts = await prisma.alert.findMany({
       where: { relatedEntityType: 'quota', relatedEntityId: quota.id },
     });
-    const warningAlerts = alerts.filter(a => a.type === 'QUOTA_WARNING');
-    const exceededAlerts = alerts.filter(a => a.type === 'QUOTA_EXCEEDED');
+    const warningAlerts = alerts.filter((a) => a.type === 'QUOTA_WARNING');
+    const exceededAlerts = alerts.filter((a) => a.type === 'QUOTA_EXCEEDED');
     assert.strictEqual(warningAlerts.length, 1, 'Still only one warning alert');
     assert.strictEqual(exceededAlerts.length, 1, 'One critical/exceeded alert should be created');
     assert.strictEqual(exceededAlerts[0].severity, 'CRITICAL');

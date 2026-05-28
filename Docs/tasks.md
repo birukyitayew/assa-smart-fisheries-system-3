@@ -5,6 +5,7 @@
 This implementation plan breaks down the ASSA Smart Fisheries System into actionable tasks organized by implementation phases. The system consists of three interconnected frontend modules (Fisher App, Admin Dashboard, Marketplace) sharing a unified backend API with real-time state propagation via Server-Sent Events.
 
 **Development Timeline**: 5 weeks
+
 - Week 1: Foundation (Infrastructure + Backend Core)
 - Week 2: Core Features (All three frontends in parallel)
 - Week 3: Interconnection (Real-time SSE + Critical transactions)
@@ -12,6 +13,7 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
 - Week 5: QA (Performance + Documentation + Deployment)
 
 **Team Structure**:
+
 - Full-Stack Lead (Backend + Integration)
 - 3 Frontend Developers (Fisher App, Admin Dashboard, Marketplace)
 - Product/Design Lead (UX + Testing)
@@ -50,7 +52,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - _Requirements: 26.2_
   - _Complexity: Small_
   - _Assigned to: Full-Stack Lead_
-
 
 - [-] 1.4 Configure database connection with Drizzle ORM
   - Install Drizzle ORM dependencies: drizzle-orm, drizzle-kit, pg
@@ -129,7 +130,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - Ensure all tests pass, ask the user if questions arise.
   - _Complexity: Small_
   - _Assigned to: Full-Stack Lead_
-
 
 ### Phase 2: Backend Core - Authentication & Middleware
 
@@ -218,7 +218,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - _Complexity: Small_
   - _Assigned to: Full-Stack Lead_
 
-
 ### Phase 3: Backend Core - API Endpoints
 
 - [~] 3.1 Implement authentication API endpoints
@@ -296,7 +295,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - _Requirements: 7.11, 7.12_
   - _Complexity: Small_
   - _Assigned to: Full-Stack Lead_
-
 
 - [~] 3.9 Implement marketplace listing and order endpoints
   - Create marketplace routes (src/routes/marketplace.routes.ts)
@@ -379,7 +377,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - _Complexity: Medium_
   - _Assigned to: Frontend Dev 1_
 
-
 - [~] 4.4 Create 4-step catch submission wizard
   - Create catch submission wizard with steps: Basic Info, Photos, Location, Review
   - Step 1: Species dropdown, weight input (0.1-500 kg), catch date picker
@@ -453,7 +450,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - Ensure all tests pass, ask the user if questions arise.
   - _Complexity: Medium_
   - _Assigned to: Frontend Dev 1_
-
 
 ### Phase 5: Admin Dashboard Frontend
 
@@ -539,7 +535,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - _Requirements: 7.9, 7.11, 7.12_
   - _Complexity: Medium_
   - _Assigned to: Frontend Dev 2_
-
 
 - [~] 5.9 Implement keyboard shortcuts for common actions
   - Implement keyboard shortcut: "A" for approve catch
@@ -630,7 +625,6 @@ This implementation plan breaks down the ASSA Smart Fisheries System into action
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.12, 29.6, 29.7_
   - _Complexity: Large_
   - _Assigned to: Frontend Dev 3_
-
 
 ## Notes
 

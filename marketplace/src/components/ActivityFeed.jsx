@@ -21,5 +21,5 @@ export default function ActivityFeed({ activity }) {
       ))}
       {activity.length === 0 && <p className="text-xs text-muted-foreground">No recent activity</p>}
     </div>
-  )
+  );
 }

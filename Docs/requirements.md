@@ -58,7 +58,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 9. THE System SHALL enforce row-level security ensuring fishers can only access their own catch records
 10. WHEN a fisher logs out, THE Backend_API SHALL invalidate the Refresh_Token and clear the HttpOnly cookie
 
-
 ### Requirement 2: Catch Submission Workflow
 
 **User Story:** As a fisher, I want to submit my daily catch report in under 4 minutes using a simple step-by-step form, so that I can quickly return to my work and have my catch verified for market listing.
@@ -79,7 +78,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 12. IF the submission fails due to validation errors, THE Backend_API SHALL return HTTP 400 with specific field-level error messages
 13. THE System SHALL complete the entire submission workflow in under 4 minutes for a fisher with stable 3G connectivity
 
-
 ### Requirement 3: Real-Time Catch Status Updates
 
 **User Story:** As a fisher, I want to see the approval status of my catch submissions update in real-time without refreshing the page, so that I know immediately when my catch is approved and listed in the marketplace.
@@ -96,7 +94,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 8. THE Backend_API SHALL filter SSE events to ensure fishers only receive events for their own catch submissions
 9. WHEN a fisher navigates away from the My Catches page, THE Fisher_App SHALL close the SSE_Channel connection
 10. THE System SHALL deliver catch status updates via SSE_Channel with a latency of less than 3 seconds from admin action to fisher UI update
-
 
 ### Requirement 4: Fisher Notification System
 
@@ -115,7 +112,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 9. WHEN a new notification is created, THE Backend_API SHALL publish an event to the SSE_Channel for the fisher
 10. THE Fisher_App SHALL display a toast message when a new notification arrives via SSE_Channel
 
-
 ### Requirement 5: Admin Dashboard Authentication and Authorization
 
 **User Story:** As a government fisheries officer, I want to securely log in to the Admin Dashboard with role-based access control, so that I can perform my assigned duties and access only the data I am authorized to view.
@@ -132,7 +128,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 8. THE Admin_Dashboard SHALL display different navigation menus based on the user role retrieved from the JWT_Token
 9. WHEN an admin session expires, THE Admin_Dashboard SHALL redirect to the login page and display a session timeout message
 10. THE Backend_API SHALL log all admin authentication attempts to the Audit_Log with timestamp, user ID, and outcome
-
 
 ### Requirement 6: Catch Approval Workflow
 
@@ -156,7 +151,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 14. THE Backend_API SHALL log all approval and rejection actions to the Audit_Log with admin user ID, catch ID, action, and timestamp
 15. THE Admin_Dashboard SHALL display a success toast message when an approval or rejection is processed successfully
 
-
 ### Requirement 7: Species Quota Monitoring and Enforcement
 
 **User Story:** As an admin user, I want to monitor species quotas in real-time and receive alerts when quotas approach or exceed limits, so that I can prevent overfishing and enforce sustainable catch limits.
@@ -178,7 +172,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 13. WHERE a Species_Quota is exceeded, THE Admin_Dashboard SHALL display a prominent warning banner on the dashboard overview
 14. THE Backend_API SHALL cache quota calculations in Redis_Cache with a TTL of 60 seconds to optimize performance
 
-
 ### Requirement 8: Admin Dashboard KPI Overview
 
 **User Story:** As an admin user, I want to see key performance indicators and analytics on the dashboard overview, so that I can quickly assess system activity and make informed decisions.
@@ -198,7 +191,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 11. THE Admin_Dashboard SHALL provide a date range selector to view historical KPI data for the past 7, 30, or 90 days
 12. THE Backend_API SHALL return KPI data within 400 milliseconds at the 95th percentile
 
-
 ### Requirement 9: Marketplace Listing Auto-Creation
 
 **User Story:** As a system, I want to automatically create a marketplace listing when a catch is approved, so that verified fish immediately becomes available for buyers without manual intervention.
@@ -216,7 +208,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 9. THE Marketplace SHALL display the new listing in the browse page within 3 seconds of approval via SSE_Channel
 10. THE Backend_API SHALL ensure that one Catch_Record creates exactly one Marketplace_Listing
 11. THE Backend_API SHALL log the listing creation to the Audit_Log with catch ID, listing ID, and timestamp
-
 
 ### Requirement 10: Marketplace Browse and Filter
 
@@ -237,7 +228,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 11. THE Marketplace SHALL update the listing grid in real-time via SSE_Channel when new listings are created
 12. THE Backend_API SHALL cache listing queries in Redis_Cache with a TTL of 120 seconds
 13. THE Marketplace SHALL display a "Verified Fisher" badge on all listings to indicate government approval
-
 
 ### Requirement 11: Marketplace Order Placement
 
@@ -261,7 +251,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 14. THE Backend_API SHALL publish an SSE event to update listing availability in real-time for all connected clients
 15. THE Backend_API SHALL log all order placements to the Audit_Log with buyer ID, listing ID, quantity, and timestamp
 
-
 ### Requirement 12: Marketplace Real-Time Statistics
 
 **User Story:** As a marketplace visitor, I want to see real-time statistics about marketplace activity, so that I can understand the platform's activity level and trust the marketplace ecosystem.
@@ -277,7 +266,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 7. IF the Backend_API fails to return statistics, THE Marketplace SHALL display placeholder values with an error indicator
 8. THE Marketplace SHALL refresh statistics automatically every 3 minutes without page reload
 9. THE Backend_API SHALL return statistics data within 400 milliseconds at the 95th percentile
-
 
 ### Requirement 13: Marketplace Activity Feed
 
@@ -296,7 +284,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 9. THE Backend_API SHALL cache activity feed data in Redis_Cache with a TTL of 60 seconds
 10. THE Backend_API SHALL return activity feed data within 400 milliseconds at the 95th percentile
 
-
 ### Requirement 14: Buyer Order History
 
 **User Story:** As a registered buyer, I want to view my complete order history with details and status, so that I can track my purchases and reference past transactions.
@@ -313,7 +300,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 8. THE Marketplace SHALL display a "No orders found" message when the buyer has no order history
 9. THE Backend_API SHALL return order history within 400 milliseconds at the 95th percentile
 10. THE Marketplace SHALL display loading skeletons while order history is being fetched
-
 
 ### Requirement 15: Database Schema and Data Integrity
 
@@ -336,7 +322,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 13. THE System SHALL define a trigger to automatically update updated_at timestamp on all tables when records are modified
 14. THE System SHALL enforce that catch.catch_date cannot be in the future using a CHECK constraint
 
-
 ### Requirement 16: Transaction Atomicity for Critical Operations
 
 **User Story:** As a system, I want to execute all critical multi-step operations within database transactions, so that data consistency is maintained and partial states never occur.
@@ -353,7 +338,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 8. IF a transaction times out, THE Backend_API SHALL roll back all changes and return HTTP 500 with a timeout error message
 9. THE Backend_API SHALL log all transaction failures to the error log with full stack trace
 10. THE Backend_API SHALL ensure that no catch can be approved twice by checking the current status within the transaction
-
 
 ### Requirement 17: Photo Storage and Management
 
@@ -373,7 +357,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 10. THE Admin_Dashboard SHALL display catch photos in a gallery view with zoom capability
 11. THE System SHALL serve optimized images with WebP format for browsers that support it
 12. IF Cloudinary upload fails, THE Backend_API SHALL return HTTP 500 and not create the catch submission
-
 
 ### Requirement 18: Redis Caching Strategy
 
@@ -396,7 +379,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 13. THE Backend_API SHALL handle Redis connection failures gracefully by falling back to direct database queries
 14. THE Backend_API SHALL log cache hit/miss metrics for monitoring
 
-
 ### Requirement 19: API Performance Requirements
 
 **User Story:** As a system, I want to deliver API responses within strict performance thresholds, so that all three modules provide a responsive user experience.
@@ -415,7 +397,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 10. THE Backend_API SHALL log slow queries exceeding 1 second to the performance log
 11. THE Backend_API SHALL implement pagination for list endpoints with a default page size of 20 and maximum of 100
 12. THE Backend_API SHALL return total count in pagination responses for client-side pagination controls
-
 
 ### Requirement 20: Input Validation and Error Handling
 
@@ -439,7 +420,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 14. THE Backend_API SHALL log all 500 errors with full stack trace and request context
 15. THE Backend_API SHALL not expose sensitive information in error messages
 
-
 ### Requirement 21: Security and Authentication
 
 **User Story:** As a system, I want to implement secure authentication and authorization mechanisms, so that user data is protected and access is properly controlled.
@@ -462,7 +442,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 14. THE Backend_API SHALL implement account lockout after 5 failed login attempts within 15 minutes
 15. THE Backend_API SHALL require re-authentication for sensitive operations like quota modification
 
-
 ### Requirement 22: Audit Logging and Compliance
 
 **User Story:** As a system, I want to maintain comprehensive audit logs of all critical operations, so that compliance requirements are met and system activity can be traced for accountability.
@@ -481,7 +460,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 10. THE Backend_API SHALL provide an audit log export endpoint accessible only to super_admin users
 11. THE Backend_API SHALL export audit logs in CSV format with all fields
 12. THE Backend_API SHALL implement audit log search and filter by date range, user, action type, and resource type
-
 
 ### Requirement 23: Data Privacy and PDPP Compliance
 
@@ -504,7 +482,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 13. THE Backend_API SHALL notify the Ethiopian Data Protection Authority within 72 hours of a confirmed data breach
 14. THE Backend_API SHALL log all personal data access events to the Audit_Log
 
-
 ### Requirement 24: Seed Data for Development and Demo
 
 **User Story:** As a developer, I want comprehensive seed data that represents realistic production scenarios, so that the system can be demonstrated and tested with meaningful data.
@@ -526,7 +503,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 13. THE seed data script SHALL be idempotent and can be run multiple times without creating duplicate data
 14. THE seed data script SHALL complete execution within 30 seconds
 
-
 ### Requirement 25: Logging and Monitoring
 
 **User Story:** As a system administrator, I want structured logging and monitoring capabilities, so that I can troubleshoot issues, monitor system health, and analyze usage patterns.
@@ -545,7 +521,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 10. THE Backend_API SHALL provide a health check endpoint at /api/v1/health returning database and Redis connection status
 11. THE Backend_API SHALL provide a metrics endpoint at /api/v1/metrics returning: uptime, request count, error count, average response time
 12. THE Backend_API SHALL not log sensitive information: passwords, tokens, personal data
-
 
 ### Requirement 26: Development Environment Setup
 
@@ -568,7 +543,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 13. THE System SHALL provide a seed data command that can be run after initial setup
 14. THE docker-compose.yml SHALL define health checks for postgres and redis services
 
-
 ### Requirement 27: Fisher App Mobile Responsiveness
 
 **User Story:** As a fisher using a mobile device, I want the Fisher App to be fully responsive and optimized for small screens, so that I can easily submit catches on my smartphone.
@@ -587,7 +561,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 10. THE Fisher_App SHALL achieve a Lighthouse mobile performance score of at least 80
 11. THE Fisher_App SHALL implement lazy loading for images to optimize initial page load
 12. THE Fisher_App SHALL provide a mobile-optimized navigation menu with hamburger icon
-
 
 ### Requirement 28: Admin Dashboard Desktop Optimization
 
@@ -608,7 +581,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 11. THE Admin_Dashboard SHALL implement data table virtualization for lists exceeding 100 items
 12. THE Admin_Dashboard SHALL provide export functionality for reports in CSV and PDF formats
 
-
 ### Requirement 29: Marketplace Hybrid Responsiveness
 
 **User Story:** As a marketplace user, I want the Marketplace to work seamlessly on both desktop and mobile devices, so that I can browse and order fish from any device.
@@ -627,7 +599,6 @@ The modules share a single PostgreSQL database and communicate through a Node.js
 10. THE Marketplace SHALL implement progressive enhancement for advanced features
 11. THE Marketplace SHALL provide a responsive navigation menu that adapts to screen size
 12. THE Marketplace SHALL optimize typography for readability across all screen sizes
-
 
 ### Requirement 30: System Reliability and Uptime
 

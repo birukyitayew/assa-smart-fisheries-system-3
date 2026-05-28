@@ -1,204 +1,204 @@
 - generic [active] [ref=e1]:
-  - generic [ref=e22]:
-    - complementary [ref=e23]:
-      - generic [ref=e25]:
-        - generic [ref=e26]: 🐟
-        - generic [ref=e27]:
-          - generic [ref=e28]: ASSA
-          - generic [ref=e29]: Ministry of Fisheries
-      - navigation [ref=e30]:
-        - link "📊 Dashboard" [ref=e31] [cursor=pointer]:
-          - /url: /
-          - generic [ref=e32]: 📊
-          - text: Dashboard
-        - link "🐟 Daily Catches" [ref=e33] [cursor=pointer]:
-          - /url: /catches
-          - generic [ref=e34]: 🐟
-          - text: Daily Catches
-        - link "👤 Fishermen" [ref=e35] [cursor=pointer]:
-          - /url: /fishermen
-          - generic [ref=e36]: 👤
-          - text: Fishermen
-        - link "📏 Quotas & Rules" [ref=e37] [cursor=pointer]:
-          - /url: /quotas
-          - generic [ref=e38]: 📏
-          - text: Quotas & Rules
-        - link "🗺️ Fishing Zones" [ref=e39] [cursor=pointer]:
-          - /url: /zones
-          - generic [ref=e40]: 🗺️
-          - text: Fishing Zones
-        - link "🔔 Alerts" [ref=e41] [cursor=pointer]:
-          - /url: /alerts
-          - generic [ref=e42]: 🔔
-          - text: Alerts
-        - link "📈 Reports" [ref=e43] [cursor=pointer]:
-          - /url: /reports
-          - generic [ref=e44]: 📈
-          - text: Reports
-      - generic [ref=e45]:
-        - generic [ref=e46]: SUPERADMIN
-        - generic [ref=e47]: Dawit Bekele
-        - button "Sign out →" [ref=e48] [cursor=pointer]
-    - generic [ref=e49]:
-      - banner [ref=e50]:
-        - generic [ref=e51]:
-          - heading "ASSA Admin Dashboard" [level=1] [ref=e52]
-          - paragraph [ref=e53]: Ministry of Fisheries, Ethiopia — Amhara Region
-        - generic [ref=e54]:
-          - link "🔔 2" [ref=e55] [cursor=pointer]:
-            - /url: /alerts
-            - text: 🔔
-            - generic [ref=e56]: "2"
-          - generic [ref=e57]: Tue, May 19, 2026
-      - main [ref=e58]:
-        - generic [ref=e59]:
-          - generic [ref=e60]:
-            - heading "Dashboard Overview" [level=2] [ref=e61]
-            - paragraph [ref=e62]: Lake Tana Fisheries — Real-time monitoring
-          - generic [ref=e63]:
-            - generic [ref=e64]:
-              - generic [ref=e65]: 👤
-              - generic [ref=e66]:
-                - generic [ref=e67]: "20"
-                - generic [ref=e68]: Total Fishers
-            - generic [ref=e69]:
-              - generic [ref=e70]: ⛵
-              - generic [ref=e71]:
-                - generic [ref=e72]: "20"
-                - generic [ref=e73]: Registered Boats
-            - generic [ref=e74]:
-              - generic [ref=e75]: 🐟
-              - generic [ref=e76]:
-                - generic [ref=e77]: 0 kg
-                - generic [ref=e78]: Today's Catch (kg)
-                - generic [ref=e79]: Verified only
-            - generic [ref=e80]:
-              - generic [ref=e81]: 🏪
-              - generic [ref=e82]:
-                - generic [ref=e83]: "21"
-                - generic [ref=e84]: Active Listings
-            - generic [ref=e85]:
-              - generic [ref=e86]: 🔔
-              - generic [ref=e87]:
-                - generic [ref=e88]: "2"
-                - generic [ref=e89]: Active Alerts
-          - generic [ref=e90]:
-            - generic [ref=e91]:
-              - heading "Catches Over Time (last 7 days)" [level=3] [ref=e92]
-              - region [ref=e94]:
-                - img [ref=e95]:
-                  - generic [ref=e100]:
-                    - generic [ref=e102]: 05-13
-                    - generic [ref=e104]: 05-14
-                    - generic [ref=e106]: 05-15
-                    - generic [ref=e108]: 05-16
-                    - generic [ref=e110]: 05-17
-                    - generic [ref=e112]: 05-18
-                    - generic [ref=e114]: 05-19
-                  - generic [ref=e116]:
-                    - generic [ref=e118]: "0"
-                    - generic [ref=e120]: "25"
-                    - generic [ref=e122]: "50"
-                    - generic [ref=e124]: "75"
-                    - generic [ref=e126]: "100"
-                - generic:
-                  - generic:
-                    - paragraph: "Date: 2026-05-16"
-                    - list:
-                      - listitem: "Catch : 62 kg"
-            - generic [ref=e139]:
-              - heading "Catch by Species (Today)" [level=3] [ref=e140]
-              - generic [ref=e141]: No verified catches today
-          - generic [ref=e142]:
-            - generic [ref=e143]:
-              - generic [ref=e144]:
-                - heading "Recent Catches" [level=3] [ref=e145]
-                - link "View all →" [ref=e146] [cursor=pointer]:
-                  - /url: /catches
-              - table [ref=e148]:
-                - rowgroup [ref=e149]:
-                  - row "Fisher Species Qty (kg) Zone Status" [ref=e150]:
-                    - columnheader "Fisher" [ref=e151]
-                    - columnheader "Species" [ref=e152]
-                    - columnheader "Qty (kg)" [ref=e153]
-                    - columnheader "Zone" [ref=e154]
-                    - columnheader "Status" [ref=e155]
-                - rowgroup [ref=e156]:
-                  - row "Teshome Haile Nile Perch 18 Lake Tana – East Zone (Woreta) Pending" [ref=e157]:
-                    - cell "Teshome Haile" [ref=e158]
-                    - cell "Nile Perch" [ref=e159]
-                    - cell "18" [ref=e160]
-                    - cell "Lake Tana – East Zone (Woreta)" [ref=e161]
-                    - cell "Pending" [ref=e162]:
-                      - generic [ref=e163]: Pending
-                  - row "Fekadu Lemma Catfish 22 Lake Tana – North Zone (Gorgora) Pending" [ref=e164]:
-                    - cell "Fekadu Lemma" [ref=e165]
-                    - cell "Catfish" [ref=e166]
-                    - cell "22" [ref=e167]
-                    - cell "Lake Tana – North Zone (Gorgora)" [ref=e168]
-                    - cell "Pending" [ref=e169]:
-                      - generic [ref=e170]: Pending
-                  - row "Tesfaye Alemu Tilapia 25 Lake Tana – North Zone (Gorgora) Pending" [ref=e171]:
-                    - cell "Tesfaye Alemu" [ref=e172]
-                    - cell "Tilapia" [ref=e173]
-                    - cell "25" [ref=e174]
-                    - cell "Lake Tana – North Zone (Gorgora)" [ref=e175]
-                    - cell "Pending" [ref=e176]:
-                      - generic [ref=e177]: Pending
-                  - row "Demeke Assefa Barbus (Ganfo) 10 Lake Tana – South Zone (Bahir Dar) Rejected" [ref=e178]:
-                    - cell "Demeke Assefa" [ref=e179]
-                    - cell "Barbus (Ganfo)" [ref=e180]
-                    - cell "10" [ref=e181]
-                    - cell "Lake Tana – South Zone (Bahir Dar)" [ref=e182]
-                    - cell "Rejected" [ref=e183]:
-                      - generic [ref=e184]: Rejected
-                  - row "Mulugeta Worku Carp 16 Lake Tana – South Zone (Bahir Dar) Verified" [ref=e185]:
-                    - cell "Mulugeta Worku" [ref=e186]
-                    - cell "Carp" [ref=e187]
-                    - cell "16" [ref=e188]
-                    - cell "Lake Tana – South Zone (Bahir Dar)" [ref=e189]
-                    - cell "Verified" [ref=e190]:
-                      - generic [ref=e191]: Verified
-            - generic [ref=e192]:
-              - generic [ref=e193]:
-                - generic [ref=e194]:
-                  - heading "Quota Usage" [level=3] [ref=e195]
-                  - link "Manage →" [ref=e196] [cursor=pointer]:
+    - generic [ref=e22]:
+        - complementary [ref=e23]:
+            - generic [ref=e25]:
+                - generic [ref=e26]: 🐟
+                - generic [ref=e27]:
+                    - generic [ref=e28]: ASSA
+                    - generic [ref=e29]: Ministry of Fisheries
+            - navigation [ref=e30]:
+                - link "📊 Dashboard" [ref=e31] [cursor=pointer]:
+                    - /url: /
+                    - generic [ref=e32]: 📊
+                    - text: Dashboard
+                - link "🐟 Daily Catches" [ref=e33] [cursor=pointer]:
+                    - /url: /catches
+                    - generic [ref=e34]: 🐟
+                    - text: Daily Catches
+                - link "👤 Fishermen" [ref=e35] [cursor=pointer]:
+                    - /url: /fishermen
+                    - generic [ref=e36]: 👤
+                    - text: Fishermen
+                - link "📏 Quotas & Rules" [ref=e37] [cursor=pointer]:
                     - /url: /quotas
-                - generic [ref=e198]:
-                  - generic [ref=e199]: Tilapia
-                  - generic [ref=e200]: 3,750 / 5,000 kg (75%)
-                - generic [ref=e204]:
-                  - generic [ref=e205]: Catfish
-                  - generic [ref=e206]: 1,400 / 2,000 kg (70%)
-                - generic [ref=e210]:
-                  - generic [ref=e211]: Barbus (Ganfo)
-                  - generic [ref=e212]: 650 / 1,000 kg (65%)
-                - generic [ref=e216]:
-                  - generic [ref=e217]: Nile Perch
-                  - generic [ref=e218]: 1,200 / 2,000 kg (60%)
-                - generic [ref=e222]:
-                  - generic [ref=e223]: Carp
-                  - generic [ref=e224]: 900 / 1,500 kg (60%)
-              - generic [ref=e227]:
-                - generic [ref=e228]:
-                  - heading "Recent Alerts" [level=3] [ref=e229]
-                  - link "All →" [ref=e230] [cursor=pointer]:
+                    - generic [ref=e38]: 📏
+                    - text: Quotas & Rules
+                - link "🗺️ Fishing Zones" [ref=e39] [cursor=pointer]:
+                    - /url: /zones
+                    - generic [ref=e40]: 🗺️
+                    - text: Fishing Zones
+                - link "🔔 Alerts" [ref=e41] [cursor=pointer]:
                     - /url: /alerts
-                - generic [ref=e231]:
-                  - generic [ref=e232]:
-                    - generic [ref=e233]: 📊 Tilapia Quota at 75%
-                    - generic [ref=e234]: Monthly Tilapia quota has reached 75% (3,750 / 5,000 kg). Monitor closely.
-                  - generic [ref=e235]:
-                    - generic [ref=e236]: 🗺️ Prohibited Zone Catch Detected
-                    - generic [ref=e237]: Fisher Kebede Molla submitted a catch from the Core Protected Area (Prohibited Zone). Catch has been rejected.
-                  - generic [ref=e238]:
-                    - generic [ref=e239]: 📊 Catfish Quota at 70%
-                    - generic [ref=e240]: Monthly Catfish quota has reached 70% (1,400 / 2,000 kg). Approaching warning threshold.
-                  - generic [ref=e241]:
-                    - generic [ref=e242]: 🗺️ Restricted Zone Activity
-                    - generic [ref=e243]: Fisher Mekonnen Hailu submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.
-                  - generic [ref=e244]:
-                    - generic [ref=e245]: 🗺️ Restricted Zone Activity
-                    - generic [ref=e246]: Fisher Sisay Negash submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.
-  - generic [ref=e247]: "100"
+                    - generic [ref=e42]: 🔔
+                    - text: Alerts
+                - link "📈 Reports" [ref=e43] [cursor=pointer]:
+                    - /url: /reports
+                    - generic [ref=e44]: 📈
+                    - text: Reports
+            - generic [ref=e45]:
+                - generic [ref=e46]: SUPERADMIN
+                - generic [ref=e47]: Dawit Bekele
+                - button "Sign out →" [ref=e48] [cursor=pointer]
+        - generic [ref=e49]:
+            - banner [ref=e50]:
+                - generic [ref=e51]:
+                    - heading "ASSA Admin Dashboard" [level=1] [ref=e52]
+                    - paragraph [ref=e53]: Ministry of Fisheries, Ethiopia — Amhara Region
+                - generic [ref=e54]:
+                    - link "🔔 2" [ref=e55] [cursor=pointer]:
+                        - /url: /alerts
+                        - text: 🔔
+                        - generic [ref=e56]: '2'
+                    - generic [ref=e57]: Tue, May 19, 2026
+            - main [ref=e58]:
+                - generic [ref=e59]:
+                    - generic [ref=e60]:
+                        - heading "Dashboard Overview" [level=2] [ref=e61]
+                        - paragraph [ref=e62]: Lake Tana Fisheries — Real-time monitoring
+                    - generic [ref=e63]:
+                        - generic [ref=e64]:
+                            - generic [ref=e65]: 👤
+                            - generic [ref=e66]:
+                                - generic [ref=e67]: '20'
+                                - generic [ref=e68]: Total Fishers
+                        - generic [ref=e69]:
+                            - generic [ref=e70]: ⛵
+                            - generic [ref=e71]:
+                                - generic [ref=e72]: '20'
+                                - generic [ref=e73]: Registered Boats
+                        - generic [ref=e74]:
+                            - generic [ref=e75]: 🐟
+                            - generic [ref=e76]:
+                                - generic [ref=e77]: 0 kg
+                                - generic [ref=e78]: Today's Catch (kg)
+                                - generic [ref=e79]: Verified only
+                        - generic [ref=e80]:
+                            - generic [ref=e81]: 🏪
+                            - generic [ref=e82]:
+                                - generic [ref=e83]: '21'
+                                - generic [ref=e84]: Active Listings
+                        - generic [ref=e85]:
+                            - generic [ref=e86]: 🔔
+                            - generic [ref=e87]:
+                                - generic [ref=e88]: '2'
+                                - generic [ref=e89]: Active Alerts
+                    - generic [ref=e90]:
+                        - generic [ref=e91]:
+                            - heading "Catches Over Time (last 7 days)" [level=3] [ref=e92]
+                            - region [ref=e94]:
+                                - img [ref=e95]:
+                                    - generic [ref=e100]:
+                                        - generic [ref=e102]: 05-13
+                                        - generic [ref=e104]: 05-14
+                                        - generic [ref=e106]: 05-15
+                                        - generic [ref=e108]: 05-16
+                                        - generic [ref=e110]: 05-17
+                                        - generic [ref=e112]: 05-18
+                                        - generic [ref=e114]: 05-19
+                                    - generic [ref=e116]:
+                                        - generic [ref=e118]: '0'
+                                        - generic [ref=e120]: '25'
+                                        - generic [ref=e122]: '50'
+                                        - generic [ref=e124]: '75'
+                                        - generic [ref=e126]: '100'
+                                - generic:
+                                    - generic:
+                                        - paragraph: 'Date: 2026-05-16'
+                                        - list:
+                                            - listitem: 'Catch : 62 kg'
+                        - generic [ref=e139]:
+                            - heading "Catch by Species (Today)" [level=3] [ref=e140]
+                            - generic [ref=e141]: No verified catches today
+                    - generic [ref=e142]:
+                        - generic [ref=e143]:
+                            - generic [ref=e144]:
+                                - heading "Recent Catches" [level=3] [ref=e145]
+                                - link "View all →" [ref=e146] [cursor=pointer]:
+                                    - /url: /catches
+                            - table [ref=e148]:
+                                - rowgroup [ref=e149]:
+                                    - row "Fisher Species Qty (kg) Zone Status" [ref=e150]:
+                                        - columnheader "Fisher" [ref=e151]
+                                        - columnheader "Species" [ref=e152]
+                                        - columnheader "Qty (kg)" [ref=e153]
+                                        - columnheader "Zone" [ref=e154]
+                                        - columnheader "Status" [ref=e155]
+                                - rowgroup [ref=e156]:
+                                    - row "Teshome Haile Nile Perch 18 Lake Tana – East Zone (Woreta) Pending" [ref=e157]:
+                                        - cell "Teshome Haile" [ref=e158]
+                                        - cell "Nile Perch" [ref=e159]
+                                        - cell "18" [ref=e160]
+                                        - cell "Lake Tana – East Zone (Woreta)" [ref=e161]
+                                        - cell "Pending" [ref=e162]:
+                                            - generic [ref=e163]: Pending
+                                    - row "Fekadu Lemma Catfish 22 Lake Tana – North Zone (Gorgora) Pending" [ref=e164]:
+                                        - cell "Fekadu Lemma" [ref=e165]
+                                        - cell "Catfish" [ref=e166]
+                                        - cell "22" [ref=e167]
+                                        - cell "Lake Tana – North Zone (Gorgora)" [ref=e168]
+                                        - cell "Pending" [ref=e169]:
+                                            - generic [ref=e170]: Pending
+                                    - row "Tesfaye Alemu Tilapia 25 Lake Tana – North Zone (Gorgora) Pending" [ref=e171]:
+                                        - cell "Tesfaye Alemu" [ref=e172]
+                                        - cell "Tilapia" [ref=e173]
+                                        - cell "25" [ref=e174]
+                                        - cell "Lake Tana – North Zone (Gorgora)" [ref=e175]
+                                        - cell "Pending" [ref=e176]:
+                                            - generic [ref=e177]: Pending
+                                    - row "Demeke Assefa Barbus (Ganfo) 10 Lake Tana – South Zone (Bahir Dar) Rejected" [ref=e178]:
+                                        - cell "Demeke Assefa" [ref=e179]
+                                        - cell "Barbus (Ganfo)" [ref=e180]
+                                        - cell "10" [ref=e181]
+                                        - cell "Lake Tana – South Zone (Bahir Dar)" [ref=e182]
+                                        - cell "Rejected" [ref=e183]:
+                                            - generic [ref=e184]: Rejected
+                                    - row "Mulugeta Worku Carp 16 Lake Tana – South Zone (Bahir Dar) Verified" [ref=e185]:
+                                        - cell "Mulugeta Worku" [ref=e186]
+                                        - cell "Carp" [ref=e187]
+                                        - cell "16" [ref=e188]
+                                        - cell "Lake Tana – South Zone (Bahir Dar)" [ref=e189]
+                                        - cell "Verified" [ref=e190]:
+                                            - generic [ref=e191]: Verified
+                        - generic [ref=e192]:
+                            - generic [ref=e193]:
+                                - generic [ref=e194]:
+                                    - heading "Quota Usage" [level=3] [ref=e195]
+                                    - link "Manage →" [ref=e196] [cursor=pointer]:
+                                        - /url: /quotas
+                                - generic [ref=e198]:
+                                    - generic [ref=e199]: Tilapia
+                                    - generic [ref=e200]: 3,750 / 5,000 kg (75%)
+                                - generic [ref=e204]:
+                                    - generic [ref=e205]: Catfish
+                                    - generic [ref=e206]: 1,400 / 2,000 kg (70%)
+                                - generic [ref=e210]:
+                                    - generic [ref=e211]: Barbus (Ganfo)
+                                    - generic [ref=e212]: 650 / 1,000 kg (65%)
+                                - generic [ref=e216]:
+                                    - generic [ref=e217]: Nile Perch
+                                    - generic [ref=e218]: 1,200 / 2,000 kg (60%)
+                                - generic [ref=e222]:
+                                    - generic [ref=e223]: Carp
+                                    - generic [ref=e224]: 900 / 1,500 kg (60%)
+                            - generic [ref=e227]:
+                                - generic [ref=e228]:
+                                    - heading "Recent Alerts" [level=3] [ref=e229]
+                                    - link "All →" [ref=e230] [cursor=pointer]:
+                                        - /url: /alerts
+                                - generic [ref=e231]:
+                                    - generic [ref=e232]:
+                                        - generic [ref=e233]: 📊 Tilapia Quota at 75%
+                                        - generic [ref=e234]: Monthly Tilapia quota has reached 75% (3,750 / 5,000 kg). Monitor closely.
+                                    - generic [ref=e235]:
+                                        - generic [ref=e236]: 🗺️ Prohibited Zone Catch Detected
+                                        - generic [ref=e237]: Fisher Kebede Molla submitted a catch from the Core Protected Area (Prohibited Zone). Catch has been rejected.
+                                    - generic [ref=e238]:
+                                        - generic [ref=e239]: 📊 Catfish Quota at 70%
+                                        - generic [ref=e240]: Monthly Catfish quota has reached 70% (1,400 / 2,000 kg). Approaching warning threshold.
+                                    - generic [ref=e241]:
+                                        - generic [ref=e242]: 🗺️ Restricted Zone Activity
+                                        - generic [ref=e243]: Fisher Mekonnen Hailu submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.
+                                    - generic [ref=e244]:
+                                        - generic [ref=e245]: 🗺️ Restricted Zone Activity
+                                        - generic [ref=e246]: Fisher Sisay Negash submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.
+    - generic [ref=e247]: '100'

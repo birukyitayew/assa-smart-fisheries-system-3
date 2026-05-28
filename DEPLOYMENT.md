@@ -39,6 +39,7 @@ The deployment architecture uses four fully integrated, zero-cost cloud services
 ## 📋 Prerequisites
 
 Before starting, create free accounts on the following platforms:
+
 1. **GitHub** — for hosting the repository (private or public).
 2. **Neon DB** (https://neon.tech) — for the serverless PostgreSQL database.
 3. **Render** (https://render.com) — for hosting the containerized Node.js backend.
@@ -86,9 +87,9 @@ We use Render's Blueprint feature to deploy the backend automatically using the 
 4. Connect your GitHub repository.
 5. Render will automatically detect the `render.yaml` file. Under **Service Group Name**, type `assa-fisheries`.
 6. Click **Approve**. Render will request values for the environment variables:
-   * **`DATABASE_URL`**: Paste your Neon connection string (from Step 1).
-   * **`CLOUDINARY_URL`**: Paste your Cloudinary URL (from Step 2).
-   * **`CORS_ORIGINS`**: For now, type `*` (we will restrict this once Vercel is set up).
+   - **`DATABASE_URL`**: Paste your Neon connection string (from Step 1).
+   - **`CLOUDINARY_URL`**: Paste your Cloudinary URL (from Step 2).
+   - **`CORS_ORIGINS`**: For now, type `*` (we will restrict this once Vercel is set up).
 7. Render will build the Docker container and deploy it.
 8. Once the build finishes and the service starts, copy your backend URL. It will look like this:
    ```text
@@ -107,6 +108,7 @@ We use Render's Blueprint feature to deploy the backend automatically using the 
 Vercel provides premium, extremely fast global hosting for frontends.
 
 ### Part A: Update `vercel.json` with your backend URL
+
 1. Open the [vercel.json](file:///home/iron/Desktop/INTERNSHIP%20PROJECT/assa-smart-fisheries-system%203/vercel.json) file in your codebase.
 2. Under `rewrites`, locate the first object:
    ```json
@@ -119,14 +121,15 @@ Vercel provides premium, extremely fast global hosting for frontends.
 4. Commit and push this change to your GitHub repository.
 
 ### Part B: Deploy to Vercel
+
 1. Log in to [Vercel Dashboard](https://vercel.com).
 2. Click **Add New** ➔ **Project**.
 3. Import your GitHub repository.
 4. In the configuration page, configure the following settings:
-   * **Framework Preset**: Other (Vite is handled by our script)
-   * **Root Directory**: `./` (leave as root)
-   * **Build Command**: `npm run build:vercel` (Vercel will run our custom script that compiles all 3 apps and places them in their respective sub-directories).
-   * **Output Directory**: `dist`
+   - **Framework Preset**: Other (Vite is handled by our script)
+   - **Root Directory**: `./` (leave as root)
+   - **Build Command**: `npm run build:vercel` (Vercel will run our custom script that compiles all 3 apps and places them in their respective sub-directories).
+   - **Output Directory**: `dist`
 5. Click **Deploy**.
 6. Vercel will install dependencies, build the Admin Dashboard, the Fisher App, and the Marketplace, and output them to a unified folder structure.
 7. Once finished, Vercel will generate your live production URL (e.g., `https://assa-fisheries.vercel.app`).
@@ -141,7 +144,7 @@ To prevent unauthorized domains from hitting your backend API, restrict the CORS
 2. Go to your **Render Dashboard**, select your `assa-api` service, and navigate to **Environment**.
 3. Find the **`CORS_ORIGINS`** variable.
 4. Replace `*` with your Vercel URL.
-   * If you have custom domains or want to allow localhost for testing, add them as comma-separated values:
+   - If you have custom domains or want to allow localhost for testing, add them as comma-separated values:
      ```text
      https://assa-fisheries.vercel.app,http://localhost:3001,http://localhost:3002
      ```
@@ -153,24 +156,29 @@ To prevent unauthorized domains from hitting your backend API, restrict the CORS
 
 Once deployed, the various panels of your system will be accessible at:
 
-* **Admin Dashboard**: `https://your-project.vercel.app/admin/`
-* **Fisher Mobile App**: `https://your-project.vercel.app/fisher/`
-* **Digital Marketplace**: `https://your-project.vercel.app/market/`
-* **API Engine / Docs**: `https://your-backend.onrender.com/`
+- **Admin Dashboard**: `https://your-project.vercel.app/admin/`
+- **Fisher Mobile App**: `https://your-project.vercel.app/fisher/`
+- **Digital Marketplace**: `https://your-project.vercel.app/market/`
+- **API Engine / Docs**: `https://your-backend.onrender.com/`
 
 ---
 
 ## 💡 Troubleshooting & Production Notes
 
 ### ⚠️ Render Spin-Down (Cold Starts)
-Render's free web service spins down after 15 minutes of inactivity. When a new user hits the site, it will trigger a **cold start** taking **30-50 seconds** to spin up the container. 
-* **SSE Behavior**: The Server-Sent Events client in the frontend is fully resilient and will automatically re-establish connections once the backend goes live.
-* **Keep-Alive**: To avoid cold starts for important presentations, you can use a free pinging service (like UptimeRobot) to hit `https://your-backend.onrender.com/api/health` every 10 minutes.
+
+Render's free web service spins down after 15 minutes of inactivity. When a new user hits the site, it will trigger a **cold start** taking **30-50 seconds** to spin up the container.
+
+- **SSE Behavior**: The Server-Sent Events client in the frontend is fully resilient and will automatically re-establish connections once the backend goes live.
+- **Keep-Alive**: To avoid cold starts for important presentations, you can use a free pinging service (like UptimeRobot) to hit `https://your-backend.onrender.com/api/health` every 10 minutes.
 
 ### ⚠️ Neon Database Auto-Suspend
+
 Neon's free compute units suspend after 5 minutes of database inactivity. The wake-up time is extremely fast (under 1 second), so users will not notice database cold starts.
 
 ### 🧹 Manual Seed / Reset
+
 The first database migration will run automatically when the container is built. If you need to seed initial test data (like administrators, mock fishers, and marketplaces):
-* In local development, you can run `npm run seed`.
-* In production, the DB is fully migrated on boot. A production database will start with a default admin account.
+
+- In local development, you can run `npm run seed`.
+- In production, the DB is fully migrated on boot. A production database will start with a default admin account.

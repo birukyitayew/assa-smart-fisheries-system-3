@@ -5,11 +5,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 export default function OrderModal({ listing, quantity, onConfirm, onCancel, loading, open }) {
-  const totalPrice = (quantity * listing.price_per_kg).toFixed(0)
+  const totalPrice = (quantity * listing.price_per_kg).toFixed(0);
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onCancel()}>
@@ -48,5 +48,5 @@ export default function OrderModal({ listing, quantity, onConfirm, onCancel, loa
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

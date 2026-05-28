@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useEffect } from 'react';
+import api from '../services/api';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -8,15 +8,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Skeleton } from '@/components/ui/skeleton'
+} from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ReportsPage() {
-  const [data, setData] = useState(null)
+  const [data, setData] = useState(null);
 
   useEffect(() => {
-    api.get('/admin/reports/monthly').then((res) => setData(res.data))
-  }, [])
+    api.get('/admin/reports/monthly').then((res) => setData(res.data));
+  }, []);
 
   if (!data) {
     return (
@@ -28,13 +28,13 @@ export default function ReportsPage() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   const monthName = new Date(data.year, data.month - 1).toLocaleString('en-ET', {
     month: 'long',
     year: 'numeric',
-  })
+  });
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -124,5 +124,5 @@ export default function ReportsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

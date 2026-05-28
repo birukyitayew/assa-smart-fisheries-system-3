@@ -1,55 +1,55 @@
-import { useState, useCallback, useEffect } from 'react'
-import { Fish } from 'lucide-react'
-import api from '../services/api'
-import ListingCard from '../components/ListingCard'
-import FilterSidebar from '../components/FilterSidebar'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useState, useCallback, useEffect } from 'react';
+import { Fish } from 'lucide-react';
+import api from '../services/api';
+import ListingCard from '../components/ListingCard';
+import FilterSidebar from '../components/FilterSidebar';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Browse() {
-  const [listings, setListings] = useState([])
-  const [total, setTotal] = useState(0)
-  const [loading, setLoading] = useState(true)
-  const [selectedSpecies, setSelectedSpecies] = useState('All Fish')
-  const [priceRange, setPriceRange] = useState([0, 300])
-  const [search, setSearch] = useState('')
+  const [listings, setListings] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [selectedSpecies, setSelectedSpecies] = useState('All Fish');
+  const [priceRange, setPriceRange] = useState([0, 300]);
+  const [search, setSearch] = useState('');
 
   const fetchListings = useCallback(async () => {
     try {
-      setLoading(true)
-      const params = new URLSearchParams({ available_only: 'true', limit: 50 })
-      if (selectedSpecies !== 'All Fish') params.set('species', selectedSpecies)
-      const res = await api.get(`/marketplace/listings?${params}`)
-      setListings(res.data.listings)
-      setTotal(res.data.total)
+      setLoading(true);
+      const params = new URLSearchParams({ available_only: 'true', limit: 50 });
+      if (selectedSpecies !== 'All Fish') params.set('species', selectedSpecies);
+      const res = await api.get(`/marketplace/listings?${params}`);
+      setListings(res.data.listings);
+      setTotal(res.data.total);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [selectedSpecies])
+  }, [selectedSpecies]);
 
   useEffect(() => {
-    fetchListings()
-  }, [fetchListings])
+    fetchListings();
+  }, [fetchListings]);
 
   const filtered = listings.filter((l) => {
-    if (l.price_per_kg < priceRange[0] || l.price_per_kg > priceRange[1]) return false
+    if (l.price_per_kg < priceRange[0] || l.price_per_kg > priceRange[1]) return false;
     if (
       search &&
       !l.species.toLowerCase().includes(search.toLowerCase()) &&
       !l.fisher_name.toLowerCase().includes(search.toLowerCase())
     )
-      return false
-    return true
-  })
+      return false;
+    return true;
+  });
 
   function clearFilters() {
-    setSelectedSpecies('All Fish')
-    setSearch('')
-    setPriceRange([0, 300])
+    setSelectedSpecies('All Fish');
+    setSearch('');
+    setPriceRange([0, 300]);
   }
 
   return (
@@ -117,5 +117,5 @@ export default function Browse() {
         </div>
       </div>
     </div>
-  )
+  );
 }

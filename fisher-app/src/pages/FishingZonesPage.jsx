@@ -1,21 +1,21 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react';
+import api from '../services/api';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 const TYPE_VARIANT = {
   ALLOWED: 'default',
   RESTRICTED: 'secondary',
   PROHIBITED: 'destructive',
-}
+};
 
 export default function FishingZonesPage() {
-  const [zones, setZones] = useState([])
+  const [zones, setZones] = useState([]);
 
   useEffect(() => {
-    api.get('/zones').then((res) => setZones(res.data.zones))
-  }, [])
+    api.get('/zones').then((res) => setZones(res.data.zones));
+  }, []);
 
   return (
     <div className="p-4 space-y-4">
@@ -59,5 +59,5 @@ export default function FishingZonesPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState, useEffect } from 'react';
+import api from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 const emptyRule = {
   zone_id: '',
@@ -27,60 +27,61 @@ const emptyRule = {
   rule_type: 'LIMIT',
   max_kg: '',
   notes: '',
-}
+};
 
 export default function QuotasPage() {
-  const [quotas, setQuotas] = useState([])
-  const [rules, setRules] = useState([])
-  const [zones, setZones] = useState([])
-  const [editing, setEditing] = useState(null)
-  const [newLimit, setNewLimit] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [ruleForm, setRuleForm] = useState(emptyRule)
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [quotas, setQuotas] = useState([]);
+  const [rules, setRules] = useState([]);
+  const [zones, setZones] = useState([]);
+  const [editing, setEditing] = useState(null);
+  const [newLimit, setNewLimit] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [ruleForm, setRuleForm] = useState(emptyRule);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const load = () => {
-    api.get('/admin/quotas').then((res) => setQuotas(res.data.quotas))
-    api.get('/admin/season-rules').then((res) => setRules(res.data.rules || []))
-    api.get('/admin/zones').then((res) => setZones(res.data.zones || []))
-  }
+    api.get('/admin/quotas').then((res) => setQuotas(res.data.quotas));
+    api.get('/admin/season-rules').then((res) => setRules(res.data.rules || []));
+    api.get('/admin/zones').then((res) => setZones(res.data.zones || []));
+  };
 
   useEffect(() => {
-    load()
-  }, [])
+    load();
+  }, []);
 
   async function saveLimit(id) {
-    if (!newLimit || newLimit <= 0) return
-    setSaving(true)
+    if (!newLimit || newLimit <= 0) return;
+    setSaving(true);
     try {
-      await api.put(`/admin/quotas/${id}`, { monthly_limit_kg: Number(newLimit) })
-      load()
-      setEditing(null)
+      await api.put(`/admin/quotas/${id}`, { monthly_limit_kg: Number(newLimit) });
+      load();
+      setEditing(null);
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   async function saveRule() {
-    if (!ruleForm.zone_id || !ruleForm.species || !ruleForm.season_start || !ruleForm.season_end) return
-    setSaving(true)
+    if (!ruleForm.zone_id || !ruleForm.species || !ruleForm.season_start || !ruleForm.season_end)
+      return;
+    setSaving(true);
     try {
       await api.post('/admin/season-rules', {
         ...ruleForm,
         zone_id: Number(ruleForm.zone_id),
         max_kg: ruleForm.max_kg ? Number(ruleForm.max_kg) : null,
-      })
-      setRuleForm(emptyRule)
-      setDialogOpen(false)
-      load()
+      });
+      setRuleForm(emptyRule);
+      setDialogOpen(false);
+      load();
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
   async function deleteRule(id) {
-    await api.delete(`/admin/season-rules/${id}`)
-    load()
+    await api.delete(`/admin/season-rules/${id}`);
+    load();
   }
 
   return (
@@ -94,11 +95,10 @@ export default function QuotasPage() {
 
       <div className="space-y-4">
         {quotas.map((q) => {
-          const pct = Math.min(q.usage_pct, 100)
-          const barColor =
-            pct >= 90 ? 'bg-destructive' : pct >= 75 ? 'bg-warning' : 'bg-primary'
+          const pct = Math.min(q.usage_pct, 100);
+          const barColor = pct >= 90 ? 'bg-destructive' : pct >= 75 ? 'bg-warning' : 'bg-primary';
           const textColor =
-            pct >= 90 ? 'text-destructive' : pct >= 75 ? 'text-warning' : 'text-muted-foreground'
+            pct >= 90 ? 'text-destructive' : pct >= 75 ? 'text-warning' : 'text-muted-foreground';
 
           return (
             <Card key={q.id}>
@@ -115,7 +115,10 @@ export default function QuotasPage() {
                 </div>
 
                 <div className="h-3 bg-muted rounded-full overflow-hidden mb-3">
-                  <div className={cn('h-full rounded-full transition-all', barColor)} style={{ width: `${pct}%` }} />
+                  <div
+                    className={cn('h-full rounded-full transition-all', barColor)}
+                    style={{ width: `${pct}%` }}
+                  />
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
@@ -147,8 +150,8 @@ export default function QuotasPage() {
                     size="sm"
                     className="mt-3 px-0"
                     onClick={() => {
-                      setEditing(q.id)
-                      setNewLimit(q.monthly_limit_kg)
+                      setEditing(q.id);
+                      setNewLimit(q.monthly_limit_kg);
                     }}
                   >
                     Edit limit
@@ -156,7 +159,7 @@ export default function QuotasPage() {
                 )}
               </CardContent>
             </Card>
-          )
+          );
         })}
       </div>
 
@@ -257,5 +260,5 @@ export default function QuotasPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -4,14 +4,14 @@ This document maps production security measures to the OWASP-oriented checklist 
 
 ## Authentication & sessions
 
-| Control | Implementation |
-|---------|----------------|
-| Password hashing | bcrypt (cost factor 10) via `bcryptjs` |
-| Access tokens | Short-lived JWT (`JWT_ACCESS_EXPIRES_IN`, default 30m) |
-| Refresh tokens | Opaque tokens; SHA-256 hash stored in `refresh_tokens`; rotation on `/api/auth/refresh` |
-| Logout | Revokes refresh token(s) in database |
-| Login rate limit | 10 attempts / 15 min per IP on `POST /api/auth/login` |
-| Account lockout | 5 failed logins → 15 min lock (`users.failed_login_count`, `locked_until`) |
+| Control          | Implementation                                                                          |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| Password hashing | bcrypt (cost factor 10) via `bcryptjs`                                                  |
+| Access tokens    | Short-lived JWT (`JWT_ACCESS_EXPIRES_IN`, default 30m)                                  |
+| Refresh tokens   | Opaque tokens; SHA-256 hash stored in `refresh_tokens`; rotation on `/api/auth/refresh` |
+| Logout           | Revokes refresh token(s) in database                                                    |
+| Login rate limit | 10 attempts / 15 min per IP on `POST /api/auth/login`                                   |
+| Account lockout  | 5 failed logins → 15 min lock (`users.failed_login_count`, `locked_until`)              |
 
 ## Authorization
 

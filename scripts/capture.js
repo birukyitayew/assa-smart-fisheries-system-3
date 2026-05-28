@@ -17,14 +17,17 @@ const DIAGNOSTICS_URL = 'http://localhost:4000/api/health/detailed';
 const OUTPUT_DIR = '/home/iron/.gemini/antigravity-ide/brain/7b50ec06-136b-4c69-90aa-6bcf94bd0955';
 
 async function run() {
-  const browser = await chromium.launch({ headless: true, executablePath: '/usr/bin/google-chrome' });
+  const browser = await chromium.launch({
+    headless: true,
+    executablePath: '/usr/bin/google-chrome',
+  });
   const context = await browser.newContext({
-    viewport: { width: 1280, height: 800 }
+    viewport: { width: 1280, height: 800 },
   });
   const page = await context.newPage();
 
   // Helper function to wait
-  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   // 1. Capture Login UI
   console.log('📸 Capturing Login UI...');
@@ -68,7 +71,7 @@ async function run() {
   console.log('📱 Creating context for mobile Fisher App...');
   const fisherContext = await browser.newContext({
     viewport: { width: 375, height: 812 },
-    isMobile: true
+    isMobile: true,
   });
   const fisherPage = await fisherContext.newPage();
 
@@ -99,7 +102,7 @@ async function run() {
   // Create context for Marketplace
   console.log('🛒 Creating context for Marketplace...');
   const marketContext = await browser.newContext({
-    viewport: { width: 1280, height: 800 }
+    viewport: { width: 1280, height: 800 },
   });
   const marketPage = await marketContext.newPage();
 
@@ -128,7 +131,7 @@ async function run() {
   console.log('🎉 Screenshots successfully captured!');
 }
 
-run().catch(err => {
+run().catch((err) => {
   console.error('❌ Error executing script:', err);
   process.exit(1);
 });

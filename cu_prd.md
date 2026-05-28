@@ -6,7 +6,6 @@ Here is an enterprise architecture blueprint grounded in your **current MVP** (3
 
 ## Executive framing: today vs. target
 
-
 | Dimension      | Today (MVP)                        | Target (government-grade)                                                |
 | -------------- | ---------------------------------- | ------------------------------------------------------------------------ |
 | **Users**      | Fisher, Buyer, Admin, Superadmin   | + **Inspector/Enforcement**, **Market Analyst**, **Regional Supervisor** |
@@ -17,7 +16,6 @@ Here is an enterprise architecture blueprint grounded in your **current MVP** (3
 | **Market**     | Listings + basic stats             | **Full market intelligence** (buyers, sellers, prices, supply chain)     |
 | **Compliance** | Catch approve/reject, quota alerts | **Geofencing, violations, fines, inspector workflow**                    |
 | **Boats**      | Static registry (name, capacity)   | **Live GPS tracks**, status, route history                               |
-
 
 The MVP already proves the **core chain**: Fisher submits → Admin verifies → Marketplace lists → Buyer orders. The gap is **visibility, enforcement depth, and operational command** — not the basic workflow.
 
@@ -84,10 +82,7 @@ flowchart TB
   clients --> Maps
 ```
 
-
-
 ### 1.2 Application decomposition (recommended)
-
 
 | Service                 | Responsibility                                     | Notes                            |
 | ----------------------- | -------------------------------------------------- | -------------------------------- |
@@ -100,7 +95,6 @@ flowchart TB
 | **Inspection**          | Assignments, reports, fines, evidence              | Inspector role                   |
 | **Realtime**            | SSE channels per role/region                       | Redis pub/sub                    |
 | **Reporting**           | Exports, PDF, ministry dashboards                  | Scheduled jobs                   |
-
 
 ### 1.3 Deployment topology (production)
 
@@ -143,7 +137,6 @@ Single-domain pattern (matches your Vercel plan):
 
 **Primary nav modules (build on existing pages + new):**
 
-
 | Module                      | MVP today                 | Enterprise add                                  |
 | --------------------------- | ------------------------- | ----------------------------------------------- |
 | **Command Overview**        | Dashboard KPIs + 2 charts | Live KPIs via SSE, market heatmap strip         |
@@ -156,7 +149,6 @@ Single-domain pattern (matches your Vercel plan):
 | **Compliance Registry**     | Fishermen read-only       | License CRUD, boat registration, scores         |
 | **Intelligence**            | —                         | Demand forecast, regional compare               |
 | **Alerts & Incidents**      | Alerts page               | SLA, assign, escalate, resolve                  |
-
 
 **Key panels for your requirements:**
 
@@ -299,8 +291,6 @@ erDiagram
   audit_log }o--|| users : actor
 ```
 
-
-
 ### 3.4 Geofencing model
 
 - Store zone boundaries as **GeoJSON polygons** (not just center lat/lng).
@@ -337,10 +327,7 @@ sequenceDiagram
   Note over Market: New card animation
 ```
 
-
-
 ### 4.2 SSE channels (role-scoped)
-
 
 | Channel              | Subscribers    | Events                                                                                                               |
 | -------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -350,9 +337,7 @@ sequenceDiagram
 | `market:public`      | Marketplace    | `listing.created`, `listing.updated`, `order.placed` (anonymized)                                                    |
 | `inspector:{userId}` | Inspector      | `assignment.created`, `alert.zone`                                                                                   |
 
-
 ### 4.3 Live data definitions
-
 
 | Metric            | Source                                                | Update frequency      |
 | ----------------- | ----------------------------------------------------- | --------------------- |
@@ -362,7 +347,6 @@ sequenceDiagram
 | Live transactions | `orders` stream                                       | SSE on order          |
 | Stock available   | `SUM(listings.quantity_available_kg)`                 | On listing change     |
 | Revenue today     | `SUM(orders.total_price)`                             | SSE on order          |
-
 
 ### 4.4 Fallback
 
@@ -403,7 +387,6 @@ sequenceDiagram
 
 ## 6. Missing enterprise features (prioritized)
 
-
 | Priority | Feature                                                       | Why evaluators care                |
 | -------- | ------------------------------------------------------------- | ---------------------------------- |
 | P0       | **Command map** (zones + boats + heatmap)                     | “This is a real monitoring system” |
@@ -418,13 +401,11 @@ sequenceDiagram
 | P2       | Price forecasting, supply chain nodes, SMS, offline inspector |                                    |
 | P2       | Digital signatures, Amharic i18n, national multi-lake         |                                    |
 
-
 ---
 
 ## 7. Screens to build (inventory)
 
 ### Government portal (new shell — merge admin + extensions)
-
 
 | Screen ID | Name                                           | Priority |
 | --------- | ---------------------------------------------- | -------- |
@@ -442,8 +423,7 @@ sequenceDiagram
 | GC-12     | Audit Log                                      | P0       |
 | GC-13     | System Settings (zones CRUD, seasons)          | P2       |
 
-
-*Migrate existing:* Dashboard, Catches, Catch Detail, Fishermen, Quotas, Zones, Alerts, Reports → into this shell with upgraded UI.
+_Migrate existing:_ Dashboard, Catches, Catch Detail, Fishermen, Quotas, Zones, Alerts, Reports → into this shell with upgraded UI.
 
 ### Inspector app (new)
 
@@ -474,7 +454,6 @@ sequenceDiagram
 
 You already moved to **shadcn dark default** — extend with:
 
-
 | Element          | Specification                                                                                 |
 | ---------------- | --------------------------------------------------------------------------------------------- |
 | **Density**      | Data-dense tables; compact row height; monospace for IDs                                      |
@@ -486,9 +465,7 @@ You already moved to **shadcn dark default** — extend with:
 | **Trust**        | “Ministry of Fisheries — Amhara Region” header, verified badges, timestamps everywhere        |
 | **Empty states** | Never blank — show “No violations in last 24h” with icon                                      |
 
-
 ### 8.2 UX patterns from reference systems
-
 
 | Reference           | Borrow                                           |
 | ------------------- | ------------------------------------------------ |
@@ -496,7 +473,6 @@ You already moved to **shadcn dark default** — extend with:
 | Logistics dashboard | Right-rail activity feed                         |
 | Smart city          | Zone layers + alerts timeline                    |
 | Stripe Dashboard    | Clean tables + drill-down panels                 |
-
 
 ### 8.3 Technical production signals
 
@@ -514,14 +490,12 @@ You already moved to **shadcn dark default** — extend with:
 
 Open **4 browser windows**:
 
-
 | Window | URL                | Role      |
 | ------ | ------------------ | --------- |
 | 1      | Command Center     | Admin     |
 | 2      | Fisher PWA (375px) | Fisher    |
 | 3      | Marketplace        | Buyer     |
 | 4      | Inspector (tablet) | Inspector |
-
 
 **Script:**
 
@@ -587,7 +561,7 @@ Open **4 browser windows**:
 - Offline inspector sync
 - Integration with national ID / payment (if required)
 
-**Total to evaluator-grade demo:** ~~10 weeks with 2 full-stack + 1 designer; **Phase 0–1 only (~~5 weeks)** yields a credible “command center” on top of your working MVP.
+**Total to evaluator-grade demo:** ~~10 weeks with 2 full-stack + 1 designer; \*\*Phase 0–1 only (~~5 weeks)\*\* yields a credible “command center” on top of your working MVP.
 
 ---
 

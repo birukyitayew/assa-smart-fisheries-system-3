@@ -1,11 +1,11 @@
-import { Menu } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
-import SidebarNav from './SidebarNav'
+import { Menu } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import SidebarNav from './SidebarNav';
 
 export default function MobileNav({ open, onOpenChange }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <>
@@ -26,12 +26,9 @@ export default function MobileNav({ open, onOpenChange }) {
           className="w-[min(100vw,18rem)] max-w-full p-0 gap-0 border-sidebar-border bg-sidebar"
         >
           <SheetTitle className="sr-only">{t('nav.menu')}</SheetTitle>
-          <SidebarNav
-            className="h-full"
-            onNavigate={() => onOpenChange(false)}
-          />
+          <SidebarNav className="h-full" onNavigate={() => onOpenChange(false)} />
         </SheetContent>
       </Sheet>
     </>
-  )
+  );
 }

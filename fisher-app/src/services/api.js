@@ -35,10 +35,13 @@ api.interceptors.response.use(
         .then((r) => {
           const token = r.data.accessToken || r.data.token;
           localStorage.setItem(TOKEN_KEY, token);
-          if (r.data.refreshToken) sessionStorage.setItem('assa_refresh_token', r.data.refreshToken);
+          if (r.data.refreshToken)
+            sessionStorage.setItem('assa_refresh_token', r.data.refreshToken);
           return token;
         })
-        .finally(() => { refreshPromise = null; });
+        .finally(() => {
+          refreshPromise = null;
+        });
     }
     try {
       const token = await refreshPromise;

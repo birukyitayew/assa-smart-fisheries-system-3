@@ -1,12 +1,14 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react';
 
 export function usePolling(callback, interval = 10000, enabled = true) {
-  const savedCallback = useRef(callback)
-  useEffect(() => { savedCallback.current = callback }, [callback])
+  const savedCallback = useRef(callback);
   useEffect(() => {
-    if (!enabled) return
-    savedCallback.current()
-    const id = setInterval(() => savedCallback.current(), interval)
-    return () => clearInterval(id)
-  }, [interval, enabled])
+    savedCallback.current = callback;
+  }, [callback]);
+  useEffect(() => {
+    if (!enabled) return;
+    savedCallback.current();
+    const id = setInterval(() => savedCallback.current(), interval);
+    return () => clearInterval(id);
+  }, [interval, enabled]);
 }

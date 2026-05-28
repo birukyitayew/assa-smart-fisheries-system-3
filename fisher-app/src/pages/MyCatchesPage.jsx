@@ -1,25 +1,25 @@
-import { useState, useCallback } from 'react'
-import { ChevronRight, Fish } from 'lucide-react'
-import api from '../services/api'
-import { usePolling } from '../hooks/usePolling'
-import StatusBadge from '../components/StatusBadge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { useState, useCallback } from 'react';
+import { ChevronRight, Fish } from 'lucide-react';
+import api from '../services/api';
+import { usePolling } from '../hooks/usePolling';
+import StatusBadge from '../components/StatusBadge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function MyCatchesPage() {
-  const [catches, setCatches] = useState([])
-  const [selected, setSelected] = useState(null)
+  const [catches, setCatches] = useState([]);
+  const [selected, setSelected] = useState(null);
 
   const fetchCatches = useCallback(async () => {
     try {
-      const res = await api.get('/fisher/catches')
-      setCatches(res.data.catches)
+      const res = await api.get('/fisher/catches');
+      setCatches(res.data.catches);
     } catch {
       /* ignore */
     }
-  }, [])
+  }, []);
 
-  usePolling(fetchCatches, 10000)
+  usePolling(fetchCatches, 10000);
 
   if (selected) {
     return (
@@ -80,7 +80,7 @@ export default function MyCatchesPage() {
           </Card>
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -113,7 +113,9 @@ export default function MyCatchesPage() {
                   <div className="text-sm text-muted-foreground mt-0.5">
                     {c.quantity_kg} kg · {c.fishing_date}
                   </div>
-                  <div className="font-mono text-xs text-muted-foreground mt-1">{c.reference_id}</div>
+                  <div className="font-mono text-xs text-muted-foreground mt-1">
+                    {c.reference_id}
+                  </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <StatusBadge status={c.status} />
@@ -125,5 +127,5 @@ export default function MyCatchesPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,8 +1,15 @@
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
-const SPECIES_CATEGORIES = ['All Fish', 'Tilapia', 'Nile Perch', 'Catfish', 'Barbus (Ganfo)', 'Carp']
+const SPECIES_CATEGORIES = [
+  'All Fish',
+  'Tilapia',
+  'Nile Perch',
+  'Catfish',
+  'Barbus (Ganfo)',
+  'Carp',
+];
 
 export default function FilterSidebar({
   selectedSpecies,
@@ -11,7 +18,7 @@ export default function FilterSidebar({
   onPriceChange,
   onClear,
 }) {
-  const hasFilters = selectedSpecies !== 'All Fish' || priceRange[1] < 300
+  const hasFilters = selectedSpecies !== 'All Fish' || priceRange[1] < 300;
 
   return (
     <aside className="w-56 flex-shrink-0 space-y-5 hidden lg:block">
@@ -60,5 +67,5 @@ export default function FilterSidebar({
         </Button>
       )}
     </aside>
-  )
+  );
 }

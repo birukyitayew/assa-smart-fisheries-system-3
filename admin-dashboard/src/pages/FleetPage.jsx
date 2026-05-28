@@ -1,88 +1,88 @@
-import { useState, useCallback, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { Ship, MapPin } from 'lucide-react'
-import api from '../services/api'
-import { useRegion } from '../context/RegionContext'
-import { usePolling } from '../hooks/usePolling'
-import PageHeader from '../components/layout/PageHeader'
-import CommandMap from '../components/command/CommandMap'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { useState, useCallback, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { Ship, MapPin } from 'lucide-react';
+import api from '../services/api';
+import { useRegion } from '../context/RegionContext';
+import { usePolling } from '../hooks/usePolling';
+import PageHeader from '../components/layout/PageHeader';
+import CommandMap from '../components/command/CommandMap';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 function statusChip(boat) {
-  if (boat.trip_status === 'ACTIVE') return { label: 'On trip', variant: 'default' }
-  const s = boat.position_status || 'OFFLINE'
-  if (s === 'FISHING') return { label: 'Fishing', variant: 'default' }
-  if (s === 'RETURNING') return { label: 'Returning', variant: 'secondary' }
-  if (s === 'DOCKED') return { label: 'Docked', variant: 'outline' }
-  return { label: s, variant: 'outline' }
+  if (boat.trip_status === 'ACTIVE') return { label: 'On trip', variant: 'default' };
+  const s = boat.position_status || 'OFFLINE';
+  if (s === 'FISHING') return { label: 'Fishing', variant: 'default' };
+  if (s === 'RETURNING') return { label: 'Returning', variant: 'secondary' };
+  if (s === 'DOCKED') return { label: 'Docked', variant: 'outline' };
+  return { label: s, variant: 'outline' };
 }
 
 export default function FleetPage() {
-  const { selectedRegionId, mapCenter } = useRegion()
-  const [boats, setBoats] = useState([])
-  const [layers, setLayers] = useState({ zones: [], fleet: [], catches: [] })
-  const [selectedId, setSelectedId] = useState(null)
-  const [route, setRoute] = useState([])
-  const [loadError, setLoadError] = useState(null)
-  const didAutoSelect = useRef(false)
+  const { selectedRegionId, mapCenter } = useRegion();
+  const [boats, setBoats] = useState([]);
+  const [layers, setLayers] = useState({ zones: [], fleet: [], catches: [] });
+  const [selectedId, setSelectedId] = useState(null);
+  const [route, setRoute] = useState([]);
+  const [loadError, setLoadError] = useState(null);
+  const didAutoSelect = useRef(false);
 
   const fetchFleet = useCallback(async () => {
     try {
-      setLoadError(null)
+      setLoadError(null);
       const [fleetRes, mapRes] = await Promise.all([
         api.get('/admin/fleet'),
         api.get('/admin/map/layers'),
-      ])
-      const boatList = fleetRes.data.boats || []
-      setBoats(boatList)
+      ]);
+      const boatList = fleetRes.data.boats || [];
+      setBoats(boatList);
       const fleet = boatList.map((b) => ({
         ...b,
         status: b.position_status || b.status,
-      }))
+      }));
       setLayers({
         zones: mapRes.data.zones || [],
         fleet,
         catches: [],
-      })
+      });
       if (!didAutoSelect.current && boatList.length > 0) {
-        didAutoSelect.current = true
-        const firstId = boatList[0].boat_id
-        setSelectedId(firstId)
-        const hist = await api.get(`/admin/fleet/${firstId}/history?hours=24`)
-        setRoute(hist.data.points || [])
+        didAutoSelect.current = true;
+        const firstId = boatList[0].boat_id;
+        setSelectedId(firstId);
+        const hist = await api.get(`/admin/fleet/${firstId}/history?hours=24`);
+        setRoute(hist.data.points || []);
       }
     } catch (err) {
-      console.error('Fleet fetch error:', err)
-      const msg = err.response?.data?.error || err.message || 'Failed to load fleet'
-      setLoadError(msg)
+      console.error('Fleet fetch error:', err);
+      const msg = err.response?.data?.error || err.message || 'Failed to load fleet';
+      setLoadError(msg);
     }
-  }, [selectedRegionId])
+  }, [selectedRegionId]);
 
   const loadHistory = useCallback(async (boatId) => {
     if (!boatId) {
-      setRoute([])
-      return
+      setRoute([]);
+      return;
     }
     try {
-      const res = await api.get(`/admin/fleet/${boatId}/history?hours=24`)
-      setRoute(res.data.points || [])
+      const res = await api.get(`/admin/fleet/${boatId}/history?hours=24`);
+      setRoute(res.data.points || []);
     } catch (err) {
-      console.error('Fleet history error:', err)
-      setRoute([])
+      console.error('Fleet history error:', err);
+      setRoute([]);
     }
-  }, [])
+  }, []);
 
-  usePolling(fetchFleet, 15000)
+  usePolling(fetchFleet, 15000);
 
   const selectBoat = (boatId) => {
-    setSelectedId(boatId)
-    loadHistory(boatId)
-  }
+    setSelectedId(boatId);
+    loadHistory(boatId);
+  };
 
-  const selected = boats.find((b) => b.boat_id === selectedId)
+  const selected = boats.find((b) => b.boat_id === selectedId);
 
   return (
     <div className="space-y-6">
@@ -102,8 +102,8 @@ export default function FleetPage() {
       {loadError && (
         <Card className="border-destructive/40 bg-destructive/5">
           <CardContent className="pt-6 text-sm text-destructive">
-            Could not load fleet data: {loadError}. Restart the backend after pulling Phase 3 changes (
-            <code className="text-xs">npm run dev --prefix backend</code>
+            Could not load fleet data: {loadError}. Restart the backend after pulling Phase 3
+            changes (<code className="text-xs">npm run dev --prefix backend</code>
             ).
           </CardContent>
         </Card>
@@ -122,8 +122,8 @@ export default function FleetPage() {
               <p className="px-4 py-6 text-sm text-muted-foreground">No boats registered yet.</p>
             )}
             {boats.map((b) => {
-              const chip = statusChip(b)
-              const isSelected = selectedId === b.boat_id
+              const chip = statusChip(b);
+              const isSelected = selectedId === b.boat_id;
               return (
                 <button
                   key={b.boat_id}
@@ -149,7 +149,7 @@ export default function FleetPage() {
                       : 'No GPS yet'}
                   </div>
                 </button>
-              )
+              );
             })}
           </CardContent>
         </Card>
@@ -175,5 +175,5 @@ export default function FleetPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

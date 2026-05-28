@@ -1,19 +1,19 @@
-import { useState, useCallback } from 'react'
-import api from '../services/api'
-import { usePolling } from '../hooks/usePolling'
-import { useAuth } from '../context/AuthContext'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useCallback } from 'react';
+import api from '../services/api';
+import { usePolling } from '../hooks/usePolling';
+import { useAuth } from '../context/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -21,50 +21,50 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { toast } from 'sonner'
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 export default function InspectionsPage() {
-  const { user } = useAuth()
-  const isAdmin = ['admin', 'superadmin'].includes(user?.role)
-  const [inspections, setInspections] = useState([])
-  const [inspectors, setInspectors] = useState([])
-  const [fishers, setFishers] = useState([])
+  const { user } = useAuth();
+  const isAdmin = ['admin', 'superadmin'].includes(user?.role);
+  const [inspections, setInspections] = useState([]);
+  const [inspectors, setInspectors] = useState([]);
+  const [fishers, setFishers] = useState([]);
   const [form, setForm] = useState({
     inspector_id: '',
     fisher_id: '',
     title: '',
     instructions: '',
     scheduled_at: '',
-  })
+  });
 
   const fetchAll = useCallback(async () => {
     try {
-      const endpoint = isAdmin ? '/admin/inspections' : '/inspector/assignments'
-      const res = await api.get(endpoint)
-      setInspections(isAdmin ? res.data.inspections : res.data.assignments)
+      const endpoint = isAdmin ? '/admin/inspections' : '/inspector/assignments';
+      const res = await api.get(endpoint);
+      setInspections(isAdmin ? res.data.inspections : res.data.assignments);
       if (isAdmin) {
         const [insp, fish] = await Promise.all([
           api.get('/admin/inspectors'),
           api.get('/admin/fishers?limit=50'),
-        ])
-        setInspectors(insp.data.inspectors)
-        setFishers(fish.data.fishers)
+        ]);
+        setInspectors(insp.data.inspectors);
+        setFishers(fish.data.fishers);
       }
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }, [isAdmin])
+  }, [isAdmin]);
 
-  usePolling(fetchAll, 15000)
+  usePolling(fetchAll, 15000);
 
   async function assignInspection() {
     try {
@@ -73,12 +73,12 @@ export default function InspectionsPage() {
         fisher_id: form.fisher_id ? Number(form.fisher_id) : null,
         inspector_id: Number(form.inspector_id),
         scheduled_at: form.scheduled_at || new Date().toISOString(),
-      })
-      toast.success('Inspection assigned')
-      setForm({ inspector_id: '', fisher_id: '', title: '', instructions: '', scheduled_at: '' })
-      fetchAll()
+      });
+      toast.success('Inspection assigned');
+      setForm({ inspector_id: '', fisher_id: '', title: '', instructions: '', scheduled_at: '' });
+      fetchAll();
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to assign')
+      toast.error(err.response?.data?.error || 'Failed to assign');
     }
   }
 
@@ -103,7 +103,10 @@ export default function InspectionsPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Inspector</Label>
-                  <Select value={form.inspector_id} onValueChange={(v) => setForm((f) => ({ ...f, inspector_id: v }))}>
+                  <Select
+                    value={form.inspector_id}
+                    onValueChange={(v) => setForm((f) => ({ ...f, inspector_id: v }))}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select inspector" />
                     </SelectTrigger>
@@ -118,7 +121,10 @@ export default function InspectionsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Fisher (optional)</Label>
-                  <Select value={form.fisher_id} onValueChange={(v) => setForm((f) => ({ ...f, fisher_id: v }))}>
+                  <Select
+                    value={form.fisher_id}
+                    onValueChange={(v) => setForm((f) => ({ ...f, fisher_id: v }))}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select fisher" />
                     </SelectTrigger>
@@ -133,7 +139,10 @@ export default function InspectionsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Title</Label>
-                  <Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} />
+                  <Input
+                    value={form.title}
+                    onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Instructions</Label>
@@ -189,5 +198,5 @@ export default function InspectionsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

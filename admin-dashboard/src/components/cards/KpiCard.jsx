@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { statusClass } from '@/lib/status'
+import { Link } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { statusClass } from '@/lib/status';
 
 const iconVariants = {
   primary: statusClass('primary'),
@@ -10,7 +10,7 @@ const iconVariants = {
   destructive: statusClass('danger'),
   info: statusClass('info'),
   muted: statusClass('muted'),
-}
+};
 
 export default function KpiCard({ icon: Icon, label, value, sub, variant = 'primary', to }) {
   const content = (
@@ -29,7 +29,7 @@ export default function KpiCard({ icon: Icon, label, value, sub, variant = 'prim
         {sub && <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>}
       </div>
     </CardContent>
-  )
+  );
 
   if (to) {
     return (
@@ -38,8 +38,8 @@ export default function KpiCard({ icon: Icon, label, value, sub, variant = 'prim
           {content}
         </Card>
       </Link>
-    )
+    );
   }
 
-  return <Card>{content}</Card>
+  return <Card>{content}</Card>;
 }

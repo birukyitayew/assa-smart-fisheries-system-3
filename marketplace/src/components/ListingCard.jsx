@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import PriceSparkline from './PriceSparkline'
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import PriceSparkline from './PriceSparkline';
 
 const FISH_COLORS = {
   Tilapia: { bg: 'linear-gradient(135deg, #0e7490, #155e75)', emoji: '🐟' },
@@ -12,26 +12,26 @@ const FISH_COLORS = {
   Carp: { bg: 'linear-gradient(135deg, #1e40af, #1e3a8a)', emoji: '🐟' },
   'Barbus (Ganfo)': { bg: 'linear-gradient(135deg, #6d28d9, #5b21b6)', emoji: '🐠' },
   default: { bg: 'linear-gradient(135deg, #334155, #1e293b)', emoji: '🐟' },
-}
+};
 
 function formatKg(value) {
-  return Number(value).toLocaleString('en-ET', { maximumFractionDigits: 1 })
+  return Number(value).toLocaleString('en-ET', { maximumFractionDigits: 1 });
 }
 
 function ListingBadge({ listing }) {
-  if (listing.status === 'SOLD_OUT') return <Badge variant="secondary">Sold Out</Badge>
+  if (listing.status === 'SOLD_OUT') return <Badge variant="secondary">Sold Out</Badge>;
   if (listing.shortage_flags?.includes('quota')) {
-    return <Badge variant="destructive">Shortage</Badge>
+    return <Badge variant="destructive">Shortage</Badge>;
   }
   if (listing.shortage_flags?.includes('low_stock') || listing.quantity_available_kg < 10) {
-    return <Badge variant="outline">Limited</Badge>
+    return <Badge variant="outline">Limited</Badge>;
   }
-  return <Badge>Fresh</Badge>
+  return <Badge>Fresh</Badge>;
 }
 
 export default function ListingCard({ listing }) {
-  const { t } = useTranslation()
-  const fish = FISH_COLORS[listing.species] || FISH_COLORS.default
+  const { t } = useTranslation();
+  const fish = FISH_COLORS[listing.species] || FISH_COLORS.default;
 
   return (
     <Link to={`/listing/${listing.id}`}>
@@ -57,7 +57,10 @@ export default function ListingCard({ listing }) {
         <CardContent className="pt-4">
           <div className="flex items-start justify-between gap-2">
             <h3 className="font-bold text-foreground">{listing.species}</h3>
-            <Badge variant="outline" className="text-[10px] shrink-0 border-success/40 text-success">
+            <Badge
+              variant="outline"
+              className="text-[10px] shrink-0 border-success/40 text-success"
+            >
               {t('listing.verified')}
             </Badge>
           </div>
@@ -79,5 +82,5 @@ export default function ListingCard({ listing }) {
         </CardContent>
       </Card>
     </Link>
-  )
+  );
 }

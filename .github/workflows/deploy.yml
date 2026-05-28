@@ -13,7 +13,7 @@ jobs:
 
       - name: Deploy to Render
         env:
-          RENDER_DEPLOY_HOOK: "${{ secrets.RENDER_DEPLOY_HOOK }}"
+          RENDER_DEPLOY_HOOK: '${{ secrets.RENDER_DEPLOY_HOOK }}'
         run: |
           if [ -z "$RENDER_DEPLOY_HOOK" ]; then
             echo "RENDER_DEPLOY_HOOK is not configured. Skipping backend deployment."
@@ -40,9 +40,9 @@ jobs:
 
       - name: Deploy Frontends to Vercel
         env:
-          VERCEL_TOKEN: "${{ secrets.VERCEL_TOKEN }}"
-          VERCEL_ORG_ID: "${{ secrets.VERCEL_ORG_ID }}"
-          VERCEL_PROJECT_ID: "${{ secrets.VERCEL_PROJECT_ID }}"
+          VERCEL_TOKEN: '${{ secrets.VERCEL_TOKEN }}'
+          VERCEL_ORG_ID: '${{ secrets.VERCEL_ORG_ID }}'
+          VERCEL_PROJECT_ID: '${{ secrets.VERCEL_PROJECT_ID }}'
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
             echo "VERCEL_TOKEN is not configured. Skipping frontend deployment."

@@ -1,37 +1,46 @@
-import { useEffect } from 'react'
-import { MapContainer, TileLayer, Circle, CircleMarker, Popup, Polygon, Polyline } from 'react-leaflet'
+import { useEffect } from 'react';
+import {
+  MapContainer,
+  TileLayer,
+  Circle,
+  CircleMarker,
+  Popup,
+  Polygon,
+  Polyline,
+} from 'react-leaflet';
 import {
   LAKE_TANA_BOUNDS,
   LAKE_TANA_CENTER,
   LAKE_TANA_MAX_ZOOM,
   LAKE_TANA_MIN_ZOOM,
-} from '../../lib/lakeTana'
-import { cn } from '@/lib/utils'
-import MapResizeFix from './MapResizeFix'
+} from '../../lib/lakeTana';
+import { cn } from '@/lib/utils';
+import MapResizeFix from './MapResizeFix';
 
-const ZONE_RADIUS = 2000
+const ZONE_RADIUS = 2000;
 
 const zoneColors = {
   ALLOWED: { fill: '#22c55e', stroke: '#16a34a' },
   RESTRICTED: { fill: '#f59e0b', stroke: '#d97706' },
   PROHIBITED: { fill: '#ef4444', stroke: '#dc2626' },
-}
+};
 
 const boatColors = {
   FISHING: '#3b82f6',
   RETURNING: '#8b5cf6',
   DOCKED: '#6b7280',
   OFFLINE: '#374151',
-}
+};
 
 function parsePolygon(zone) {
-  if (!zone.geo_polygon) return null
+  if (!zone.geo_polygon) return null;
   try {
-    const raw = typeof zone.geo_polygon === 'string' ? JSON.parse(zone.geo_polygon) : zone.geo_polygon
-    if (!Array.isArray(raw) || raw.length < 3) return null
-    return raw.map(([lat, lng]) => [lat, lng])
+    const raw =
+      typeof zone.geo_polygon === 'string' ? JSON.parse(zone.geo_polygon) : zone.geo_polygon;
+    if (!Array.isArray(raw) || raw.length < 3) return null;
+    return raw.map(([lat, lng]) => [lat, lng]);
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -47,17 +56,19 @@ export default function CommandMap({
 }) {
   const mapCenter = center
     ? [center.lat ?? center[0], center.lng ?? center[1]]
-    : [LAKE_TANA_CENTER.lat, LAKE_TANA_CENTER.lng]
-  const mapZoom = zoom ?? LAKE_TANA_CENTER.zoom
+    : [LAKE_TANA_CENTER.lat, LAKE_TANA_CENTER.lng];
+  const mapZoom = zoom ?? LAKE_TANA_CENTER.zoom;
 
   useEffect(() => {
-    document.getElementById('command-map')?.scrollIntoView({ block: 'nearest' })
-  }, [])
+    document.getElementById('command-map')?.scrollIntoView({ block: 'nearest' });
+  }, []);
 
-  const zones = layers?.zones || []
-  const fleet = layers?.fleet || []
-  const catches = layers?.catches || []
-  const routePositions = route.filter((p) => p.lat != null && p.lng != null).map((p) => [p.lat, p.lng])
+  const zones = layers?.zones || [];
+  const fleet = layers?.fleet || [];
+  const catches = layers?.catches || [];
+  const routePositions = route
+    .filter((p) => p.lat != null && p.lng != null)
+    .map((p) => [p.lat, p.lng]);
 
   return (
     <div
@@ -86,7 +97,7 @@ export default function CommandMap({
         />
 
         {zones.map((z) => {
-          const ring = parsePolygon(z)
+          const ring = parsePolygon(z);
           if (ring) {
             return (
               <Polygon
@@ -105,7 +116,7 @@ export default function CommandMap({
                   <span className="text-xs">{z.type}</span>
                 </Popup>
               </Polygon>
-            )
+            );
           }
           return z.gps_lat ? (
             <Circle
@@ -125,7 +136,7 @@ export default function CommandMap({
                 <span className="text-xs">{z.type}</span>
               </Popup>
             </Circle>
-          ) : null
+          ) : null;
         })}
 
         {routePositions.length > 1 && (
@@ -153,7 +164,9 @@ export default function CommandMap({
                 <br />
                 {b.fisher_name}
                 <br />
-                <span className="text-xs">Status: {b.status || b.position_status || 'UNKNOWN'}</span>
+                <span className="text-xs">
+                  Status: {b.status || b.position_status || 'UNKNOWN'}
+                </span>
               </Popup>
             </CircleMarker>
           ) : null,
@@ -182,5 +195,5 @@ export default function CommandMap({
         )}
       </MapContainer>
     </div>
-  )
+  );
 }

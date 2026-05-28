@@ -1,60 +1,60 @@
-import { useState, useCallback, useEffect } from 'react'
-import api from '../services/api'
-import ListingCard from '../components/ListingCard'
-import FilterSidebar from '../components/FilterSidebar'
-import MarketSidebar from '../components/MarketSidebar'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Fish } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { useState, useCallback, useEffect } from 'react';
+import api from '../services/api';
+import ListingCard from '../components/ListingCard';
+import FilterSidebar from '../components/FilterSidebar';
+import MarketSidebar from '../components/MarketSidebar';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Fish } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function HomePage() {
-  const [listings, setListings] = useState([])
-  const [stats, setStats] = useState(null)
-  const [activity, setActivity] = useState([])
-  const [selectedSpecies, setSelectedSpecies] = useState('All Fish')
-  const [priceRange, setPriceRange] = useState([0, 300])
-  const [search, setSearch] = useState('')
+  const [listings, setListings] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [activity, setActivity] = useState([]);
+  const [selectedSpecies, setSelectedSpecies] = useState('All Fish');
+  const [priceRange, setPriceRange] = useState([0, 300]);
+  const [search, setSearch] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
-      const params = new URLSearchParams({ available_only: 'true', limit: 30 })
-      if (selectedSpecies !== 'All Fish') params.set('species', selectedSpecies)
+      const params = new URLSearchParams({ available_only: 'true', limit: 30 });
+      if (selectedSpecies !== 'All Fish') params.set('species', selectedSpecies);
       const [listRes, statsRes, actRes] = await Promise.all([
         api.get(`/marketplace/listings?${params}`),
         api.get('/marketplace/stats'),
         api.get('/marketplace/activity'),
-      ])
-      setListings(listRes.data.listings)
-      setStats(statsRes.data)
-      setActivity(actRes.data.activity)
+      ]);
+      setListings(listRes.data.listings);
+      setStats(statsRes.data);
+      setActivity(actRes.data.activity);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }, [selectedSpecies])
+  }, [selectedSpecies]);
 
   useEffect(() => {
-    fetchData()
-    const id = setInterval(fetchData, 15000)
-    return () => clearInterval(id)
-  }, [fetchData])
+    fetchData();
+    const id = setInterval(fetchData, 15000);
+    return () => clearInterval(id);
+  }, [fetchData]);
 
   const filtered = listings.filter((l) => {
-    if (l.price_per_kg < priceRange[0] || l.price_per_kg > priceRange[1]) return false
+    if (l.price_per_kg < priceRange[0] || l.price_per_kg > priceRange[1]) return false;
     if (
       search &&
       !l.species.toLowerCase().includes(search.toLowerCase()) &&
       !l.fisher_name.toLowerCase().includes(search.toLowerCase())
     )
-      return false
-    return true
-  })
+      return false;
+    return true;
+  });
 
   function clearFilters() {
-    setSelectedSpecies('All Fish')
-    setSearch('')
-    setPriceRange([0, 300])
+    setSelectedSpecies('All Fish');
+    setSearch('');
+    setPriceRange([0, 300]);
   }
 
   return (
@@ -132,5 +132,5 @@ export default function HomePage() {
         <MarketSidebar stats={stats} activity={activity} />
       </div>
     </div>
-  )
+  );
 }

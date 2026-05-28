@@ -1,19 +1,19 @@
-import { useState, useCallback } from 'react'
-import api from '../services/api'
-import { usePolling } from '../hooks/usePolling'
-import { useAuth } from '../context/AuthContext'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useCallback } from 'react';
+import api from '../services/api';
+import { usePolling } from '../hooks/usePolling';
+import { useAuth } from '../context/AuthContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -21,16 +21,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { toast } from 'sonner'
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 const VIOLATION_TYPES = [
   'ZONE_VIOLATION',
@@ -39,50 +39,50 @@ const VIOLATION_TYPES = [
   'GEAR_VIOLATION',
   'QUOTA_EVASION',
   'OTHER',
-]
+];
 
 export default function ViolationsPage() {
-  const { user } = useAuth()
-  const isAdmin = ['admin', 'superadmin'].includes(user?.role)
-  const [violations, setViolations] = useState([])
-  const [suspicious, setSuspicious] = useState([])
-  const [fishers, setFishers] = useState([])
-  const [reviewViolation, setReviewViolation] = useState(null)
-  const [customFine, setCustomFine] = useState('')
+  const { user } = useAuth();
+  const isAdmin = ['admin', 'superadmin'].includes(user?.role);
+  const [violations, setViolations] = useState([]);
+  const [suspicious, setSuspicious] = useState([]);
+  const [fishers, setFishers] = useState([]);
+  const [reviewViolation, setReviewViolation] = useState(null);
+  const [customFine, setCustomFine] = useState('');
   const [form, setForm] = useState({
     fisher_id: '',
     type: 'ZONE_VIOLATION',
     severity: 'MEDIUM',
     description: '',
     fine_amount: '',
-  })
+  });
 
   function humanizeViolationType(type) {
-    if (!type) return '—'
+    if (!type) return '—';
     return type
       .toLowerCase()
       .split('_')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
+      .join(' ');
   }
 
   const fetchAll = useCallback(async () => {
     try {
-      const base = isAdmin ? '/admin' : '/inspector'
+      const base = isAdmin ? '/admin' : '/inspector';
       const [vRes, sRes] = await Promise.all([
         api.get(`${base}/violations`),
         api.get(`${base}/suspicious-fishers`),
-      ])
-      setViolations(vRes.data.violations)
-      setSuspicious(sRes.data.fishers)
-      const fRes = await api.get(isAdmin ? '/admin/fishers?limit=50' : '/inspector/fishers')
-      setFishers(fRes.data.fishers)
+      ]);
+      setViolations(vRes.data.violations);
+      setSuspicious(sRes.data.fishers);
+      const fRes = await api.get(isAdmin ? '/admin/fishers?limit=50' : '/inspector/fishers');
+      setFishers(fRes.data.fishers);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }, [isAdmin])
+  }, [isAdmin]);
 
-  usePolling(fetchAll, 15000)
+  usePolling(fetchAll, 15000);
 
   async function submitViolation() {
     try {
@@ -92,23 +92,29 @@ export default function ViolationsPage() {
         severity: form.severity,
         description: form.description,
         fine_amount: form.fine_amount ? Number(form.fine_amount) : undefined,
-      })
-      toast.success('Violation recorded')
-      setForm({ fisher_id: '', type: 'ZONE_VIOLATION', severity: 'MEDIUM', description: '', fine_amount: '' })
-      fetchAll()
+      });
+      toast.success('Violation recorded');
+      setForm({
+        fisher_id: '',
+        type: 'ZONE_VIOLATION',
+        severity: 'MEDIUM',
+        description: '',
+        fine_amount: '',
+      });
+      fetchAll();
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to create violation')
+      toast.error(err.response?.data?.error || 'Failed to create violation');
     }
   }
 
   async function updateFine(id, fine_amount, status) {
     try {
-      await api.put(`/admin/violations/${id}`, { fine_amount, fine_status: 'PENDING', status })
-      toast.success('Violation updated')
-      setReviewViolation(null)
-      fetchAll()
+      await api.put(`/admin/violations/${id}`, { fine_amount, fine_status: 'PENDING', status });
+      toast.success('Violation updated');
+      setReviewViolation(null);
+      fetchAll();
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Update failed')
+      toast.error(err.response?.data?.error || 'Update failed');
     }
   }
 
@@ -117,14 +123,16 @@ export default function ViolationsPage() {
     MEDIUM: 'secondary',
     HIGH: 'default',
     CRITICAL: 'destructive',
-  }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-foreground">Violations & Fines</h2>
-          <p className="text-sm text-muted-foreground">Enforcement records and compliance actions</p>
+          <p className="text-sm text-muted-foreground">
+            Enforcement records and compliance actions
+          </p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
@@ -137,7 +145,10 @@ export default function ViolationsPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>Fisher</Label>
-                <Select value={form.fisher_id} onValueChange={(v) => setForm((f) => ({ ...f, fisher_id: v }))}>
+                <Select
+                  value={form.fisher_id}
+                  onValueChange={(v) => setForm((f) => ({ ...f, fisher_id: v }))}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select fisher" />
                   </SelectTrigger>
@@ -153,7 +164,10 @@ export default function ViolationsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Type</Label>
-                  <Select value={form.type} onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}>
+                  <Select
+                    value={form.type}
+                    onValueChange={(v) => setForm((f) => ({ ...f, type: v }))}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -168,7 +182,10 @@ export default function ViolationsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Severity</Label>
-                  <Select value={form.severity} onValueChange={(v) => setForm((f) => ({ ...f, severity: v }))}>
+                  <Select
+                    value={form.severity}
+                    onValueChange={(v) => setForm((f) => ({ ...f, severity: v }))}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -264,8 +281,8 @@ export default function ViolationsPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              setReviewViolation(v)
-                              setCustomFine(v.fine_amount || 500)
+                              setReviewViolation(v);
+                              setCustomFine(v.fine_amount || 500);
                             }}
                           >
                             Review
@@ -282,7 +299,12 @@ export default function ViolationsPage() {
       </Card>
 
       {/* Premium Fine Dialog */}
-      <Dialog open={!!reviewViolation} onOpenChange={(open) => { if (!open) setReviewViolation(null) }}>
+      <Dialog
+        open={!!reviewViolation}
+        onOpenChange={(open) => {
+          if (!open) setReviewViolation(null);
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Review Violation & Issue Fine</DialogTitle>
@@ -300,17 +322,23 @@ export default function ViolationsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Violation Type:</span>
-                  <span className="font-medium text-warning">{humanizeViolationType(reviewViolation.type)}</span>
+                  <span className="font-medium text-warning">
+                    {humanizeViolationType(reviewViolation.type)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Severity:</span>
                   <span>
-                    <Badge variant={severityColor[reviewViolation.severity]}>{reviewViolation.severity}</Badge>
+                    <Badge variant={severityColor[reviewViolation.severity]}>
+                      {reviewViolation.severity}
+                    </Badge>
                   </span>
                 </div>
                 <div className="pt-2 border-t border-border/50">
                   <span className="text-muted-foreground block text-xs mb-1">Description:</span>
-                  <p className="text-xs leading-relaxed italic">{reviewViolation.description || "No description provided."}</p>
+                  <p className="text-xs leading-relaxed italic">
+                    {reviewViolation.description || 'No description provided.'}
+                  </p>
                 </div>
               </div>
 
@@ -325,23 +353,28 @@ export default function ViolationsPage() {
                   className="text-base font-semibold"
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  The default fine for {reviewViolation.severity} severity is 500 ETB. You can adjust this value to fit regulatory scales.
+                  The default fine for {reviewViolation.severity} severity is 500 ETB. You can
+                  adjust this value to fit regulatory scales.
                 </p>
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button variant="outline" className="flex-1" onClick={() => setReviewViolation(null)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setReviewViolation(null)}
+                >
                   Cancel
                 </Button>
                 <Button
                   className="flex-1 bg-destructive hover:bg-destructive/90 text-white"
                   onClick={async () => {
-                    const amount = Number(customFine)
+                    const amount = Number(customFine);
                     if (isNaN(amount) || amount < 0) {
-                      toast.error('Please enter a valid fine amount')
-                      return
+                      toast.error('Please enter a valid fine amount');
+                      return;
                     }
-                    await updateFine(reviewViolation.id, amount, 'UNDER_REVIEW')
+                    await updateFine(reviewViolation.id, amount, 'UNDER_REVIEW');
                   }}
                 >
                   Confirm & Issue Fine
@@ -352,5 +385,5 @@ export default function ViolationsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

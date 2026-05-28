@@ -47,7 +47,9 @@ test.describe('ASSA 7-minute demo workflow', () => {
     const approveBtn = page.getByRole('button', { name: /approve/i }).first();
     if (await approveBtn.isVisible().catch(() => false)) {
       await approveBtn.click();
-      await expect(page.getByText(/approved|verified|success/i).first()).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText(/approved|verified|success/i).first()).toBeVisible({
+        timeout: 10000,
+      });
     }
   });
 });
@@ -70,7 +72,9 @@ test.describe('Marketplace', () => {
 
   test('buyer browses listings', async ({ page }) => {
     await page.goto('');
-    await expect(page.getByText(/tilapia|marketplace|ገበያ/i).first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/tilapia|marketplace|ገበያ/i).first()).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test('buyer places order', async ({ page }) => {
@@ -82,7 +86,11 @@ test.describe('Marketplace', () => {
     await page.goto('browse');
     const card = page.locator('a[href*="/listing/"]').first();
     await card.click();
-    await page.getByRole('button', { name: /order|ትዕዛዝ|buy/i }).first().click({ timeout: 10000 }).catch(() => {});
+    await page
+      .getByRole('button', { name: /order|ትዕዛዝ|buy/i })
+      .first()
+      .click({ timeout: 10000 })
+      .catch(() => {});
     await expect(page.locator('body')).not.toContainText('Route not found');
   });
 });

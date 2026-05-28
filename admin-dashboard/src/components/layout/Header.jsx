@@ -1,34 +1,34 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { Bell, Radio } from 'lucide-react'
-import api from '../../services/api'
-import { useRealtime } from '../../context/RealtimeContext'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import ThemeToggle from '../ThemeToggle'
-import MobileNav from './MobileNav'
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Bell, Radio } from 'lucide-react';
+import api from '../../services/api';
+import { useRealtime } from '../../context/RealtimeContext';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import ThemeToggle from '../ThemeToggle';
+import MobileNav from './MobileNav';
 
 export default function Header() {
-  const { t } = useTranslation()
-  const { connected } = useRealtime()
-  const [alertCount, setAlertCount] = useState(0)
-  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const { t } = useTranslation();
+  const { connected } = useRealtime();
+  const [alertCount, setAlertCount] = useState(0);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const res = await api.get('/admin/alerts')
-        setAlertCount(res.data.unreadCount || 0)
+        const res = await api.get('/admin/alerts');
+        setAlertCount(res.data.unreadCount || 0);
       } catch {
         /* ignore polling errors */
       }
-    }
-    fetchAlerts()
-    const id = setInterval(fetchAlerts, 15000)
-    return () => clearInterval(id)
-  }, [])
+    };
+    fetchAlerts();
+    const id = setInterval(fetchAlerts, 15000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <header className="bg-card/80 backdrop-blur-sm border-b border-border px-4 sm:px-6 py-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between flex-shrink-0">
@@ -85,5 +85,5 @@ export default function Header() {
         <ThemeToggle className="hidden lg:inline-flex" />
       </div>
     </header>
-  )
+  );
 }

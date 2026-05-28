@@ -1,16 +1,16 @@
-import { Label } from '@/components/ui/label'
-import { Card, CardContent } from '@/components/ui/card'
+import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
-import { Button } from '@/components/ui/button'
-import { MapPin } from 'lucide-react'
+import { Button } from '@/components/ui/button';
+import { MapPin } from 'lucide-react';
 
 export default function Step2Location({
   form,
@@ -23,7 +23,7 @@ export default function Step2Location({
   gpsTakingTooLong,
   onSkipGps,
 }) {
-  const selectedZone = zones.find((z) => z.id === Number(form.zone_id))
+  const selectedZone = zones.find((z) => z.id === Number(form.zone_id));
 
   return (
     <div className="space-y-4">
@@ -77,7 +77,8 @@ export default function Step2Location({
       {gpsLoading && gpsTakingTooLong && (
         <Card className="border-warning/30 bg-warning/5 p-3 text-xs space-y-2">
           <p className="text-warning-foreground font-medium">
-            GPS capture is taking longer than expected. You can skip and use the zone's center coordinates.
+            GPS capture is taking longer than expected. You can skip and use the zone's center
+            coordinates.
           </p>
           <Button
             type="button"
@@ -96,7 +97,9 @@ export default function Step2Location({
       {form.gps_lat && (
         <Card>
           <CardContent className="pt-4">
-            <div className="text-xs text-muted-foreground mb-1">Device GPS (submitted with catch)</div>
+            <div className="text-xs text-muted-foreground mb-1">
+              Device GPS (submitted with catch)
+            </div>
             <div className="font-mono text-sm">
               {Number(form.gps_lat).toFixed(4)}° N, {Number(form.gps_lng).toFixed(4)}° E
             </div>
@@ -104,5 +107,5 @@ export default function Step2Location({
         </Card>
       )}
     </div>
-  )
+  );
 }

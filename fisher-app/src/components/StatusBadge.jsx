@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '@/components/ui/badge';
 
 const config = {
   PENDING: { label: 'Pending', variant: 'secondary' },
@@ -7,9 +7,9 @@ const config = {
   VALID: { label: 'Valid', variant: 'default' },
   EXPIRED: { label: 'Expired', variant: 'destructive' },
   SUSPENDED: { label: 'Suspended', variant: 'destructive' },
-}
+};
 
 export default function StatusBadge({ status }) {
-  const c = config[status] || { label: status, variant: 'outline' }
-  return <Badge variant={c.variant}>{c.label}</Badge>
+  const c = config[status] || { label: status, variant: 'outline' };
+  return <Badge variant={c.variant}>{c.label}</Badge>;
 }

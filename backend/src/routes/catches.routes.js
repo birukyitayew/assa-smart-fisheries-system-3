@@ -8,7 +8,9 @@ const { upload } = require('../middleware/upload.middleware');
 
 const catchValidation = [
   body('species').notEmpty().withMessage('Species is required'),
-  body('quantity_kg').isFloat({ min: 0.1, max: 500 }).withMessage('Quantity must be between 0.1 and 500 kg'),
+  body('quantity_kg')
+    .isFloat({ min: 0.1, max: 500 })
+    .withMessage('Quantity must be between 0.1 and 500 kg'),
   body('fishing_gear').notEmpty().withMessage('Fishing gear is required'),
   body('fishing_date').isDate().withMessage('Valid fishing date is required'),
   body('fishing_time').notEmpty().withMessage('Fishing time is required'),
@@ -28,10 +30,22 @@ router.get('/fisher/catches', authMiddleware, requireRole('fisher'), controller.
 router.get('/fisher/catches/:id', authMiddleware, requireRole('fisher'), controller.getCatch);
 
 // ── POST /api/catches — submit a new catch ────────────────────────────────────
-router.post('/catches', authMiddleware, requireRole('fisher'), catchValidation, controller.submitCatch);
+router.post(
+  '/catches',
+  authMiddleware,
+  requireRole('fisher'),
+  catchValidation,
+  controller.submitCatch,
+);
 
 // ── POST /api/catches/upload — upload a catch photo ───────────────────────────
-router.post('/catches/upload', authMiddleware, requireRole('fisher'), upload.single('photo'), controller.uploadCatchPhoto);
+router.post(
+  '/catches/upload',
+  authMiddleware,
+  requireRole('fisher'),
+  upload.single('photo'),
+  controller.uploadCatchPhoto,
+);
 
 // ── Fisher trips (Phase 3) ────────────────────────────────────────────────────
 router.get('/fisher/trips/active', authMiddleware, requireRole('fisher'), controller.getActiveTrip);

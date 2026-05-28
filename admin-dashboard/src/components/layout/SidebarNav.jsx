@@ -1,7 +1,7 @@
-import { NavLink } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import LanguageToggle from '../LanguageToggle'
-import ThemeToggle from '../ThemeToggle'
+import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageToggle from '../LanguageToggle';
+import ThemeToggle from '../ThemeToggle';
 import {
   LayoutDashboard,
   Fish,
@@ -19,11 +19,11 @@ import {
   ClipboardCheck,
   AlertTriangle,
   UserPlus,
-} from 'lucide-react'
-import { useAuth } from '../../context/AuthContext'
-import AppLogo from '../brand/AppLogo'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import AppLogo from '../brand/AppLogo';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export const adminNav = [
   { to: '/', labelKey: 'nav.commandOverview', icon: LayoutDashboard, end: true },
@@ -39,23 +39,25 @@ export const adminNav = [
   { to: '/zones', labelKey: 'nav.zones', icon: Map },
   { to: '/alerts', labelKey: 'nav.alerts', icon: Bell },
   { to: '/reports', labelKey: 'nav.reports', icon: BarChart3 },
-]
+];
 
 export const inspectorNav = [
   { to: '/', label: 'My Assignments', icon: ClipboardCheck, end: true },
   { to: '/violations', label: 'Violations', icon: AlertTriangle },
   { to: '/map', label: 'Patrol Map', icon: MapPin },
   { to: '/fishermen', label: 'Verify Fishers', icon: Users },
-]
+];
 
 export default function SidebarNav({ onNavigate, showFooter = true, className }) {
-  const { t } = useTranslation()
-  const { user, logout } = useAuth()
-  const isInspector = user?.role === 'inspector'
-  const navItems = isInspector ? inspectorNav : adminNav
+  const { t } = useTranslation();
+  const { user, logout } = useAuth();
+  const isInspector = user?.role === 'inspector';
+  const navItems = isInspector ? inspectorNav : adminNav;
 
   return (
-    <div className={cn('flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground', className)}>
+    <div
+      className={cn('flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground', className)}
+    >
       <div className="px-5 py-5 border-b border-sidebar-border shrink-0">
         <AppLogo size="sm" subtitle="Ministry of Fisheries" />
       </div>
@@ -94,8 +96,8 @@ export default function SidebarNav({ onNavigate, showFooter = true, className })
             variant="ghost"
             size="sm"
             onClick={() => {
-              onNavigate?.()
-              logout()
+              onNavigate?.();
+              logout();
             }}
             className="mt-1 w-full justify-start gap-2 px-0"
           >
@@ -105,5 +107,5 @@ export default function SidebarNav({ onNavigate, showFooter = true, className })
         </div>
       )}
     </div>
-  )
+  );
 }

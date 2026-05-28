@@ -5,8 +5,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import StatusBadge from '../StatusBadge'
+} from '@/components/ui/table';
+import StatusBadge from '../StatusBadge';
 
 export default function FishersTable({ fishers }) {
   return (
@@ -47,7 +47,9 @@ export default function FishersTable({ fishers }) {
                 {f.compliance_score ?? 100}
               </span>
               {f.open_violations > 0 && (
-                <span className="text-xs text-muted-foreground block">{f.open_violations} open</span>
+                <span className="text-xs text-muted-foreground block">
+                  {f.open_violations} open
+                </span>
               )}
             </TableCell>
             <TableCell className="text-success font-medium">{f.verified_catches}</TableCell>
@@ -62,5 +64,5 @@ export default function FishersTable({ fishers }) {
         )}
       </TableBody>
     </Table>
-  )
+  );
 }

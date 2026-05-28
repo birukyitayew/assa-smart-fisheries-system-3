@@ -1,51 +1,50 @@
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Anchor, Play, Square } from 'lucide-react'
-import api from '../services/api'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Anchor, Play, Square } from 'lucide-react';
+import api from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 function formatElapsed(startedAt) {
-  if (!startedAt) return '—'
-  const start = new Date(startedAt.replace(' ', 'T'))
-  const mins = Math.floor((Date.now() - start.getTime()) / 60000)
-  if (mins < 60) return `${mins}m`
-  const h = Math.floor(mins / 60)
-  return `${h}h ${mins % 60}m`
+  if (!startedAt) return '—';
+  const start = new Date(startedAt.replace(' ', 'T'));
+  const mins = Math.floor((Date.now() - start.getTime()) / 60000);
+  if (mins < 60) return `${mins}m`;
+  const h = Math.floor(mins / 60);
+  return `${h}h ${mins % 60}m`;
 }
 
 export default function TripCard({ profile, activeTrip, onTripChange }) {
-  const { t } = useTranslation()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const canStart =
-    profile?.license_status === 'VALID' && profile?.boat_name && !activeTrip
+  const canStart = profile?.license_status === 'VALID' && profile?.boat_name && !activeTrip;
 
   async function startTrip() {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      await api.post('/fisher/trips/start')
-      onTripChange?.()
+      await api.post('/fisher/trips/start');
+      onTripChange?.();
     } catch (err) {
-      setError(err.response?.data?.error || 'Could not start trip')
+      setError(err.response?.data?.error || 'Could not start trip');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function endTrip() {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
     try {
-      await api.post('/fisher/trips/end')
-      onTripChange?.()
+      await api.post('/fisher/trips/end');
+      onTripChange?.();
     } catch (err) {
-      setError(err.response?.data?.error || 'Could not end trip')
+      setError(err.response?.data?.error || 'Could not end trip');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -94,5 +93,5 @@ export default function TripCard({ profile, activeTrip, onTripChange }) {
         {error && <p className="text-xs text-destructive">{error}</p>}
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -7,7 +7,15 @@ const priceHistoryService = require('../services/price-history.service');
 const marketIntelService = require('../services/market-intel.service');
 
 async function getListings(req, res) {
-  const { species, location, min_price, max_price, available_only = 'true', page = 1, limit = 20 } = req.query;
+  const {
+    species,
+    location,
+    min_price,
+    max_price,
+    available_only = 'true',
+    page = 1,
+    limit = 20,
+  } = req.query;
   const offset = (Number(page) - 1) * Number(limit);
   const lim = Number(limit);
 
@@ -145,7 +153,8 @@ async function placeOrder(req, res) {
   `;
   const listing = listingRows[0];
   if (!listing) return res.status(404).json({ error: 'Listing not found' });
-  if (listing.status !== 'ACTIVE') return res.status(400).json({ error: 'Listing is not available' });
+  if (listing.status !== 'ACTIVE')
+    return res.status(400).json({ error: 'Listing is not available' });
   if (quantity_kg > listing.quantity_available_kg) {
     return res.status(400).json({
       error: `Requested quantity (${quantity_kg} kg) exceeds available stock (${listing.quantity_available_kg} kg)`,

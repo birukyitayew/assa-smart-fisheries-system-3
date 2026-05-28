@@ -1,38 +1,38 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react';
+import api from '../services/api';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 const SEVERITY_VARIANT = {
   CRITICAL: 'destructive',
   WARNING: 'secondary',
   INFO: 'outline',
-}
+};
 
 export default function AlertsPage() {
-  const [alerts, setAlerts] = useState([])
-  const [unread, setUnread] = useState(0)
+  const [alerts, setAlerts] = useState([]);
+  const [unread, setUnread] = useState(0);
 
   const fetchAlerts = async () => {
-    const res = await api.get('/admin/alerts')
-    setAlerts(res.data.alerts)
-    setUnread(res.data.unreadCount)
-  }
+    const res = await api.get('/admin/alerts');
+    setAlerts(res.data.alerts);
+    setUnread(res.data.unreadCount);
+  };
 
   useEffect(() => {
-    fetchAlerts()
-  }, [])
+    fetchAlerts();
+  }, []);
 
   async function markRead(id) {
-    await api.put(`/admin/alerts/${id}/read`)
-    fetchAlerts()
+    await api.put(`/admin/alerts/${id}/read`);
+    fetchAlerts();
   }
 
   async function markAllRead() {
-    await api.put('/admin/alerts/read-all')
-    fetchAlerts()
+    await api.put('/admin/alerts/read-all');
+    fetchAlerts();
   }
 
   return (
@@ -68,7 +68,10 @@ export default function AlertsPage() {
                 <div className="font-semibold text-foreground flex items-center gap-2">
                   {a.title}
                   {!a.is_read && <span className="w-2 h-2 bg-primary rounded-full" />}
-                  <Badge variant={SEVERITY_VARIANT[a.severity] || 'outline'} className="text-[10px]">
+                  <Badge
+                    variant={SEVERITY_VARIANT[a.severity] || 'outline'}
+                    className="text-[10px]"
+                  >
                     {a.severity}
                   </Badge>
                 </div>
@@ -95,5 +98,5 @@ export default function AlertsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

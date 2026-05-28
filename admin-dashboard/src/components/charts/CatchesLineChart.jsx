@@ -1,4 +1,13 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 
 export default function CatchesLineChart({ data }) {
   return (
@@ -40,5 +49,5 @@ export default function CatchesLineChart({ data }) {
         />
       </LineChart>
     </ResponsiveContainer>
-  )
+  );
 }

@@ -11,7 +11,7 @@ services:
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
-    plan: free                      # ← FREE tier (was: starter/paid)
+    plan: free # ← FREE tier (was: starter/paid)
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
@@ -21,11 +21,11 @@ services:
       # After creating a Neon project, copy the connection string here.
       # Format: postgresql://user:password@host/dbname?sslmode=require
       - key: DATABASE_URL
-        sync: false                 # Set manually in Render dashboard
+        sync: false # Set manually in Render dashboard
 
       # ── Authentication ────────────────────────────────────────────────────
       - key: JWT_SECRET
-        generateValue: true         # Render auto-generates a secure random value
+        generateValue: true # Render auto-generates a secure random value
       - key: JWT_ACCESS_EXPIRES_IN
         value: 30m
       - key: REFRESH_TOKEN_DAYS
@@ -35,13 +35,13 @@ services:
       # Example: https://your-project.vercel.app
       # Multiple origins: https://your-project.vercel.app,https://custom-domain.com
       - key: CORS_ORIGINS
-        sync: false                 # Set manually in Render dashboard
+        sync: false # Set manually in Render dashboard
 
       # ── Cloudinary (REQUIRED for persistent image storage on free tier) ──
       # Free account at: https://cloudinary.com
       # Format: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
       - key: CLOUDINARY_URL
-        sync: false                 # Set manually in Render dashboard
+        sync: false # Set manually in Render dashboard
 
       # ── Logging ──────────────────────────────────────────────────────────
       - key: LOG_LEVEL

@@ -1,12 +1,12 @@
-import { useState, useCallback } from 'react'
-import { Banknote, ClipboardList, Package, Fish } from 'lucide-react'
-import api from '../services/api'
-import { useRegion } from '../context/RegionContext'
-import PageHeader from '../components/layout/PageHeader'
-import { usePolling } from '../hooks/usePolling'
-import KpiCard from '../components/cards/KpiCard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useCallback } from 'react';
+import { Banknote, ClipboardList, Package, Fish } from 'lucide-react';
+import api from '../services/api';
+import { useRegion } from '../context/RegionContext';
+import PageHeader from '../components/layout/PageHeader';
+import { usePolling } from '../hooks/usePolling';
+import KpiCard from '../components/cards/KpiCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -14,27 +14,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts'
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 export default function MarketMonitorPage() {
-  const { selectedRegionId } = useRegion()
-  const [overview, setOverview] = useState(null)
-  const [buyers, setBuyers] = useState([])
-  const [sellers, setSellers] = useState([])
-  const [speciesPrices, setSpeciesPrices] = useState([])
-  const [shortages, setShortages] = useState({ quotaShortages: [], stockLow: [] })
-  const [transactions, setTransactions] = useState([])
-  const [network, setNetwork] = useState([])
+  const { selectedRegionId } = useRegion();
+  const [overview, setOverview] = useState(null);
+  const [buyers, setBuyers] = useState([]);
+  const [sellers, setSellers] = useState([]);
+  const [speciesPrices, setSpeciesPrices] = useState([]);
+  const [shortages, setShortages] = useState({ quotaShortages: [], stockLow: [] });
+  const [transactions, setTransactions] = useState([]);
+  const [network, setNetwork] = useState([]);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -46,20 +38,20 @@ export default function MarketMonitorPage() {
         api.get('/admin/market/shortages'),
         api.get('/admin/market/transactions?limit=25'),
         api.get('/admin/market/network'),
-      ])
-      setOverview(ov.data)
-      setBuyers(b.data.buyers)
-      setSellers(s.data.sellers)
-      setSpeciesPrices(sp.data.data)
-      setShortages(sh.data)
-      setTransactions(tx.data.transactions)
-      setNetwork(net.data.edges)
+      ]);
+      setOverview(ov.data);
+      setBuyers(b.data.buyers);
+      setSellers(s.data.sellers);
+      setSpeciesPrices(sp.data.data);
+      setShortages(sh.data);
+      setTransactions(tx.data.transactions);
+      setNetwork(net.data.edges);
     } catch (err) {
-      console.error('Market monitor error:', err)
+      console.error('Market monitor error:', err);
     }
-  }, [selectedRegionId])
+  }, [selectedRegionId]);
 
-  usePolling(fetchAll, 15000)
+  usePolling(fetchAll, 15000);
 
   return (
     <div className="space-y-6 min-w-0">
@@ -79,7 +71,12 @@ export default function MarketMonitorPage() {
           }
           variant="success"
         />
-        <KpiCard icon={ClipboardList} label="Orders Today" value={overview?.ordersToday ?? '—'} variant="primary" />
+        <KpiCard
+          icon={ClipboardList}
+          label="Orders Today"
+          value={overview?.ordersToday ?? '—'}
+          variant="primary"
+        />
         <KpiCard
           icon={Package}
           label="Stock Listed (kg)"
@@ -111,7 +108,11 @@ export default function MarketMonitorPage() {
               </Badge>
             ))}
             {shortages.stockLow?.map((s) => (
-              <Badge key={s.species} variant="outline" className="border-destructive/40 text-destructive">
+              <Badge
+                key={s.species}
+                variant="outline"
+                className="border-destructive/40 text-destructive"
+              >
                 {s.species} low stock ({s.available_kg} kg)
               </Badge>
             ))}
@@ -139,9 +140,15 @@ export default function MarketMonitorPage() {
             <CardContent className="p-6 pt-0">
               <div className="w-full h-[260px] min-w-0">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={overview?.topSpecies || []} margin={{ top: 10, right: 5, left: -20, bottom: 0 }}>
+                  <BarChart
+                    data={overview?.topSpecies || []}
+                    margin={{ top: 10, right: 5, left: -20, bottom: 0 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="species" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
+                    <XAxis
+                      dataKey="species"
+                      tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                    />
                     <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} />
                     <Tooltip
                       contentStyle={{
@@ -353,5 +360,5 @@ export default function MarketMonitorPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

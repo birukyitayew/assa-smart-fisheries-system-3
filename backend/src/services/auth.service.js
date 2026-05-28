@@ -66,8 +66,7 @@ async function login(email, password) {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
     const count = user.failedLoginCount + 1;
-    const lockedUntil =
-      count >= MAX_FAILED ? new Date(Date.now() + LOCK_MINUTES * 60000) : null;
+    const lockedUntil = count >= MAX_FAILED ? new Date(Date.now() + LOCK_MINUTES * 60000) : null;
     await prisma.user.update({
       where: { id: user.id },
       data: { failedLoginCount: count, lockedUntil },

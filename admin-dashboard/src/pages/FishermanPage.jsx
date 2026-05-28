@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
-import FishersTable from '../components/tables/FishersTable'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { useState, useEffect } from 'react';
+import api from '../services/api';
+import FishersTable from '../components/tables/FishersTable';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export default function FishermanPage() {
-  const [fishers, setFishers] = useState([])
-  const [total, setTotal] = useState(0)
-  const [page, setPage] = useState(1)
+  const [fishers, setFishers] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     api.get(`/admin/fishers?page=${page}&limit=20`).then((res) => {
-      setFishers(res.data.fishers)
-      setTotal(res.data.total)
-    })
-  }, [page])
+      setFishers(res.data.fishers);
+      setTotal(res.data.total);
+    });
+  }, [page]);
 
   return (
     <div className="space-y-5">
@@ -54,5 +54,5 @@ export default function FishermanPage() {
         )}
       </Card>
     </div>
-  )
+  );
 }

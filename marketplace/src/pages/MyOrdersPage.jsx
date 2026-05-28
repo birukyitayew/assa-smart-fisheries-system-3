@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import api from '../services/api'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../services/api';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function MyOrdersPage() {
-  const [orders, setOrders] = useState([])
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    api.get('/marketplace/orders').then((res) => setOrders(res.data.orders))
-  }, [])
+    api.get('/marketplace/orders').then((res) => setOrders(res.data.orders));
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
@@ -60,5 +60,5 @@ export default function MyOrdersPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

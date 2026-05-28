@@ -1,35 +1,37 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react';
+import api from '../services/api';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 const TYPE_VARIANT = {
   ALLOWED: 'default',
   RESTRICTED: 'secondary',
   PROHIBITED: 'destructive',
-}
+};
 
 export default function ZonesPage() {
-  const [zones, setZones] = useState([])
-  const [rules, setRules] = useState([])
+  const [zones, setZones] = useState([]);
+  const [rules, setRules] = useState([]);
 
   useEffect(() => {
-    api.get('/admin/zones').then((res) => setZones(res.data.zones))
-    api.get('/admin/season-rules').then((res) => setRules(res.data.rules || []))
-  }, [])
+    api.get('/admin/zones').then((res) => setZones(res.data.zones));
+    api.get('/admin/season-rules').then((res) => setRules(res.data.rules || []));
+  }, []);
 
   const rulesByZone = rules.reduce((acc, r) => {
-    if (!acc[r.zone_id]) acc[r.zone_id] = []
-    acc[r.zone_id].push(r)
-    return acc
-  }, {})
+    if (!acc[r.zone_id]) acc[r.zone_id] = [];
+    acc[r.zone_id].push(r);
+    return acc;
+  }, {});
 
   return (
     <div className="space-y-5 max-w-3xl">
       <div>
         <h2 className="text-xl font-bold text-foreground">Fishing Zones</h2>
-        <p className="text-sm text-muted-foreground">Lake Tana, Amhara Region — Zone status and activity</p>
+        <p className="text-sm text-muted-foreground">
+          Lake Tana, Amhara Region — Zone status and activity
+        </p>
       </div>
 
       <Card>
@@ -80,5 +82,5 @@ export default function ZonesPage() {
         ))}
       </div>
     </div>
-  )
+  );
 }

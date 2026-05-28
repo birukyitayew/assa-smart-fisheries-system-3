@@ -1,22 +1,22 @@
-import { useState, useCallback, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Fish, Clock, Users, Ship, Banknote, Bell, AlertTriangle } from 'lucide-react'
-import api from '../services/api'
-import { useRegion } from '../context/RegionContext'
-import PageHeader from '../components/layout/PageHeader'
-import { usePolling } from '../hooks/usePolling'
-import { useRealtime } from '../context/RealtimeContext'
-import LiveActivityFeed from '../components/command/LiveActivityFeed'
-import CommandQuickLinks from '../components/command/CommandQuickLinks'
-import CommandMap from '../components/command/CommandMap'
-import KpiCard from '../components/cards/KpiCard'
-import QuotaBar from '../components/cards/QuotaBar'
-import AlertItem from '../components/cards/AlertItem'
-import CatchesLineChart from '../components/charts/CatchesLineChart'
-import SpeciesDonutChart from '../components/charts/SpeciesDonutChart'
-import StatusBadge from '../components/StatusBadge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { useState, useCallback, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Fish, Clock, Users, Ship, Banknote, Bell, AlertTriangle } from 'lucide-react';
+import api from '../services/api';
+import { useRegion } from '../context/RegionContext';
+import PageHeader from '../components/layout/PageHeader';
+import { usePolling } from '../hooks/usePolling';
+import { useRealtime } from '../context/RealtimeContext';
+import LiveActivityFeed from '../components/command/LiveActivityFeed';
+import CommandQuickLinks from '../components/command/CommandQuickLinks';
+import CommandMap from '../components/command/CommandMap';
+import KpiCard from '../components/cards/KpiCard';
+import QuotaBar from '../components/cards/QuotaBar';
+import AlertItem from '../components/cards/AlertItem';
+import CatchesLineChart from '../components/charts/CatchesLineChart';
+import SpeciesDonutChart from '../components/charts/SpeciesDonutChart';
+import StatusBadge from '../components/StatusBadge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -24,32 +24,34 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 
 export default function DashboardPage() {
-  const { events, connected } = useRealtime()
-  const { selectedRegionId, mapCenter } = useRegion()
-  const [liveStats, setLiveStats] = useState(null)
-  const [stats, setStats] = useState(null)
-  const [timeData, setTimeData] = useState([])
-  const [speciesData, setSpeciesData] = useState([])
-  const [quotas, setQuotas] = useState([])
-  const [alerts, setAlerts] = useState([])
-  const [recentCatches, setRecentCatches] = useState([])
-  const [mapLayers, setMapLayers] = useState({ zones: [], fleet: [], catches: [] })
-  const [sectionErrors, setSectionErrors] = useState({})
+  const { events, connected } = useRealtime();
+  const { selectedRegionId, mapCenter } = useRegion();
+  const [liveStats, setLiveStats] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [timeData, setTimeData] = useState([]);
+  const [speciesData, setSpeciesData] = useState([]);
+  const [quotas, setQuotas] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [recentCatches, setRecentCatches] = useState([]);
+  const [mapLayers, setMapLayers] = useState({ zones: [], fleet: [], catches: [] });
+  const [sectionErrors, setSectionErrors] = useState({});
 
   const setError = useCallback((key) => {
-    setSectionErrors((prev) => ({ ...prev, [key]: true }))
-  }, [])
+    setSectionErrors((prev) => ({ ...prev, [key]: true }));
+  }, []);
 
   const fetchLive = useCallback(async () => {
     try {
-      const res = await api.get('/admin/command/live-stats')
-      setLiveStats(res.data)
-      setSectionErrors((e) => ({ ...e, live: false }))
-    } catch { setError('live') }
-  }, [setError])
+      const res = await api.get('/admin/command/live-stats');
+      setLiveStats(res.data);
+      setSectionErrors((e) => ({ ...e, live: false }));
+    } catch {
+      setError('live');
+    }
+  }, [setError]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -57,13 +59,15 @@ export default function DashboardPage() {
         api.get('/admin/dashboard/stats'),
         api.get('/admin/dashboard/catches-over-time'),
         api.get('/admin/dashboard/species-breakdown'),
-      ])
-      setStats(statsRes.data)
-      setTimeData(timeRes.data.data)
-      setSpeciesData(speciesRes.data.data)
-      setSectionErrors((e) => ({ ...e, stats: false }))
-    } catch { setError('stats') }
-  }, [setError])
+      ]);
+      setStats(statsRes.data);
+      setTimeData(timeRes.data.data);
+      setSpeciesData(speciesRes.data.data);
+      setSectionErrors((e) => ({ ...e, stats: false }));
+    } catch {
+      setError('stats');
+    }
+  }, [setError]);
 
   const fetchOperational = useCallback(async () => {
     try {
@@ -71,34 +75,38 @@ export default function DashboardPage() {
         api.get('/admin/quotas'),
         api.get('/admin/alerts'),
         api.get('/admin/catches?limit=5'),
-      ])
-      setQuotas(quotasRes.data.quotas)
-      setAlerts(alertsRes.data.alerts.slice(0, 5))
-      setRecentCatches(catchesRes.data.catches)
-      setSectionErrors((e) => ({ ...e, ops: false }))
-    } catch { setError('ops') }
-  }, [setError])
+      ]);
+      setQuotas(quotasRes.data.quotas);
+      setAlerts(alertsRes.data.alerts.slice(0, 5));
+      setRecentCatches(catchesRes.data.catches);
+      setSectionErrors((e) => ({ ...e, ops: false }));
+    } catch {
+      setError('ops');
+    }
+  }, [setError]);
 
   const fetchMap = useCallback(async () => {
     try {
-      const res = await api.get('/admin/map/layers')
-      setMapLayers(res.data)
-      setSectionErrors((e) => ({ ...e, map: false }))
-    } catch { setError('map') }
-  }, [setError])
+      const res = await api.get('/admin/map/layers');
+      setMapLayers(res.data);
+      setSectionErrors((e) => ({ ...e, map: false }));
+    } catch {
+      setError('map');
+    }
+  }, [setError]);
 
   const fetchAll = useCallback(() => {
-    fetchLive()
-    fetchStats()
-    fetchOperational()
-    fetchMap()
-  }, [fetchLive, fetchStats, fetchOperational, fetchMap])
+    fetchLive();
+    fetchStats();
+    fetchOperational();
+    fetchMap();
+  }, [fetchLive, fetchStats, fetchOperational, fetchMap]);
 
-  usePolling(fetchAll, 10000, !connected)
+  usePolling(fetchAll, 10000, !connected);
 
   useEffect(() => {
-    if (events.length > 0) fetchAll()
-  }, [events.length, fetchAll])
+    if (events.length > 0) fetchAll();
+  }, [events.length, fetchAll]);
 
   return (
     <div className="space-y-6">
@@ -114,7 +122,7 @@ export default function DashboardPage() {
 
       <CommandQuickLinks />
 
-      {((liveStats?.pendingCatches ?? stats?.pendingCatches) > 0) && (
+      {(liveStats?.pendingCatches ?? stats?.pendingCatches) > 0 && (
         <Card className="border-warning/30 bg-warning/5 overflow-hidden">
           <CardContent className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5">
             <div className="flex items-center gap-3">
@@ -122,9 +130,16 @@ export default function DashboardPage() {
                 <Clock className="h-5 w-5 animate-pulse" />
               </div>
               <div>
-                <h4 className="font-semibold text-warning-foreground">Pending Catches Awaiting Review</h4>
+                <h4 className="font-semibold text-warning-foreground">
+                  Pending Catches Awaiting Review
+                </h4>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  There are <span className="font-bold text-warning-foreground">{liveStats?.pendingCatches ?? stats?.pendingCatches}</span> catches that need verification. Unapproved catches will not show as verified in statistics or listings.
+                  There are{' '}
+                  <span className="font-bold text-warning-foreground">
+                    {liveStats?.pendingCatches ?? stats?.pendingCatches}
+                  </span>{' '}
+                  catches that need verification. Unapproved catches will not show as verified in
+                  statistics or listings.
                 </p>
               </div>
             </div>
@@ -145,7 +160,9 @@ export default function DashboardPage() {
               <AlertTriangle className="h-4 w-4 shrink-0" />
               <span>Failed to load live metrics. Click retry to refresh.</span>
             </div>
-            <Button size="sm" variant="outline" onClick={fetchLive}>Retry</Button>
+            <Button size="sm" variant="outline" onClick={fetchLive}>
+              Retry
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -162,7 +179,9 @@ export default function DashboardPage() {
             <div className="h-[min(45vh,380px)] min-h-[240px] flex flex-col items-center justify-center gap-2 border border-dashed rounded-lg bg-muted/20">
               <AlertTriangle className="h-8 w-8 text-muted-foreground animate-pulse" />
               <p className="text-sm text-muted-foreground">Could not load live map layers</p>
-              <Button size="sm" variant="outline" onClick={fetchMap}>Retry Map Load</Button>
+              <Button size="sm" variant="outline" onClick={fetchMap}>
+                Retry Map Load
+              </Button>
             </div>
           ) : (
             <CommandMap
@@ -189,13 +208,24 @@ export default function DashboardPage() {
             liveStats?.pendingKgToday
               ? `${Math.round(liveStats.catchKgToday)} kg verified + ${Math.round(liveStats.pendingKgToday)} kg pending`
               : liveStats?.catchKgToday != null
-              ? 'All catches verified'
-              : ''
+                ? 'All catches verified'
+                : ''
           }
           variant="success"
         />
-        <KpiCard icon={Clock} label="Pending" value={liveStats?.pendingCatches ?? stats?.pendingCatches ?? '—'} variant="warning" to="/catches" />
-        <KpiCard icon={Users} label="Active Fishers" value={liveStats?.activeFishers ?? '—'} variant="primary" />
+        <KpiCard
+          icon={Clock}
+          label="Pending"
+          value={liveStats?.pendingCatches ?? stats?.pendingCatches ?? '—'}
+          variant="warning"
+          to="/catches"
+        />
+        <KpiCard
+          icon={Users}
+          label="Active Fishers"
+          value={liveStats?.activeFishers ?? '—'}
+          variant="primary"
+        />
         <KpiCard
           icon={Ship}
           label="Boats Active"
@@ -213,7 +243,12 @@ export default function DashboardPage() {
           }
           variant="success"
         />
-        <KpiCard icon={Bell} label="Alerts" value={stats?.activeAlerts ?? '—'} variant="destructive" />
+        <KpiCard
+          icon={Bell}
+          label="Alerts"
+          value={stats?.activeAlerts ?? '—'}
+          variant="destructive"
+        />
       </div>
 
       <div className="content-grid">
@@ -226,7 +261,9 @@ export default function DashboardPage() {
               <div className="h-[240px] flex flex-col items-center justify-center gap-2 bg-muted/10 border border-dashed rounded-lg">
                 <AlertTriangle className="h-6 w-6 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">Failed to load catch trends</p>
-                <Button size="sm" variant="outline" onClick={fetchStats}>Retry</Button>
+                <Button size="sm" variant="outline" onClick={fetchStats}>
+                  Retry
+                </Button>
               </div>
             ) : (
               <CatchesLineChart data={timeData} />
@@ -243,7 +280,9 @@ export default function DashboardPage() {
               <div className="h-[240px] flex flex-col items-center justify-center gap-2 bg-muted/10 border border-dashed rounded-lg">
                 <AlertTriangle className="h-6 w-6 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">Failed to load species breakdown</p>
-                <Button size="sm" variant="outline" onClick={fetchStats}>Retry</Button>
+                <Button size="sm" variant="outline" onClick={fetchStats}>
+                  Retry
+                </Button>
               </div>
             ) : (
               <SpeciesDonutChart data={speciesData} />
@@ -265,7 +304,9 @@ export default function DashboardPage() {
               <div className="p-6 flex flex-col items-center justify-center gap-2 text-center">
                 <AlertTriangle className="h-6 w-6 text-muted-foreground animate-pulse" />
                 <p className="text-sm text-muted-foreground">Failed to load recent catches</p>
-                <Button size="sm" variant="outline" onClick={fetchOperational}>Retry</Button>
+                <Button size="sm" variant="outline" onClick={fetchOperational}>
+                  Retry
+                </Button>
               </div>
             ) : (
               <Table>
@@ -320,11 +361,18 @@ export default function DashboardPage() {
                 <div className="py-4 flex flex-col items-center justify-center gap-2 text-center">
                   <AlertTriangle className="h-5 w-5 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">Failed to load quotas</p>
-                  <Button size="sm" variant="outline" onClick={fetchOperational}>Retry</Button>
+                  <Button size="sm" variant="outline" onClick={fetchOperational}>
+                    Retry
+                  </Button>
                 </div>
               ) : (
                 quotas.map((q) => (
-                  <QuotaBar key={q.id} species={q.species} current={q.current_month_kg} limit={q.monthly_limit_kg} />
+                  <QuotaBar
+                    key={q.id}
+                    species={q.species}
+                    current={q.current_month_kg}
+                    limit={q.monthly_limit_kg}
+                  />
                 ))
               )}
             </CardContent>
@@ -342,14 +390,18 @@ export default function DashboardPage() {
                 <div className="py-4 flex flex-col items-center justify-center gap-2 text-center">
                   <AlertTriangle className="h-5 w-5 text-muted-foreground" />
                   <p className="text-xs text-muted-foreground">Failed to load alerts</p>
-                  <Button size="sm" variant="outline" onClick={fetchOperational}>Retry</Button>
+                  <Button size="sm" variant="outline" onClick={fetchOperational}>
+                    Retry
+                  </Button>
                 </div>
               ) : (
                 <>
                   {alerts.map((a) => (
                     <AlertItem key={a.id} alert={a} />
                   ))}
-                  {alerts.length === 0 && <p className="text-sm text-muted-foreground">No alerts</p>}
+                  {alerts.length === 0 && (
+                    <p className="text-sm text-muted-foreground">No alerts</p>
+                  )}
                 </>
               )}
             </CardContent>
@@ -357,5 +409,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

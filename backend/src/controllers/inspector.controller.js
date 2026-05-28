@@ -65,9 +65,7 @@ async function getAssignment(req, res) {
       `
     : [];
 
-  const compliance = row.fisher_id
-    ? await complianceService.getCompliance(row.fisher_id)
-    : null;
+  const compliance = row.fisher_id ? await complianceService.getCompliance(row.fisher_id) : null;
 
   res.json({ inspection: row, violations, compliance });
 }
@@ -96,7 +94,9 @@ async function startAssignment(req, res) {
 async function completeAssignment(req, res) {
   const { outcome, notes } = req.body;
   if (!outcome || !['PASS', 'WARNING', 'VIOLATION_FOUND'].includes(outcome)) {
-    return res.status(400).json({ error: 'Valid outcome required: PASS, WARNING, VIOLATION_FOUND' });
+    return res
+      .status(400)
+      .json({ error: 'Valid outcome required: PASS, WARNING, VIOLATION_FOUND' });
   }
 
   const rows = await prisma.$queryRaw`
@@ -126,12 +126,24 @@ async function completeAssignment(req, res) {
 
 async function createViolation(req, res) {
   const {
-    fisher_id, boat_id, zone_id, catch_id, inspection_id,
-    type, severity, description, lat, lng, evidence_urls, fine_amount,
+    fisher_id,
+    boat_id,
+    zone_id,
+    catch_id,
+    inspection_id,
+    type,
+    severity,
+    description,
+    lat,
+    lng,
+    evidence_urls,
+    fine_amount,
   } = req.body;
 
   if (!fisher_id || !type || !severity || !description?.trim()) {
-    return res.status(400).json({ error: 'fisher_id, type, severity, and description are required' });
+    return res
+      .status(400)
+      .json({ error: 'fisher_id, type, severity, and description are required' });
   }
 
   const fisher = await prisma.fisher.findUnique({ where: { id: fisher_id } });
@@ -323,7 +335,10 @@ async function createInspection(req, res) {
     },
   });
 
-  auditFromReq(req, 'inspection.assigned', 'inspection', created.id, { reference_id: ref, inspector_id });
+  auditFromReq(req, 'inspection.assigned', 'inspection', created.id, {
+    reference_id: ref,
+    inspector_id,
+  });
   eventBus.emit('inspection.assigned', {
     id: created.id,
     reference_id: ref,

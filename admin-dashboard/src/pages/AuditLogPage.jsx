@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react'
-import api from '../services/api'
-import { usePolling } from '../hooks/usePolling'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState, useCallback } from 'react';
+import api from '../services/api';
+import { usePolling } from '../hooks/usePolling';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Table,
   TableBody,
@@ -11,29 +11,29 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 export default function AuditLogPage() {
-  const [entries, setEntries] = useState([])
-  const [total, setTotal] = useState(0)
-  const [actionFilter, setActionFilter] = useState('')
-  const [entityFilter, setEntityFilter] = useState('')
+  const [entries, setEntries] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [actionFilter, setActionFilter] = useState('');
+  const [entityFilter, setEntityFilter] = useState('');
 
   const fetchAudit = useCallback(async () => {
     try {
-      const params = new URLSearchParams({ limit: 50 })
-      if (actionFilter) params.set('action', actionFilter)
-      if (entityFilter) params.set('entity_type', entityFilter)
-      const res = await api.get(`/admin/audit?${params}`)
-      setEntries(res.data.entries)
-      setTotal(res.data.total)
+      const params = new URLSearchParams({ limit: 50 });
+      if (actionFilter) params.set('action', actionFilter);
+      if (entityFilter) params.set('entity_type', entityFilter);
+      const res = await api.get(`/admin/audit?${params}`);
+      setEntries(res.data.entries);
+      setTotal(res.data.total);
     } catch (err) {
-      console.error('Audit log error:', err)
+      console.error('Audit log error:', err);
     }
-  }, [actionFilter, entityFilter])
+  }, [actionFilter, entityFilter]);
 
-  usePolling(fetchAudit, 20000)
+  usePolling(fetchAudit, 20000);
 
   return (
     <div className="space-y-6">
@@ -122,5 +122,5 @@ export default function AuditLogPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

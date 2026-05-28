@@ -1,22 +1,22 @@
-import { useLocation, Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { useLocation, Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 function formatKg(value) {
-  return Number(value).toLocaleString('en-ET', { maximumFractionDigits: 1 })
+  return Number(value).toLocaleString('en-ET', { maximumFractionDigits: 1 });
 }
 
 export default function OrderSuccessPage() {
-  const { state } = useLocation()
-  const order = state?.order
-  const listing = state?.listing
+  const { state } = useLocation();
+  const order = state?.order;
+  const listing = state?.listing;
 
   if (!order) {
     return (
       <Button variant="link" asChild>
         <Link to="/">← Back to Marketplace</Link>
       </Button>
-    )
+    );
   }
 
   return (
@@ -57,5 +57,5 @@ export default function OrderSuccessPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

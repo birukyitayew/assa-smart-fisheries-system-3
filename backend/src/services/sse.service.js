@@ -67,7 +67,12 @@ function anonymizeForMarket(eventType, payload) {
  */
 async function broadcast(eventType, payload) {
   const eventId = await persistEvent(eventType, payload);
-  const data = JSON.stringify({ type: eventType, payload, timestamp: new Date().toISOString(), id: eventId });
+  const data = JSON.stringify({
+    type: eventType,
+    payload,
+    timestamp: new Date().toISOString(),
+    id: eventId,
+  });
   const message = `id: ${eventId}\nevent: ${eventType}\ndata: ${data}\n\n`;
 
   clients.forEach((client) => {

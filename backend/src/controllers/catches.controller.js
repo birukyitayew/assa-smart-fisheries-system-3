@@ -13,13 +13,10 @@ const { uploadBufferToCloudinary } = require('../middleware/upload.middleware');
 
 async function getZones(req, res) {
   const zones = await prisma.fishingZone.findMany({
-    orderBy: [
-      { type: 'asc' },
-      { name: 'asc' }
-    ]
+    orderBy: [{ type: 'asc' }, { name: 'asc' }],
   });
 
-  const mappedZones = zones.map(z => ({
+  const mappedZones = zones.map((z) => ({
     id: z.id,
     region_id: z.regionId,
     name: z.name,
@@ -27,7 +24,7 @@ async function getZones(req, res) {
     description: z.description,
     gps_lat: z.gpsLat,
     gps_lng: z.gpsLng,
-    geo_polygon: z.geoPolygon
+    geo_polygon: z.geoPolygon,
   }));
 
   res.json({ zones: mappedZones });
@@ -41,24 +38,24 @@ async function getProfile(req, res) {
         select: {
           name: true,
           email: true,
-          phone: true
-        }
+          phone: true,
+        },
       },
       zone: {
         select: {
           name: true,
-          type: true
-        }
+          type: true,
+        },
       },
       boats: {
         take: 1,
         select: {
           boatName: true,
           registrationNumber: true,
-          capacityKg: true
-        }
-      }
-    }
+          capacityKg: true,
+        },
+      },
+    },
   });
 
   if (!fisher) return res.status(404).json({ error: 'Fisher profile not found' });
@@ -79,7 +76,7 @@ async function getProfile(req, res) {
     zone_type: fisher.zone?.type,
     boat_name: fisher.boats?.[0]?.boatName,
     registration_number: fisher.boats?.[0]?.registrationNumber,
-    capacity_kg: fisher.boats?.[0]?.capacityKg
+    capacity_kg: fisher.boats?.[0]?.capacityKg,
   };
 
   const today = new Date().toISOString().split('T')[0];
@@ -88,17 +85,17 @@ async function getProfile(req, res) {
   const catchesTodayList = await prisma.catchSubmission.findMany({
     where: {
       fisherId: profile.id,
-      fishingDate: new Date(`${today}T00:00:00.000Z`)
+      fishingDate: new Date(`${today}T00:00:00.000Z`),
     },
     select: {
       status: true,
-      quantityKg: true
-    }
+      quantityKg: true,
+    },
   });
 
   const catches_today = catchesTodayList.length;
   const verified_kg = catchesTodayList
-    .filter(c => c.status === 'VERIFIED')
+    .filter((c) => c.status === 'VERIFIED')
     .reduce((sum, c) => sum + c.quantityKg, 0);
   const total_kg = catchesTodayList.reduce((sum, c) => sum + c.quantityKg, 0);
 
@@ -107,7 +104,7 @@ async function getProfile(req, res) {
     verified_kg,
     total_kg,
     fishing_trips_today: fishingTripsToday,
-    trips_today: fishingTripsToday
+    trips_today: fishingTripsToday,
   };
 
   const activeTrip = await fleetService.getActiveTripForFisher(profile.id);
@@ -116,22 +113,22 @@ async function getProfile(req, res) {
   const openViolationsRaw = await prisma.violation.findMany({
     where: {
       fisherId: profile.id,
-      status: { in: ['OPEN', 'UNDER_REVIEW'] }
+      status: { in: ['OPEN', 'UNDER_REVIEW'] },
     },
     orderBy: {
-      createdAt: 'desc'
+      createdAt: 'desc',
     },
-    take: 5
+    take: 5,
   });
 
-  const openViolations = openViolationsRaw.map(v => ({
+  const openViolations = openViolationsRaw.map((v) => ({
     reference_id: v.referenceId,
     type: v.type,
     severity: v.severity,
     description: v.description,
     status: v.status,
     fine_amount: v.fineAmount,
-    created_at: v.createdAt
+    created_at: v.createdAt,
   }));
 
   res.json({ profile, todaySummary, compliance, openViolations, activeTrip: activeTrip || null });
@@ -139,7 +136,7 @@ async function getProfile(req, res) {
 
 async function startTrip(req, res) {
   const fisher = await prisma.fisher.findUnique({
-    where: { userId: req.user.id }
+    where: { userId: req.user.id },
   });
   if (!fisher) return res.status(404).json({ error: 'Fisher profile not found' });
   if (fisher.licenseStatus !== 'VALID') {
@@ -153,7 +150,7 @@ async function startTrip(req, res) {
 
 async function endTrip(req, res) {
   const fisher = await prisma.fisher.findUnique({
-    where: { userId: req.user.id }
+    where: { userId: req.user.id },
   });
   if (!fisher) return res.status(404).json({ error: 'Fisher profile not found' });
 
@@ -164,7 +161,7 @@ async function endTrip(req, res) {
 
 async function getActiveTrip(req, res) {
   const fisher = await prisma.fisher.findUnique({
-    where: { userId: req.user.id }
+    where: { userId: req.user.id },
   });
   if (!fisher) return res.status(404).json({ error: 'Fisher profile not found' });
 
@@ -174,7 +171,7 @@ async function getActiveTrip(req, res) {
 
 async function getCatches(req, res) {
   const fisher = await prisma.fisher.findUnique({
-    where: { userId: req.user.id }
+    where: { userId: req.user.id },
   });
   if (!fisher) return res.status(404).json({ error: 'Fisher not found' });
 
@@ -184,21 +181,21 @@ async function getCatches(req, res) {
       zone: {
         select: {
           name: true,
-          type: true
-        }
+          type: true,
+        },
       },
       reviewer: {
         select: {
-          name: true
-        }
-      }
+          name: true,
+        },
+      },
     },
     orderBy: {
-      submittedAt: 'desc'
-    }
+      submittedAt: 'desc',
+    },
   });
 
-  const mappedCatches = catches.map(cs => ({
+  const mappedCatches = catches.map((cs) => ({
     id: cs.id,
     reference_id: cs.referenceId,
     fisher_id: cs.fisherId,
@@ -220,7 +217,7 @@ async function getCatches(req, res) {
     submitted_at: cs.submittedAt,
     zone_name: cs.zone?.name,
     zone_type: cs.zone?.type,
-    reviewed_by_name: cs.reviewer?.name
+    reviewed_by_name: cs.reviewer?.name,
   }));
 
   res.json({ catches: mappedCatches });
@@ -228,23 +225,23 @@ async function getCatches(req, res) {
 
 async function getCatch(req, res) {
   const fisher = await prisma.fisher.findUnique({
-    where: { userId: req.user.id }
+    where: { userId: req.user.id },
   });
   if (!fisher) return res.status(404).json({ error: 'Fisher not found' });
 
   const catchRow = await prisma.catchSubmission.findFirst({
     where: {
       id: Number(req.params.id),
-      fisherId: fisher.id
+      fisherId: fisher.id,
     },
     include: {
       zone: {
         select: {
           name: true,
-          type: true
-        }
-      }
-    }
+          type: true,
+        },
+      },
+    },
   });
 
   if (!catchRow) return res.status(404).json({ error: 'Catch not found' });
@@ -270,7 +267,7 @@ async function getCatch(req, res) {
     reviewed_at: catchRow.reviewedAt,
     submitted_at: catchRow.submittedAt,
     zone_name: catchRow.zone?.name,
-    zone_type: catchRow.zone?.type
+    zone_type: catchRow.zone?.type,
   };
 
   res.json({ catch: mappedCatch });
@@ -284,7 +281,7 @@ async function submitCatch(req, res) {
 
   const fisher = await prisma.fisher.findUnique({
     where: { userId: req.user.id },
-    include: { user: true }
+    include: { user: true },
   });
   if (!fisher) return res.status(404).json({ error: 'Fisher profile not found' });
   if (fisher.licenseStatus !== 'VALID') {
@@ -297,15 +294,15 @@ async function submitCatch(req, res) {
   }
 
   const zone = await prisma.fishingZone.findUnique({
-    where: { id: req.body.zone_id }
+    where: { id: req.body.zone_id },
   });
   if (!zone) return res.status(400).json({ error: 'Invalid fishing zone' });
 
   const dateStr = req.body.fishing_date;
   const count = await prisma.catchSubmission.count({
     where: {
-      fishingDate: new Date(`${dateStr}T00:00:00.000Z`)
-    }
+      fishingDate: new Date(`${dateStr}T00:00:00.000Z`),
+    },
   });
 
   // Unique suffix to prevent concurrency race condition
@@ -322,7 +319,7 @@ async function submitCatch(req, res) {
     type: zone.type,
     geo_polygon: zone.geoPolygon,
     gps_lat: zone.gpsLat,
-    gps_lng: zone.gpsLng
+    gps_lng: zone.gpsLng,
   };
 
   const geo = geoService.validateCatchLocation(zoneMapped, gpsLat, gpsLng);
@@ -419,21 +416,21 @@ async function getNotifications(req, res) {
   const notifications = await prisma.notification.findMany({
     where: { userId: req.user.id },
     orderBy: { createdAt: 'desc' },
-    take: 50
+    take: 50,
   });
 
   const unreadCount = await prisma.notification.count({
-    where: { userId: req.user.id, isRead: false }
+    where: { userId: req.user.id, isRead: false },
   });
 
-  const mappedNotifications = notifications.map(n => ({
+  const mappedNotifications = notifications.map((n) => ({
     id: n.id,
     user_id: n.userId,
     type: n.type,
     title: n.title,
     message: n.message,
     is_read: n.isRead,
-    created_at: n.createdAt
+    created_at: n.createdAt,
   }));
 
   res.json({ notifications: mappedNotifications, unreadCount });

@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { Minus, Plus } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import api from '../services/api'
-import OrderModal from '../components/OrderModal'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Minus, Plus } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import api from '../services/api';
+import OrderModal from '../components/OrderModal';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FISH_COLORS = {
   Tilapia: { bg: '#0e7490', emoji: '🐟' },
@@ -18,47 +18,47 @@ const FISH_COLORS = {
   Carp: { bg: '#1e40af', emoji: '🐟' },
   'Barbus (Ganfo)': { bg: '#6d28d9', emoji: '🐠' },
   default: { bg: '#334155', emoji: '🐟' },
-}
+};
 
 function formatKg(value) {
-  return Number(value).toLocaleString('en-ET', { maximumFractionDigits: 1 })
+  return Number(value).toLocaleString('en-ET', { maximumFractionDigits: 1 });
 }
 
 export default function ListingDetailPage() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const [listing, setListing] = useState(null)
-  const [quantity, setQuantity] = useState(1)
-  const [ordering, setOrdering] = useState(false)
-  const [error, setError] = useState('')
-  const [showModal, setShowModal] = useState(false)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [listing, setListing] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [ordering, setOrdering] = useState(false);
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     api
       .get(`/marketplace/listings/${id}`)
       .then((res) => setListing(res.data.listing))
-      .catch(() => navigate('/'))
-  }, [id, navigate])
+      .catch(() => navigate('/'));
+  }, [id, navigate]);
 
   async function handleOrder() {
     if (!user) {
-      navigate('/login', { state: { from: `/listing/${id}` } })
-      return
+      navigate('/login', { state: { from: `/listing/${id}` } });
+      return;
     }
-    setOrdering(true)
-    setError('')
+    setOrdering(true);
+    setError('');
     try {
       const res = await api.post('/marketplace/orders', {
         listing_id: Number(id),
         quantity_kg: Number(quantity),
-      })
-      navigate('/order-success', { state: { order: res.data, listing } })
+      });
+      navigate('/order-success', { state: { order: res.data, listing } });
     } catch (err) {
-      setError(err.response?.data?.error || 'Order failed. Please try again.')
+      setError(err.response?.data?.error || 'Order failed. Please try again.');
     } finally {
-      setOrdering(false)
-      setShowModal(false)
+      setOrdering(false);
+      setShowModal(false);
     }
   }
 
@@ -68,12 +68,12 @@ export default function ListingDetailPage() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-72 w-full" />
       </div>
-    )
+    );
   }
 
-  const fish = FISH_COLORS[listing.species] || FISH_COLORS.default
-  const totalPrice = (quantity * listing.price_per_kg).toFixed(0)
-  const isAvailable = listing.status === 'ACTIVE' && listing.quantity_available_kg > 0
+  const fish = FISH_COLORS[listing.species] || FISH_COLORS.default;
+  const totalPrice = (quantity * listing.price_per_kg).toFixed(0);
+  const isAvailable = listing.status === 'ACTIVE' && listing.quantity_available_kg > 0;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -148,15 +148,15 @@ export default function ListingDetailPage() {
                     max={listing.quantity_available_kg}
                     value={quantity}
                     onChange={(e) => {
-                      const val = e.target.value === '' ? '' : Number(e.target.value)
-                      setQuantity(val)
+                      const val = e.target.value === '' ? '' : Number(e.target.value);
+                      setQuantity(val);
                     }}
                     onBlur={() => {
-                      const num = Number(quantity)
+                      const num = Number(quantity);
                       if (isNaN(num) || num < 1) {
-                        setQuantity(1)
+                        setQuantity(1);
                       } else {
-                        setQuantity(Math.min(num, listing.quantity_available_kg))
+                        setQuantity(Math.min(num, listing.quantity_available_kg));
                       }
                     }}
                     className="w-20 text-center text-lg font-semibold"
@@ -184,7 +184,11 @@ export default function ListingDetailPage() {
 
               <Button
                 className="w-full"
-                onClick={() => (user ? setShowModal(true) : navigate('/login', { state: { from: `/listing/${id}` } }))}
+                onClick={() =>
+                  user
+                    ? setShowModal(true)
+                    : navigate('/login', { state: { from: `/listing/${id}` } })
+                }
               >
                 {user ? 'Order Now' : 'Sign in to Order'}
               </Button>
@@ -240,5 +244,5 @@ export default function ListingDetailPage() {
         loading={ordering}
       />
     </div>
-  )
+  );
 }

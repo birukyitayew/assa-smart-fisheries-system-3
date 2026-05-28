@@ -1,59 +1,62 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import api from '../services/api'
-import StatusBadge from '../components/StatusBadge'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import api from '../services/api';
+import StatusBadge from '../components/StatusBadge';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 export default function CatchDetailPage() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [rejectReason, setRejectReason] = useState('')
-  const [showRejectForm, setShowRejectForm] = useState(false)
-  const [actionLoading, setActionLoading] = useState(false)
-  const [message, setMessage] = useState(null)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [rejectReason, setRejectReason] = useState('');
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [message, setMessage] = useState(null);
 
   useEffect(() => {
     api
       .get(`/admin/catches/${id}`)
       .then((res) => setData(res.data))
       .catch(() => navigate('/catches'))
-      .finally(() => setLoading(false))
-  }, [id, navigate])
+      .finally(() => setLoading(false));
+  }, [id, navigate]);
 
   async function handleApprove() {
-    setActionLoading(true)
+    setActionLoading(true);
     try {
-      await api.put(`/admin/catches/${id}/approve`)
-      setMessage({ type: 'success', text: 'Catch approved. Marketplace listing created and fisher notified.' })
-      const res = await api.get(`/admin/catches/${id}`)
-      setData(res.data)
+      await api.put(`/admin/catches/${id}/approve`);
+      setMessage({
+        type: 'success',
+        text: 'Catch approved. Marketplace listing created and fisher notified.',
+      });
+      const res = await api.get(`/admin/catches/${id}`);
+      setData(res.data);
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.error || 'Approval failed' })
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Approval failed' });
     } finally {
-      setActionLoading(false)
+      setActionLoading(false);
     }
   }
 
   async function handleReject() {
-    if (!rejectReason.trim()) return
-    setActionLoading(true)
+    if (!rejectReason.trim()) return;
+    setActionLoading(true);
     try {
-      await api.put(`/admin/catches/${id}/reject`, { reason: rejectReason })
-      setMessage({ type: 'success', text: 'Catch rejected. Fisher has been notified.' })
-      setShowRejectForm(false)
-      const res = await api.get(`/admin/catches/${id}`)
-      setData(res.data)
+      await api.put(`/admin/catches/${id}/reject`, { reason: rejectReason });
+      setMessage({ type: 'success', text: 'Catch rejected. Fisher has been notified.' });
+      setShowRejectForm(false);
+      const res = await api.get(`/admin/catches/${id}`);
+      setData(res.data);
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.error || 'Rejection failed' })
+      setMessage({ type: 'error', text: err.response?.data?.error || 'Rejection failed' });
     } finally {
-      setActionLoading(false)
+      setActionLoading(false);
     }
   }
 
@@ -64,13 +67,15 @@ export default function CatchDetailPage() {
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-48 w-full" />
       </div>
-    )
+    );
   }
-  if (!data) return null
+  if (!data) return null;
 
-  const { catch: c, quota } = data
-  const isPending = c.status === 'PENDING'
-  const quotaPct = quota ? Math.round((quota.current_month_kg / quota.monthly_limit_kg) * 100) : null
+  const { catch: c, quota } = data;
+  const isPending = c.status === 'PENDING';
+  const quotaPct = quota
+    ? Math.round((quota.current_month_kg / quota.monthly_limit_kg) * 100)
+    : null;
 
   return (
     <div className="max-w-3xl space-y-5">
@@ -100,7 +105,10 @@ export default function CatchDetailPage() {
             </h2>
             <div className="text-sm text-muted-foreground mt-1">
               Submitted{' '}
-              {new Date(c.submitted_at).toLocaleString('en-ET', { dateStyle: 'medium', timeStyle: 'short' })}
+              {new Date(c.submitted_at).toLocaleString('en-ET', {
+                dateStyle: 'medium',
+                timeStyle: 'short',
+              })}
             </div>
           </div>
           <StatusBadge status={c.status} className="text-sm px-3 py-1" />
@@ -263,7 +271,10 @@ export default function CatchDetailPage() {
             <p className="text-sm">{c.rejection_reason}</p>
             <p className="text-xs text-muted-foreground mt-2">
               Reviewed by {c.reviewed_by_name} on{' '}
-              {new Date(c.reviewed_at).toLocaleString('en-ET', { dateStyle: 'medium', timeStyle: 'short' })}
+              {new Date(c.reviewed_at).toLocaleString('en-ET', {
+                dateStyle: 'medium',
+                timeStyle: 'short',
+              })}
             </p>
           </CardContent>
         </Card>
@@ -313,5 +324,5 @@ export default function CatchDetailPage() {
         </Card>
       )}
     </div>
-  )
+  );
 }

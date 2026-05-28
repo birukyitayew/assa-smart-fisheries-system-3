@@ -1,13 +1,24 @@
-import { useState, useCallback, useEffect } from 'react'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts'
-import { Brain, RefreshCw, TrendingUp, Package, Fish } from 'lucide-react'
-import api from '../services/api'
-import { useRegion } from '../context/RegionContext'
-import PageHeader from '../components/layout/PageHeader'
-import KpiCard from '../components/cards/KpiCard'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useState, useCallback, useEffect } from 'react';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+} from 'recharts';
+import { Brain, RefreshCw, TrendingUp, Package, Fish } from 'lucide-react';
+import api from '../services/api';
+import { useRegion } from '../context/RegionContext';
+import PageHeader from '../components/layout/PageHeader';
+import KpiCard from '../components/cards/KpiCard';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -15,61 +26,61 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 
 export default function IntelligencePage() {
-  const { selectedRegionId } = useRegion()
-  const [data, setData] = useState(null)
-  const [refreshing, setRefreshing] = useState(false)
-  const [loadError, setLoadError] = useState(null)
+  const { selectedRegionId } = useRegion();
+  const [data, setData] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   const fetchOverview = useCallback(async () => {
     try {
-      setLoadError(null)
-      const res = await api.get('/admin/intelligence/overview')
-      setData(res.data)
+      setLoadError(null);
+      const res = await api.get('/admin/intelligence/overview');
+      setData(res.data);
     } catch (err) {
-      console.error('Intelligence error:', err)
-      setLoadError(err.response?.data?.error || err.message || 'Failed to load intelligence')
+      console.error('Intelligence error:', err);
+      setLoadError(err.response?.data?.error || err.message || 'Failed to load intelligence');
     }
-  }, [selectedRegionId])
+  }, [selectedRegionId]);
 
   async function handleRefresh() {
-    setRefreshing(true)
+    setRefreshing(true);
     try {
-      await api.post('/admin/intelligence/refresh-snapshots', { days: 14 })
-      await fetchOverview()
+      await api.post('/admin/intelligence/refresh-snapshots', { days: 14 });
+      await fetchOverview();
     } finally {
-      setRefreshing(false)
+      setRefreshing(false);
     }
   }
 
   useEffect(() => {
-    fetchOverview()
-  }, [fetchOverview])
+    fetchOverview();
+  }, [fetchOverview]);
 
-  const priceBySpecies = {}
-  ;(data?.priceTrends || []).forEach((row) => {
-    if (!priceBySpecies[row.species]) priceBySpecies[row.species] = []
+  const priceBySpecies = {};
+  (data?.priceTrends || []).forEach((row) => {
+    if (!priceBySpecies[row.species]) priceBySpecies[row.species] = [];
     priceBySpecies[row.species].push({
       date: row.date?.slice(5) || row.date,
       price: Math.round(row.avg_price || 0),
-    })
-  })
+    });
+  });
 
-  const speciesKeys = Object.keys(priceBySpecies)
-  const chartSpecies = speciesKeys[0]
-  const priceChartData = chartSpecies ? priceBySpecies[chartSpecies] : []
+  const speciesKeys = Object.keys(priceBySpecies);
+  const chartSpecies = speciesKeys[0];
+  const priceChartData = chartSpecies ? priceBySpecies[chartSpecies] : [];
 
-  const snapshotByDate = {}
-  ;(data?.snapshots || []).forEach((s) => {
-    const key = s.snapshot_date
-    if (!snapshotByDate[key]) snapshotByDate[key] = { date: key.slice(5), listed: 0, sold: 0 }
-    snapshotByDate[key].listed += s.total_listed_kg || 0
-    snapshotByDate[key].sold += s.total_sold_kg || 0
-  })
-  const barData = Object.values(snapshotByDate).slice(-14)
+  const snapshotByDate = {};
+  (data?.snapshots || []).forEach((s) => {
+    const key = s.snapshot_date;
+    if (!snapshotByDate[key]) snapshotByDate[key] = { date: key.slice(5), listed: 0, sold: 0 };
+    snapshotByDate[key].listed += s.total_listed_kg || 0;
+    snapshotByDate[key].sold += s.total_sold_kg || 0;
+  });
+  const barData = Object.values(snapshotByDate).slice(-14);
 
   const shortages = [
     ...(data?.quotaShortages || []).map((q) => ({
@@ -84,7 +95,7 @@ export default function IntelligencePage() {
       detail: `${Math.round(s.available_kg)} kg available`,
       severity: 'destructive',
     })),
-  ]
+  ];
 
   return (
     <div className="space-y-6">
@@ -103,18 +114,27 @@ export default function IntelligencePage() {
         <Card className="border-destructive/40 bg-destructive/5">
           <CardContent className="pt-6 text-sm text-destructive">
             Could not load market intelligence: {loadError}. Restart the backend (
-            <code className="text-xs">npm run dev --prefix backend</code>
-            ) so Phase 3 routes are active.
+            <code className="text-xs">npm run dev --prefix backend</code>) so Phase 3 routes are
+            active.
           </CardContent>
         </Card>
       )}
 
       <div className="stat-grid">
-        <KpiCard icon={Fish} label="Species tracked" value={data?.speciesCount ?? '—'} variant="primary" />
+        <KpiCard
+          icon={Fish}
+          label="Species tracked"
+          value={data?.speciesCount ?? '—'}
+          variant="primary"
+        />
         <KpiCard
           icon={TrendingUp}
           label="Avg price Δ (7d)"
-          value={data?.priceDeltaPct != null ? `${data.priceDeltaPct > 0 ? '+' : ''}${data.priceDeltaPct}%` : '—'}
+          value={
+            data?.priceDeltaPct != null
+              ? `${data.priceDeltaPct > 0 ? '+' : ''}${data.priceDeltaPct}%`
+              : '—'
+          }
           variant={data?.priceDeltaPct > 0 ? 'warning' : 'success'}
         />
         <KpiCard
@@ -123,7 +143,12 @@ export default function IntelligencePage() {
           value={data?.totalSoldKg7d != null ? `${Math.round(data.totalSoldKg7d)} kg` : '—'}
           variant="success"
         />
-        <KpiCard icon={Brain} label="Shortage signals" value={shortages.length} variant="destructive" />
+        <KpiCard
+          icon={Brain}
+          label="Shortage signals"
+          value={shortages.length}
+          variant="destructive"
+        />
       </div>
 
       <div className="split-grid">
@@ -141,11 +166,19 @@ export default function IntelligencePage() {
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip formatter={(v) => [`ETB ${v}`, 'Avg/kg']} />
-                  <Line type="monotone" dataKey="price" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <Line
+                    type="monotone"
+                    dataKey="price"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    dot={false}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground">No price history yet — approve catches or place orders.</p>
+              <p className="text-sm text-muted-foreground">
+                No price history yet — approve catches or place orders.
+              </p>
             )}
           </CardContent>
         </Card>
@@ -164,11 +197,18 @@ export default function IntelligencePage() {
                   <Tooltip />
                   <Legend />
                   <Bar dataKey="listed" name="Listed kg" fill="#94a3b8" radius={[2, 2, 0, 0]} />
-                  <Bar dataKey="sold" name="Sold kg" fill="hsl(var(--primary))" radius={[2, 2, 0, 0]} />
+                  <Bar
+                    dataKey="sold"
+                    name="Sold kg"
+                    fill="hsl(var(--primary))"
+                    radius={[2, 2, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground">Run refresh snapshots to populate chart data.</p>
+              <p className="text-sm text-muted-foreground">
+                Run refresh snapshots to populate chart data.
+              </p>
             )}
           </CardContent>
         </Card>
@@ -208,5 +248,5 @@ export default function IntelligencePage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -45,7 +45,7 @@ test.describe('E2E Workflows', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${fisherToken}`,
+        Authorization: `Bearer ${fisherToken}`,
       },
       body: JSON.stringify({
         species: 'Tilapia',
@@ -67,7 +67,7 @@ test.describe('E2E Workflows', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`,
+        Authorization: `Bearer ${adminToken}`,
       },
       body: JSON.stringify({ reason: 'Incorrect species reported' }),
     });
@@ -109,7 +109,7 @@ test.describe('E2E Workflows', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${fisherToken}`,
+        Authorization: `Bearer ${fisherToken}`,
       },
       body: JSON.stringify({
         species,
@@ -129,7 +129,7 @@ test.describe('E2E Workflows', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${fisherToken}`,
+        Authorization: `Bearer ${fisherToken}`,
       },
       body: JSON.stringify({
         species,
@@ -149,7 +149,7 @@ test.describe('E2E Workflows', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`,
+        Authorization: `Bearer ${adminToken}`,
       },
     });
     assert.strictEqual(approveRes1.status, 200);
@@ -159,7 +159,7 @@ test.describe('E2E Workflows', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`,
+        Authorization: `Bearer ${adminToken}`,
       },
     });
     assert.strictEqual(approveRes2.status, 409);
@@ -173,7 +173,7 @@ test.describe('E2E Workflows', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${fisherToken}`,
+        Authorization: `Bearer ${fisherToken}`,
       },
       body: JSON.stringify({
         species: 'Carp',
@@ -194,7 +194,13 @@ test.describe('E2E Workflows', () => {
     await prisma.speciesQuota.upsert({
       where: { species_month_year: { species: 'Carp', month: currentMonth, year: currentYear } },
       update: { currentMonthKg: 0, monthlyLimitKg: 1500 },
-      create: { species: 'Carp', currentMonthKg: 0, monthlyLimitKg: 1500, month: currentMonth, year: currentYear },
+      create: {
+        species: 'Carp',
+        currentMonthKg: 0,
+        monthlyLimitKg: 1500,
+        month: currentMonth,
+        year: currentYear,
+      },
     });
 
     // 2. Admin approves catch -> auto-creates active listing with 4 kg Carp
@@ -202,7 +208,7 @@ test.describe('E2E Workflows', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`,
+        Authorization: `Bearer ${adminToken}`,
       },
     });
     assert.strictEqual(approveRes.status, 200);
@@ -219,7 +225,7 @@ test.describe('E2E Workflows', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${buyerToken}`,
+        Authorization: `Bearer ${buyerToken}`,
       },
       body: JSON.stringify({
         listing_id: listing.id,
@@ -235,7 +241,7 @@ test.describe('E2E Workflows', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${buyerToken}`,
+        Authorization: `Bearer ${buyerToken}`,
       },
       body: JSON.stringify({
         listing_id: listing.id,
@@ -262,7 +268,7 @@ test.describe('E2E Workflows', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${adminToken}`,
+        Authorization: `Bearer ${adminToken}`,
       },
       body: JSON.stringify({
         name: 'New Fisher Abebe',

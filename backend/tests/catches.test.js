@@ -40,7 +40,7 @@ test.describe('Catches API', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${fisherToken}`,
+        Authorization: `Bearer ${fisherToken}`,
       },
       body: JSON.stringify({
         species: 'Tilapia',
@@ -69,7 +69,7 @@ test.describe('Catches API', () => {
 
   test('GET /admin/catches - admin can list catches', async () => {
     const res = await fetch(`${baseUrl}/api/admin/catches?limit=5`, {
-      headers: { 'Authorization': `Bearer ${adminToken}` },
+      headers: { Authorization: `Bearer ${adminToken}` },
     });
     assert.strictEqual(res.status, 200);
     const body = await res.json();

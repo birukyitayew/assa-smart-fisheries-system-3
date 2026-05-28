@@ -36,7 +36,7 @@ function uploadBufferToCloudinary(buffer) {
       (error, result) => {
         if (error) return reject(error);
         resolve(result.secure_url);
-      }
+      },
     );
     stream.end(buffer);
   });

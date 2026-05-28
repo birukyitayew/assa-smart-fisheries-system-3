@@ -4,9 +4,11 @@ const jwt = require('jsonwebtoken');
  * Optional auth for marketplace SSE — guests allowed.
  */
 function marketSseMiddleware(req, res, next) {
-  const token = req.query.token || (req.headers.authorization?.startsWith('Bearer ')
-    ? req.headers.authorization.split(' ')[1]
-    : null);
+  const token =
+    req.query.token ||
+    (req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.split(' ')[1]
+      : null);
 
   if (!token) {
     req.user = { role: 'guest', id: null };

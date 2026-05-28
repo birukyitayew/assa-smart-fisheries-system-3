@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
-import { Badge } from '@/components/ui/badge'
-import api from '../../services/api'
+import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import api from '../../services/api';
 import {
   Table,
   TableBody,
@@ -8,55 +8,54 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import StatusBadge from '../StatusBadge'
+} from '@/components/ui/table';
+import StatusBadge from '../StatusBadge';
 
 function zoneFlagBadge(flag) {
-  if (!flag) return null
+  if (!flag) return null;
   if (flag === 'PROHIBITED_ZONE')
     return (
       <Badge variant="destructive" className="ml-1 text-[10px]">
         Prohibited
       </Badge>
-    )
+    );
   return (
     <Badge variant="secondary" className="ml-1 text-[10px]">
       Restricted
     </Badge>
-  )
+  );
 }
 
-export default function CatchesTable({ 
-  catches, 
-  onRowClick, 
-  selectedIds = [], 
-  onSelectChange, 
-  onRefresh 
+export default function CatchesTable({
+  catches,
+  onRowClick,
+  selectedIds = [],
+  onSelectChange,
+  onRefresh,
 }) {
-
   const handleApprove = async (id, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     try {
-      await api.put(`/admin/catches/${id}/approve`)
-      if (onRefresh) onRefresh()
+      await api.put(`/admin/catches/${id}/approve`);
+      if (onRefresh) onRefresh();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to approve catch')
+      alert(err.response?.data?.error || 'Failed to approve catch');
     }
-  }
+  };
 
   const handleReject = async (id, e) => {
-    e.stopPropagation()
-    const reason = prompt('Please enter a rejection reason:')
-    if (!reason || !reason.trim()) return
+    e.stopPropagation();
+    const reason = prompt('Please enter a rejection reason:');
+    if (!reason || !reason.trim()) return;
     try {
-      await api.put(`/admin/catches/${id}/reject`, { reason })
-      if (onRefresh) onRefresh()
+      await api.put(`/admin/catches/${id}/reject`, { reason });
+      if (onRefresh) onRefresh();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to reject catch')
+      alert(err.response?.data?.error || 'Failed to reject catch');
     }
-  }
+  };
 
-  const hasPending = catches.some(c => c.status === 'PENDING')
+  const hasPending = catches.some((c) => c.status === 'PENDING');
 
   return (
     <Table>
@@ -69,16 +68,20 @@ export default function CatchesTable({
                 className="rounded border-input text-primary focus:ring-ring h-4 w-4 cursor-pointer accent-primary"
                 checked={
                   catches.length > 0 &&
-                  catches.filter((c) => c.status === 'PENDING').every((c) => selectedIds.includes(c.id))
+                  catches
+                    .filter((c) => c.status === 'PENDING')
+                    .every((c) => selectedIds.includes(c.id))
                 }
                 onChange={(e) => {
-                  const pendingCatches = catches.filter((c) => c.status === 'PENDING')
+                  const pendingCatches = catches.filter((c) => c.status === 'PENDING');
                   if (e.target.checked) {
-                    const newSelected = [...new Set([...selectedIds, ...pendingCatches.map((c) => c.id)])]
-                    onSelectChange(newSelected)
+                    const newSelected = [
+                      ...new Set([...selectedIds, ...pendingCatches.map((c) => c.id)]),
+                    ];
+                    onSelectChange(newSelected);
                   } else {
-                    const pendingIds = pendingCatches.map((c) => c.id)
-                    onSelectChange(selectedIds.filter((id) => !pendingIds.includes(id)))
+                    const pendingIds = pendingCatches.map((c) => c.id);
+                    onSelectChange(selectedIds.filter((id) => !pendingIds.includes(id)));
                   }
                 }}
               />
@@ -111,9 +114,9 @@ export default function CatchesTable({
                     onClick={(e) => e.stopPropagation()}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        onSelectChange([...selectedIds, c.id])
+                        onSelectChange([...selectedIds, c.id]);
                       } else {
-                        onSelectChange(selectedIds.filter((id) => id !== c.id))
+                        onSelectChange(selectedIds.filter((id) => id !== c.id));
                       }
                     }}
                   />
@@ -157,7 +160,10 @@ export default function CatchesTable({
                     </button>
                   </>
                 )}
-                <Link to={`/catches/${c.id}`} className="text-primary hover:underline text-xs font-semibold px-2.5 py-1 bg-primary/10 rounded transition-colors">
+                <Link
+                  to={`/catches/${c.id}`}
+                  className="text-primary hover:underline text-xs font-semibold px-2.5 py-1 bg-primary/10 rounded transition-colors"
+                >
                   Review
                 </Link>
               </div>
@@ -166,12 +172,15 @@ export default function CatchesTable({
         ))}
         {catches.length === 0 && (
           <TableRow>
-            <TableCell colSpan={hasPending ? 9 : 8} className="py-10 text-center text-muted-foreground">
+            <TableCell
+              colSpan={hasPending ? 9 : 8}
+              className="py-10 text-center text-muted-foreground"
+            >
               No catches found
             </TableCell>
           </TableRow>
         )}
       </TableBody>
     </Table>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function Step4Review({ form, selectedZone }) {
   const rows = [
@@ -10,7 +10,7 @@ export default function Step4Review({ form, selectedZone }) {
     ['Time', form.fishing_time],
     ['Zone', selectedZone?.name],
     ['Photos', `${form.photo_urls.length} photo${form.photo_urls.length !== 1 ? 's' : ''}`],
-  ]
+  ];
 
   return (
     <div className="space-y-3">
@@ -26,5 +26,5 @@ export default function Step4Review({ form, selectedZone }) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

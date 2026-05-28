@@ -49,12 +49,48 @@ const insertZone = db.prepare(`
 `);
 
 const zones = [
-  { name: 'Lake Tana – North Zone (Gorgora)',    type: 'ALLOWED',    description: 'Primary fishing zone near Gorgora. High tilapia density.',          gps_lat: 12.2167, gps_lng: 37.2833 },
-  { name: 'Lake Tana – East Zone (Woreta)',       type: 'ALLOWED',    description: 'Active fisher community east of the lake. Good catfish grounds.',    gps_lat: 11.9167, gps_lng: 37.7000 },
-  { name: 'Lake Tana – South Zone (Bahir Dar)',   type: 'ALLOWED',    description: 'High-volume zone near Bahir Dar city. Mixed species.',               gps_lat: 11.5742, gps_lng: 37.3614 },
-  { name: 'Lake Tana – West Zone (Mecha)',        type: 'RESTRICTED', description: 'Seasonal restrictions apply. Spawning season limits in effect.',     gps_lat: 11.8000, gps_lng: 37.0500 },
-  { name: 'Zege Peninsula Waters',                type: 'RESTRICTED', description: 'Ecotourism overlap zone. Limited fishing permits issued.',            gps_lat: 11.6833, gps_lng: 37.3167 },
-  { name: 'Lake Tana – Core Protected Area',      type: 'PROHIBITED', description: 'Breeding grounds. Strict no-fishing zone enforced year-round.',      gps_lat: 11.9500, gps_lng: 37.4000 },
+  {
+    name: 'Lake Tana – North Zone (Gorgora)',
+    type: 'ALLOWED',
+    description: 'Primary fishing zone near Gorgora. High tilapia density.',
+    gps_lat: 12.2167,
+    gps_lng: 37.2833,
+  },
+  {
+    name: 'Lake Tana – East Zone (Woreta)',
+    type: 'ALLOWED',
+    description: 'Active fisher community east of the lake. Good catfish grounds.',
+    gps_lat: 11.9167,
+    gps_lng: 37.7,
+  },
+  {
+    name: 'Lake Tana – South Zone (Bahir Dar)',
+    type: 'ALLOWED',
+    description: 'High-volume zone near Bahir Dar city. Mixed species.',
+    gps_lat: 11.5742,
+    gps_lng: 37.3614,
+  },
+  {
+    name: 'Lake Tana – West Zone (Mecha)',
+    type: 'RESTRICTED',
+    description: 'Seasonal restrictions apply. Spawning season limits in effect.',
+    gps_lat: 11.8,
+    gps_lng: 37.05,
+  },
+  {
+    name: 'Zege Peninsula Waters',
+    type: 'RESTRICTED',
+    description: 'Ecotourism overlap zone. Limited fishing permits issued.',
+    gps_lat: 11.6833,
+    gps_lng: 37.3167,
+  },
+  {
+    name: 'Lake Tana – Core Protected Area',
+    type: 'PROHIBITED',
+    description: 'Breeding grounds. Strict no-fishing zone enforced year-round.',
+    gps_lat: 11.95,
+    gps_lng: 37.4,
+  },
 ];
 
 function zonePolygon(lat, lng, d = 0.06) {
@@ -72,7 +108,13 @@ const zoneIds = {};
 zones.forEach((z) => {
   const info = insertZone.run(z);
   zoneIds[z.name] = info.lastInsertRowid;
-  if (['Lake Tana – North Zone (Gorgora)', 'Lake Tana – South Zone (Bahir Dar)', 'Lake Tana – Core Protected Area'].includes(z.name)) {
+  if (
+    [
+      'Lake Tana – North Zone (Gorgora)',
+      'Lake Tana – South Zone (Bahir Dar)',
+      'Lake Tana – Core Protected Area',
+    ].includes(z.name)
+  ) {
     updateZonePoly.run(zonePolygon(z.gps_lat, z.gps_lng), info.lastInsertRowid);
   }
 });
@@ -85,42 +127,277 @@ const insertUser = db.prepare(`
 `);
 
 const adminUsers = [
-  { name: 'Dawit Bekele',    email: 'dawit@fisheries.gov.et',   role: 'superadmin', phone: '+251911234567' },
-  { name: 'Tigist Haile',    email: 'tigist@fisheries.gov.et',  role: 'admin',      phone: '+251922345678' },
-  { name: 'Yonas Tadesse',   email: 'yonas@fisheries.gov.et',   role: 'admin',      phone: '+251933456789' },
-  { name: 'Mekdes Alemu',    email: 'mekdes@fisheries.gov.et',  role: 'admin',      phone: '+251944567890' },
-  { name: 'Biruk Getachew',  email: 'biruk@fisheries.gov.et',   role: 'admin',      phone: '+251955678901' },
+  {
+    name: 'Dawit Bekele',
+    email: 'dawit@fisheries.gov.et',
+    role: 'superadmin',
+    phone: '+251911234567',
+  },
+  { name: 'Tigist Haile', email: 'tigist@fisheries.gov.et', role: 'admin', phone: '+251922345678' },
+  { name: 'Yonas Tadesse', email: 'yonas@fisheries.gov.et', role: 'admin', phone: '+251933456789' },
+  { name: 'Mekdes Alemu', email: 'mekdes@fisheries.gov.et', role: 'admin', phone: '+251944567890' },
+  {
+    name: 'Biruk Getachew',
+    email: 'biruk@fisheries.gov.et',
+    role: 'admin',
+    phone: '+251955678901',
+  },
 ];
 
 const fisherData = [
-  { name: 'Tesfaye Alemu',    email: 'tesfaye@fisher.et',   phone: '+251911111001', license: 'FSH-2024-00125', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – North Zone (Gorgora)',  boat: 'Blue Star',      reg: 'BT-2024-001', cap: 200 },
-  { name: 'Abebe Girma',      email: 'abebe@fisher.et',     phone: '+251911111002', license: 'FSH-2024-00126', status: 'VALID',    expiry: '2026-11-30', zone: 'Lake Tana – East Zone (Woreta)',    boat: 'Morning Light',  reg: 'BT-2024-002', cap: 150 },
-  { name: 'Mulugeta Worku',   email: 'mulugeta@fisher.et',  phone: '+251911111003', license: 'FSH-2024-00127', status: 'VALID',    expiry: '2026-10-31', zone: 'Lake Tana – South Zone (Bahir Dar)',boat: 'Lake Queen',     reg: 'BT-2024-003', cap: 300 },
-  { name: 'Hailu Desta',      email: 'hailu@fisher.et',     phone: '+251911111004', license: 'FSH-2023-00089', status: 'EXPIRED',  expiry: '2025-12-31', zone: 'Lake Tana – North Zone (Gorgora)',  boat: 'Silver Fish',    reg: 'BT-2023-004', cap: 100 },
-  { name: 'Kebede Molla',     email: 'kebede@fisher.et',    phone: '+251911111005', license: 'FSH-2024-00130', status: 'VALID',    expiry: '2026-09-30', zone: 'Lake Tana – West Zone (Mecha)',     boat: 'Tana Pride',     reg: 'BT-2024-005', cap: 250 },
-  { name: 'Girma Tadesse',    email: 'girma@fisher.et',     phone: '+251911111006', license: 'FSH-2024-00131', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – East Zone (Woreta)',    boat: 'Dawn Catcher',   reg: 'BT-2024-006', cap: 180 },
-  { name: 'Worku Bekele',     email: 'worku@fisher.et',     phone: '+251911111007', license: 'FSH-2024-00132', status: 'SUSPENDED',expiry: '2026-08-31', zone: 'Lake Tana – South Zone (Bahir Dar)',boat: 'River Star',     reg: 'BT-2024-007', cap: 120 },
-  { name: 'Amare Yilma',      email: 'amare@fisher.et',     phone: '+251911111008', license: 'FSH-2024-00133', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – North Zone (Gorgora)',  boat: 'Blue Nile',      reg: 'BT-2024-008', cap: 200 },
-  { name: 'Teshome Haile',    email: 'teshome@fisher.et',   phone: '+251911111009', license: 'FSH-2024-00134', status: 'VALID',    expiry: '2026-11-30', zone: 'Lake Tana – East Zone (Woreta)',    boat: 'Sunrise',        reg: 'BT-2024-009', cap: 160 },
-  { name: 'Demeke Assefa',    email: 'demeke@fisher.et',    phone: '+251911111010', license: 'FSH-2024-00135', status: 'VALID',    expiry: '2026-10-31', zone: 'Lake Tana – South Zone (Bahir Dar)',boat: 'Tana Wave',      reg: 'BT-2024-010', cap: 220 },
-  { name: 'Sisay Negash',     email: 'sisay@fisher.et',     phone: '+251911111011', license: 'FSH-2024-00136', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – West Zone (Mecha)',     boat: 'Green Catch',    reg: 'BT-2024-011', cap: 140 },
-  { name: 'Fekadu Lemma',     email: 'fekadu@fisher.et',    phone: '+251911111012', license: 'FSH-2024-00137', status: 'VALID',    expiry: '2026-09-30', zone: 'Lake Tana – North Zone (Gorgora)',  boat: 'Lake Breeze',    reg: 'BT-2024-012', cap: 190 },
-  { name: 'Getachew Mesfin',  email: 'getachew@fisher.et',  phone: '+251911111013', license: 'FSH-2024-00138', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – East Zone (Woreta)',    boat: 'Tana Star',      reg: 'BT-2024-013', cap: 170 },
-  { name: 'Berhane Tekle',    email: 'berhane@fisher.et',   phone: '+251911111014', license: 'FSH-2024-00139', status: 'VALID',    expiry: '2026-11-30', zone: 'Lake Tana – South Zone (Bahir Dar)',boat: 'Morning Catch',  reg: 'BT-2024-014', cap: 210 },
-  { name: 'Yitbarek Alemu',   email: 'yitbarek@fisher.et',  phone: '+251911111015', license: 'FSH-2024-00140', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – North Zone (Gorgora)',  boat: 'Deep Blue',      reg: 'BT-2024-015', cap: 230 },
-  { name: 'Mekonnen Hailu',   email: 'mekonnen@fisher.et',  phone: '+251911111016', license: 'FSH-2024-00141', status: 'VALID',    expiry: '2026-10-31', zone: 'Lake Tana – West Zone (Mecha)',     boat: 'Tana Fisher',    reg: 'BT-2024-016', cap: 160 },
-  { name: 'Tadesse Woldemariam',email:'tadesse@fisher.et',  phone: '+251911111017', license: 'FSH-2024-00142', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – East Zone (Woreta)',    boat: 'Lake Eagle',     reg: 'BT-2024-017', cap: 200 },
-  { name: 'Zewdu Kebede',     email: 'zewdu@fisher.et',     phone: '+251911111018', license: 'FSH-2024-00143', status: 'VALID',    expiry: '2026-11-30', zone: 'Lake Tana – South Zone (Bahir Dar)',boat: 'Tana Breeze',    reg: 'BT-2024-018', cap: 180 },
-  { name: 'Alemu Gebre',      email: 'alemu@fisher.et',     phone: '+251911111019', license: 'FSH-2024-00144', status: 'VALID',    expiry: '2026-12-31', zone: 'Lake Tana – North Zone (Gorgora)',  boat: 'North Star',     reg: 'BT-2024-019', cap: 150 },
-  { name: 'Negash Wolde',     email: 'negash@fisher.et',    phone: '+251911111020', license: 'FSH-2024-00145', status: 'VALID',    expiry: '2026-10-31', zone: 'Lake Tana – East Zone (Woreta)',    boat: 'East Wind',      reg: 'BT-2024-020', cap: 175 },
+  {
+    name: 'Tesfaye Alemu',
+    email: 'tesfaye@fisher.et',
+    phone: '+251911111001',
+    license: 'FSH-2024-00125',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    boat: 'Blue Star',
+    reg: 'BT-2024-001',
+    cap: 200,
+  },
+  {
+    name: 'Abebe Girma',
+    email: 'abebe@fisher.et',
+    phone: '+251911111002',
+    license: 'FSH-2024-00126',
+    status: 'VALID',
+    expiry: '2026-11-30',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    boat: 'Morning Light',
+    reg: 'BT-2024-002',
+    cap: 150,
+  },
+  {
+    name: 'Mulugeta Worku',
+    email: 'mulugeta@fisher.et',
+    phone: '+251911111003',
+    license: 'FSH-2024-00127',
+    status: 'VALID',
+    expiry: '2026-10-31',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    boat: 'Lake Queen',
+    reg: 'BT-2024-003',
+    cap: 300,
+  },
+  {
+    name: 'Hailu Desta',
+    email: 'hailu@fisher.et',
+    phone: '+251911111004',
+    license: 'FSH-2023-00089',
+    status: 'EXPIRED',
+    expiry: '2025-12-31',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    boat: 'Silver Fish',
+    reg: 'BT-2023-004',
+    cap: 100,
+  },
+  {
+    name: 'Kebede Molla',
+    email: 'kebede@fisher.et',
+    phone: '+251911111005',
+    license: 'FSH-2024-00130',
+    status: 'VALID',
+    expiry: '2026-09-30',
+    zone: 'Lake Tana – West Zone (Mecha)',
+    boat: 'Tana Pride',
+    reg: 'BT-2024-005',
+    cap: 250,
+  },
+  {
+    name: 'Girma Tadesse',
+    email: 'girma@fisher.et',
+    phone: '+251911111006',
+    license: 'FSH-2024-00131',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    boat: 'Dawn Catcher',
+    reg: 'BT-2024-006',
+    cap: 180,
+  },
+  {
+    name: 'Worku Bekele',
+    email: 'worku@fisher.et',
+    phone: '+251911111007',
+    license: 'FSH-2024-00132',
+    status: 'SUSPENDED',
+    expiry: '2026-08-31',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    boat: 'River Star',
+    reg: 'BT-2024-007',
+    cap: 120,
+  },
+  {
+    name: 'Amare Yilma',
+    email: 'amare@fisher.et',
+    phone: '+251911111008',
+    license: 'FSH-2024-00133',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    boat: 'Blue Nile',
+    reg: 'BT-2024-008',
+    cap: 200,
+  },
+  {
+    name: 'Teshome Haile',
+    email: 'teshome@fisher.et',
+    phone: '+251911111009',
+    license: 'FSH-2024-00134',
+    status: 'VALID',
+    expiry: '2026-11-30',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    boat: 'Sunrise',
+    reg: 'BT-2024-009',
+    cap: 160,
+  },
+  {
+    name: 'Demeke Assefa',
+    email: 'demeke@fisher.et',
+    phone: '+251911111010',
+    license: 'FSH-2024-00135',
+    status: 'VALID',
+    expiry: '2026-10-31',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    boat: 'Tana Wave',
+    reg: 'BT-2024-010',
+    cap: 220,
+  },
+  {
+    name: 'Sisay Negash',
+    email: 'sisay@fisher.et',
+    phone: '+251911111011',
+    license: 'FSH-2024-00136',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – West Zone (Mecha)',
+    boat: 'Green Catch',
+    reg: 'BT-2024-011',
+    cap: 140,
+  },
+  {
+    name: 'Fekadu Lemma',
+    email: 'fekadu@fisher.et',
+    phone: '+251911111012',
+    license: 'FSH-2024-00137',
+    status: 'VALID',
+    expiry: '2026-09-30',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    boat: 'Lake Breeze',
+    reg: 'BT-2024-012',
+    cap: 190,
+  },
+  {
+    name: 'Getachew Mesfin',
+    email: 'getachew@fisher.et',
+    phone: '+251911111013',
+    license: 'FSH-2024-00138',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    boat: 'Tana Star',
+    reg: 'BT-2024-013',
+    cap: 170,
+  },
+  {
+    name: 'Berhane Tekle',
+    email: 'berhane@fisher.et',
+    phone: '+251911111014',
+    license: 'FSH-2024-00139',
+    status: 'VALID',
+    expiry: '2026-11-30',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    boat: 'Morning Catch',
+    reg: 'BT-2024-014',
+    cap: 210,
+  },
+  {
+    name: 'Yitbarek Alemu',
+    email: 'yitbarek@fisher.et',
+    phone: '+251911111015',
+    license: 'FSH-2024-00140',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    boat: 'Deep Blue',
+    reg: 'BT-2024-015',
+    cap: 230,
+  },
+  {
+    name: 'Mekonnen Hailu',
+    email: 'mekonnen@fisher.et',
+    phone: '+251911111016',
+    license: 'FSH-2024-00141',
+    status: 'VALID',
+    expiry: '2026-10-31',
+    zone: 'Lake Tana – West Zone (Mecha)',
+    boat: 'Tana Fisher',
+    reg: 'BT-2024-016',
+    cap: 160,
+  },
+  {
+    name: 'Tadesse Woldemariam',
+    email: 'tadesse@fisher.et',
+    phone: '+251911111017',
+    license: 'FSH-2024-00142',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    boat: 'Lake Eagle',
+    reg: 'BT-2024-017',
+    cap: 200,
+  },
+  {
+    name: 'Zewdu Kebede',
+    email: 'zewdu@fisher.et',
+    phone: '+251911111018',
+    license: 'FSH-2024-00143',
+    status: 'VALID',
+    expiry: '2026-11-30',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    boat: 'Tana Breeze',
+    reg: 'BT-2024-018',
+    cap: 180,
+  },
+  {
+    name: 'Alemu Gebre',
+    email: 'alemu@fisher.et',
+    phone: '+251911111019',
+    license: 'FSH-2024-00144',
+    status: 'VALID',
+    expiry: '2026-12-31',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    boat: 'North Star',
+    reg: 'BT-2024-019',
+    cap: 150,
+  },
+  {
+    name: 'Negash Wolde',
+    email: 'negash@fisher.et',
+    phone: '+251911111020',
+    license: 'FSH-2024-00145',
+    status: 'VALID',
+    expiry: '2026-10-31',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    boat: 'East Wind',
+    reg: 'BT-2024-020',
+    cap: 175,
+  },
 ];
 
 const buyerData = [
-  { name: 'Mesfin Hailu',    email: 'mesfin@buyer.et',   phone: '+251922221001', location: 'Bahir Dar' },
-  { name: 'Selamawit Girma', email: 'selam@buyer.et',    phone: '+251922221002', location: 'Bahir Dar' },
-  { name: 'Henok Tesfaye',   email: 'henok@buyer.et',    phone: '+251922221003', location: 'Gondar'    },
-  { name: 'Rahel Bekele',    email: 'rahel@buyer.et',    phone: '+251922221004', location: 'Bahir Dar' },
-  { name: 'Dawit Molla',     email: 'dawitmolla@buyer.et',phone:'+251922221005', location: 'Woreta'    },
+  { name: 'Mesfin Hailu', email: 'mesfin@buyer.et', phone: '+251922221001', location: 'Bahir Dar' },
+  {
+    name: 'Selamawit Girma',
+    email: 'selam@buyer.et',
+    phone: '+251922221002',
+    location: 'Bahir Dar',
+  },
+  { name: 'Henok Tesfaye', email: 'henok@buyer.et', phone: '+251922221003', location: 'Gondar' },
+  { name: 'Rahel Bekele', email: 'rahel@buyer.et', phone: '+251922221004', location: 'Bahir Dar' },
+  { name: 'Dawit Molla', email: 'dawitmolla@buyer.et', phone: '+251922221005', location: 'Woreta' },
 ];
 
 // Insert admin users
@@ -144,21 +421,46 @@ const fisherIds = {};
 const fisherUserIds = {};
 const boatIds = [];
 fisherData.forEach((f) => {
-  const ur = insertUser.run({ name: f.name, email: f.email, password_hash: hash('fisher123'), role: 'fisher', phone: f.phone });
+  const ur = insertUser.run({
+    name: f.name,
+    email: f.email,
+    password_hash: hash('fisher123'),
+    role: 'fisher',
+    phone: f.phone,
+  });
   const userId = ur.lastInsertRowid;
-  const fr = insertFisher.run({ user_id: userId, license_number: f.license, license_status: f.status, license_expiry: f.expiry, zone_id: zoneIds[f.zone] });
+  const fr = insertFisher.run({
+    user_id: userId,
+    license_number: f.license,
+    license_status: f.status,
+    license_expiry: f.expiry,
+    zone_id: zoneIds[f.zone],
+  });
   const fisherId = fr.lastInsertRowid;
-  const br = insertBoat.run({ fisher_id: fisherId, boat_name: f.boat, registration_number: f.reg, capacity_kg: f.cap });
+  const br = insertBoat.run({
+    fisher_id: fisherId,
+    boat_name: f.boat,
+    registration_number: f.reg,
+    capacity_kg: f.cap,
+  });
   boatIds.push(br.lastInsertRowid);
   fisherIds[f.email] = fisherId;
   fisherUserIds[f.email] = userId;
 });
 
 // Insert buyers
-const insertBuyer = db.prepare(`INSERT INTO buyers (user_id, location) VALUES (@user_id, @location)`);
+const insertBuyer = db.prepare(
+  `INSERT INTO buyers (user_id, location) VALUES (@user_id, @location)`,
+);
 const buyerIds = {};
 buyerData.forEach((b) => {
-  const ur = insertUser.run({ name: b.name, email: b.email, password_hash: hash('buyer123'), role: 'buyer', phone: b.phone });
+  const ur = insertUser.run({
+    name: b.name,
+    email: b.email,
+    password_hash: hash('buyer123'),
+    role: 'buyer',
+    phone: b.phone,
+  });
   insertBuyer.run({ user_id: ur.lastInsertRowid, location: b.location });
   buyerIds[b.email] = ur.lastInsertRowid;
 });
@@ -167,7 +469,7 @@ console.log('✅ Users, fishers, boats, buyers seeded');
 
 // ── 3. SPECIES QUOTAS ─────────────────────────────────────────────────────────
 const currentMonth = new Date().getMonth() + 1;
-const currentYear  = new Date().getFullYear();
+const currentYear = new Date().getFullYear();
 
 const insertQuota = db.prepare(`
   INSERT INTO species_quotas (species, monthly_limit_kg, current_month_kg, month, year)
@@ -175,11 +477,11 @@ const insertQuota = db.prepare(`
 `);
 
 const quotas = [
-  { species: 'Tilapia',        monthly_limit_kg: 5000, current_month_kg: 3750 },
-  { species: 'Catfish',        monthly_limit_kg: 2000, current_month_kg: 1400 },
-  { species: 'Nile Perch',     monthly_limit_kg: 2000, current_month_kg: 1200 },
-  { species: 'Carp',           monthly_limit_kg: 1500, current_month_kg: 900  },
-  { species: 'Barbus (Ganfo)', monthly_limit_kg: 1000, current_month_kg: 650  },
+  { species: 'Tilapia', monthly_limit_kg: 5000, current_month_kg: 3750 },
+  { species: 'Catfish', monthly_limit_kg: 2000, current_month_kg: 1400 },
+  { species: 'Nile Perch', monthly_limit_kg: 2000, current_month_kg: 1200 },
+  { species: 'Carp', monthly_limit_kg: 1500, current_month_kg: 900 },
+  { species: 'Barbus (Ganfo)', monthly_limit_kg: 1000, current_month_kg: 650 },
 ];
 
 quotas.forEach((q) => insertQuota.run({ ...q, month: currentMonth, year: currentYear }));
@@ -204,39 +506,306 @@ const adminUserId = adminIds['dawit@fisheries.gov.et'];
 // Historical verified catches (last 7 days)
 const historicalCatches = [
   // Day 7 ago
-  { email: 'tesfaye@fisher.et',   species: 'Tilapia',        qty: 30, fish: 15, gear: 'Gill Net',    zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 7, time: '06:30', status: 'VERIFIED' },
-  { email: 'abebe@fisher.et',     species: 'Catfish',        qty: 20, fish: 8,  gear: 'Hook & Line', zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 7, time: '07:00', status: 'VERIFIED' },
-  { email: 'mulugeta@fisher.et',  species: 'Nile Perch',     qty: 25, fish: 5,  gear: 'Seine Net',   zone: 'Lake Tana – South Zone (Bahir Dar)', daysBack: 7, time: '05:45', status: 'VERIFIED' },
+  {
+    email: 'tesfaye@fisher.et',
+    species: 'Tilapia',
+    qty: 30,
+    fish: 15,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 7,
+    time: '06:30',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'abebe@fisher.et',
+    species: 'Catfish',
+    qty: 20,
+    fish: 8,
+    gear: 'Hook & Line',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 7,
+    time: '07:00',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'mulugeta@fisher.et',
+    species: 'Nile Perch',
+    qty: 25,
+    fish: 5,
+    gear: 'Seine Net',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    daysBack: 7,
+    time: '05:45',
+    status: 'VERIFIED',
+  },
   // Day 6 ago
-  { email: 'amare@fisher.et',     species: 'Tilapia',        qty: 35, fish: 18, gear: 'Gill Net',    zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 6, time: '06:15', status: 'VERIFIED' },
-  { email: 'teshome@fisher.et',   species: 'Carp',           qty: 18, fish: 10, gear: 'Cast Net',    zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 6, time: '07:30', status: 'VERIFIED' },
-  { email: 'demeke@fisher.et',    species: 'Catfish',        qty: 22, fish: 9,  gear: 'Trap',        zone: 'Lake Tana – South Zone (Bahir Dar)', daysBack: 6, time: '06:00', status: 'VERIFIED' },
+  {
+    email: 'amare@fisher.et',
+    species: 'Tilapia',
+    qty: 35,
+    fish: 18,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 6,
+    time: '06:15',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'teshome@fisher.et',
+    species: 'Carp',
+    qty: 18,
+    fish: 10,
+    gear: 'Cast Net',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 6,
+    time: '07:30',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'demeke@fisher.et',
+    species: 'Catfish',
+    qty: 22,
+    fish: 9,
+    gear: 'Trap',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    daysBack: 6,
+    time: '06:00',
+    status: 'VERIFIED',
+  },
   // Day 5 ago
-  { email: 'sisay@fisher.et',     species: 'Barbus (Ganfo)', qty: 15, fish: 20, gear: 'Cast Net',    zone: 'Lake Tana – West Zone (Mecha)',      daysBack: 5, time: '06:45', status: 'VERIFIED', flag: 'RESTRICTED_ZONE' },
-  { email: 'fekadu@fisher.et',    species: 'Tilapia',        qty: 28, fish: 14, gear: 'Gill Net',    zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 5, time: '05:30', status: 'VERIFIED' },
-  { email: 'getachew@fisher.et',  species: 'Nile Perch',     qty: 20, fish: 4,  gear: 'Hook & Line', zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 5, time: '07:15', status: 'VERIFIED' },
+  {
+    email: 'sisay@fisher.et',
+    species: 'Barbus (Ganfo)',
+    qty: 15,
+    fish: 20,
+    gear: 'Cast Net',
+    zone: 'Lake Tana – West Zone (Mecha)',
+    daysBack: 5,
+    time: '06:45',
+    status: 'VERIFIED',
+    flag: 'RESTRICTED_ZONE',
+  },
+  {
+    email: 'fekadu@fisher.et',
+    species: 'Tilapia',
+    qty: 28,
+    fish: 14,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 5,
+    time: '05:30',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'getachew@fisher.et',
+    species: 'Nile Perch',
+    qty: 20,
+    fish: 4,
+    gear: 'Hook & Line',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 5,
+    time: '07:15',
+    status: 'VERIFIED',
+  },
   // Day 4 ago
-  { email: 'berhane@fisher.et',   species: 'Tilapia',        qty: 40, fish: 20, gear: 'Seine Net',   zone: 'Lake Tana – South Zone (Bahir Dar)', daysBack: 4, time: '06:00', status: 'VERIFIED' },
-  { email: 'yitbarek@fisher.et',  species: 'Catfish',        qty: 25, fish: 10, gear: 'Gill Net',    zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 4, time: '06:30', status: 'VERIFIED' },
-  { email: 'mekonnen@fisher.et',  species: 'Carp',           qty: 20, fish: 12, gear: 'Cast Net',    zone: 'Lake Tana – West Zone (Mecha)',      daysBack: 4, time: '07:00', status: 'VERIFIED', flag: 'RESTRICTED_ZONE' },
+  {
+    email: 'berhane@fisher.et',
+    species: 'Tilapia',
+    qty: 40,
+    fish: 20,
+    gear: 'Seine Net',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    daysBack: 4,
+    time: '06:00',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'yitbarek@fisher.et',
+    species: 'Catfish',
+    qty: 25,
+    fish: 10,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 4,
+    time: '06:30',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'mekonnen@fisher.et',
+    species: 'Carp',
+    qty: 20,
+    fish: 12,
+    gear: 'Cast Net',
+    zone: 'Lake Tana – West Zone (Mecha)',
+    daysBack: 4,
+    time: '07:00',
+    status: 'VERIFIED',
+    flag: 'RESTRICTED_ZONE',
+  },
   // Day 3 ago
-  { email: 'tadesse@fisher.et',   species: 'Tilapia',        qty: 32, fish: 16, gear: 'Gill Net',    zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 3, time: '05:45', status: 'VERIFIED' },
-  { email: 'zewdu@fisher.et',     species: 'Nile Perch',     qty: 18, fish: 3,  gear: 'Hook & Line', zone: 'Lake Tana – South Zone (Bahir Dar)', daysBack: 3, time: '06:15', status: 'VERIFIED' },
-  { email: 'alemu@fisher.et',     species: 'Barbus (Ganfo)', qty: 12, fish: 16, gear: 'Cast Net',    zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 3, time: '07:00', status: 'VERIFIED' },
+  {
+    email: 'tadesse@fisher.et',
+    species: 'Tilapia',
+    qty: 32,
+    fish: 16,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 3,
+    time: '05:45',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'zewdu@fisher.et',
+    species: 'Nile Perch',
+    qty: 18,
+    fish: 3,
+    gear: 'Hook & Line',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    daysBack: 3,
+    time: '06:15',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'alemu@fisher.et',
+    species: 'Barbus (Ganfo)',
+    qty: 12,
+    fish: 16,
+    gear: 'Cast Net',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 3,
+    time: '07:00',
+    status: 'VERIFIED',
+  },
   // Day 2 ago — mix of verified and rejected
-  { email: 'negash@fisher.et',    species: 'Tilapia',        qty: 45, fish: 22, gear: 'Seine Net',   zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 2, time: '06:00', status: 'VERIFIED' },
-  { email: 'tesfaye@fisher.et',   species: 'Catfish',        qty: 15, fish: 6,  gear: 'Trap',        zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 2, time: '07:30', status: 'VERIFIED' },
-  { email: 'kebede@fisher.et',    species: 'Tilapia',        qty: 60, fish: 30, gear: 'Gill Net',    zone: 'Lake Tana – Core Protected Area',    daysBack: 2, time: '05:00', status: 'REJECTED', flag: 'PROHIBITED_ZONE', reason: 'Catch submitted from a prohibited zone (Core Protected Area). Fishing is strictly prohibited in this area.' },
-  { email: 'girma@fisher.et',     species: 'Nile Perch',     qty: 22, fish: 4,  gear: 'Hook & Line', zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 2, time: '06:45', status: 'VERIFIED' },
+  {
+    email: 'negash@fisher.et',
+    species: 'Tilapia',
+    qty: 45,
+    fish: 22,
+    gear: 'Seine Net',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 2,
+    time: '06:00',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'tesfaye@fisher.et',
+    species: 'Catfish',
+    qty: 15,
+    fish: 6,
+    gear: 'Trap',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 2,
+    time: '07:30',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'kebede@fisher.et',
+    species: 'Tilapia',
+    qty: 60,
+    fish: 30,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – Core Protected Area',
+    daysBack: 2,
+    time: '05:00',
+    status: 'REJECTED',
+    flag: 'PROHIBITED_ZONE',
+    reason:
+      'Catch submitted from a prohibited zone (Core Protected Area). Fishing is strictly prohibited in this area.',
+  },
+  {
+    email: 'girma@fisher.et',
+    species: 'Nile Perch',
+    qty: 22,
+    fish: 4,
+    gear: 'Hook & Line',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 2,
+    time: '06:45',
+    status: 'VERIFIED',
+  },
   // Yesterday
-  { email: 'abebe@fisher.et',     species: 'Tilapia',        qty: 28, fish: 14, gear: 'Gill Net',    zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 1, time: '06:00', status: 'VERIFIED' },
-  { email: 'mulugeta@fisher.et',  species: 'Carp',           qty: 16, fish: 9,  gear: 'Cast Net',    zone: 'Lake Tana – South Zone (Bahir Dar)', daysBack: 1, time: '07:15', status: 'VERIFIED' },
-  { email: 'amare@fisher.et',     species: 'Catfish',        qty: 20, fish: 8,  gear: 'Trap',        zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 1, time: '05:30', status: 'VERIFIED' },
-  { email: 'demeke@fisher.et',    species: 'Barbus (Ganfo)', qty: 10, fish: 14, gear: 'Cast Net',    zone: 'Lake Tana – South Zone (Bahir Dar)', daysBack: 1, time: '06:30', status: 'REJECTED', reason: 'Quantity reported (10 kg) is inconsistent with the number of fish reported (14). Please resubmit with accurate data.' },
+  {
+    email: 'abebe@fisher.et',
+    species: 'Tilapia',
+    qty: 28,
+    fish: 14,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 1,
+    time: '06:00',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'mulugeta@fisher.et',
+    species: 'Carp',
+    qty: 16,
+    fish: 9,
+    gear: 'Cast Net',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    daysBack: 1,
+    time: '07:15',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'amare@fisher.et',
+    species: 'Catfish',
+    qty: 20,
+    fish: 8,
+    gear: 'Trap',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 1,
+    time: '05:30',
+    status: 'VERIFIED',
+  },
+  {
+    email: 'demeke@fisher.et',
+    species: 'Barbus (Ganfo)',
+    qty: 10,
+    fish: 14,
+    gear: 'Cast Net',
+    zone: 'Lake Tana – South Zone (Bahir Dar)',
+    daysBack: 1,
+    time: '06:30',
+    status: 'REJECTED',
+    reason:
+      'Quantity reported (10 kg) is inconsistent with the number of fish reported (14). Please resubmit with accurate data.',
+  },
   // Today — pending (for demo)
-  { email: 'tesfaye@fisher.et',   species: 'Tilapia',        qty: 25, fish: 12, gear: 'Gill Net',    zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 0, time: '06:30', status: 'PENDING' },
-  { email: 'teshome@fisher.et',   species: 'Nile Perch',     qty: 18, fish: 3,  gear: 'Hook & Line', zone: 'Lake Tana – East Zone (Woreta)',     daysBack: 0, time: '07:00', status: 'PENDING' },
-  { email: 'fekadu@fisher.et',    species: 'Catfish',        qty: 22, fish: 9,  gear: 'Trap',        zone: 'Lake Tana – North Zone (Gorgora)',   daysBack: 0, time: '05:45', status: 'PENDING' },
+  {
+    email: 'tesfaye@fisher.et',
+    species: 'Tilapia',
+    qty: 25,
+    fish: 12,
+    gear: 'Gill Net',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 0,
+    time: '06:30',
+    status: 'PENDING',
+  },
+  {
+    email: 'teshome@fisher.et',
+    species: 'Nile Perch',
+    qty: 18,
+    fish: 3,
+    gear: 'Hook & Line',
+    zone: 'Lake Tana – East Zone (Woreta)',
+    daysBack: 0,
+    time: '07:00',
+    status: 'PENDING',
+  },
+  {
+    email: 'fekadu@fisher.et',
+    species: 'Catfish',
+    qty: 22,
+    fish: 9,
+    gear: 'Trap',
+    zone: 'Lake Tana – North Zone (Gorgora)',
+    daysBack: 0,
+    time: '05:45',
+    status: 'PENDING',
+  },
 ];
 
 const catchIdMap = {}; // email+species+daysBack -> catch id (for listing creation)
@@ -247,7 +816,8 @@ historicalCatches.forEach((c) => {
   const refId = catchRef(dateStr);
   const zone = zones.find((z) => z.name === c.zone);
   const fisherId = fisherIds[c.email];
-  const reviewedAt = c.status !== 'PENDING' ? new Date(submittedDate.getTime() + 3600000).toISOString() : null;
+  const reviewedAt =
+    c.status !== 'PENDING' ? new Date(submittedDate.getTime() + 3600000).toISOString() : null;
 
   const r = insertCatch.run({
     reference_id: refId,
@@ -261,7 +831,9 @@ historicalCatches.forEach((c) => {
     zone_id: zoneIds[c.zone],
     gps_lat: zone ? zone.gps_lat : null,
     gps_lng: zone ? zone.gps_lng : null,
-    photo_urls: JSON.stringify([`/uploads/fish_${c.species.toLowerCase().replace(/\s/g,'_')}_1.jpg`]),
+    photo_urls: JSON.stringify([
+      `/uploads/fish_${c.species.toLowerCase().replace(/\s/g, '_')}_1.jpg`,
+    ]),
     zone_flag: c.flag || null,
     status: c.status,
     rejection_reason: c.reason || null,
@@ -270,7 +842,12 @@ historicalCatches.forEach((c) => {
     submitted_at: submittedDate.toISOString(),
   });
 
-  catchIdMap[`${c.email}-${c.species}-${c.daysBack}`] = { id: r.lastInsertRowid, qty: c.qty, species: c.species, fisherId };
+  catchIdMap[`${c.email}-${c.species}-${c.daysBack}`] = {
+    id: r.lastInsertRowid,
+    qty: c.qty,
+    species: c.species,
+    fisherId,
+  };
 });
 
 console.log('✅ Catch submissions seeded');
@@ -284,11 +861,11 @@ const insertListing = db.prepare(`
 `);
 
 const descriptions = {
-  Tilapia:        'Fresh Lake Tana Tilapia, caught this morning. Firm flesh, ideal for grilling or stew.',
-  Catfish:        'Wild-caught catfish from Lake Tana. Great for traditional Ethiopian fish dishes.',
-  'Nile Perch':   'Premium Nile Perch, high commercial value. Perfect for restaurants and hotels.',
-  Carp:           'Fresh carp from Lake Tana. Suitable for smoking or frying.',
-  'Barbus (Ganfo)':'Endemic Lake Tana Ganfo. Rare and prized for its delicate flavor.',
+  Tilapia: 'Fresh Lake Tana Tilapia, caught this morning. Firm flesh, ideal for grilling or stew.',
+  Catfish: 'Wild-caught catfish from Lake Tana. Great for traditional Ethiopian fish dishes.',
+  'Nile Perch': 'Premium Nile Perch, high commercial value. Perfect for restaurants and hotels.',
+  Carp: 'Fresh carp from Lake Tana. Suitable for smoking or frying.',
+  'Barbus (Ganfo)': 'Endemic Lake Tana Ganfo. Rare and prized for its delicate flavor.',
 };
 
 const listingIds = [];
@@ -327,20 +904,20 @@ const updateListingQty = db.prepare(`
 const buyerUserIds = Object.values(buyerIds);
 const orderSamples = [
   { listingIdx: 0, buyerIdx: 0, qty: 10, daysBack: 5 },
-  { listingIdx: 1, buyerIdx: 1, qty: 8,  daysBack: 5 },
-  { listingIdx: 2, buyerIdx: 2, qty: 5,  daysBack: 4 },
+  { listingIdx: 1, buyerIdx: 1, qty: 8, daysBack: 5 },
+  { listingIdx: 2, buyerIdx: 2, qty: 5, daysBack: 4 },
   { listingIdx: 3, buyerIdx: 0, qty: 12, daysBack: 4 },
-  { listingIdx: 4, buyerIdx: 3, qty: 6,  daysBack: 3 },
-  { listingIdx: 5, buyerIdx: 1, qty: 9,  daysBack: 3 },
-  { listingIdx: 6, buyerIdx: 4, qty: 4,  daysBack: 2 },
+  { listingIdx: 4, buyerIdx: 3, qty: 6, daysBack: 3 },
+  { listingIdx: 5, buyerIdx: 1, qty: 9, daysBack: 3 },
+  { listingIdx: 6, buyerIdx: 4, qty: 4, daysBack: 2 },
   { listingIdx: 7, buyerIdx: 0, qty: 15, daysBack: 2 },
-  { listingIdx: 8, buyerIdx: 2, qty: 7,  daysBack: 1 },
+  { listingIdx: 8, buyerIdx: 2, qty: 7, daysBack: 1 },
   { listingIdx: 9, buyerIdx: 3, qty: 10, daysBack: 1 },
-  { listingIdx: 10,buyerIdx: 1, qty: 5,  daysBack: 1 },
-  { listingIdx: 11,buyerIdx: 4, qty: 8,  daysBack: 0 },
-  { listingIdx: 12,buyerIdx: 0, qty: 6,  daysBack: 0 },
-  { listingIdx: 13,buyerIdx: 2, qty: 3,  daysBack: 0 },
-  { listingIdx: 14,buyerIdx: 3, qty: 11, daysBack: 0 },
+  { listingIdx: 10, buyerIdx: 1, qty: 5, daysBack: 1 },
+  { listingIdx: 11, buyerIdx: 4, qty: 8, daysBack: 0 },
+  { listingIdx: 12, buyerIdx: 0, qty: 6, daysBack: 0 },
+  { listingIdx: 13, buyerIdx: 2, qty: 3, daysBack: 0 },
+  { listingIdx: 14, buyerIdx: 3, qty: 11, daysBack: 0 },
 ];
 
 orderSamples.forEach((o) => {
@@ -375,33 +952,57 @@ const insertAlert = db.prepare(`
 
 const alerts = [
   {
-    type: 'QUOTA_WARNING', title: 'Tilapia Quota at 75%',
+    type: 'QUOTA_WARNING',
+    title: 'Tilapia Quota at 75%',
     message: 'Monthly Tilapia quota has reached 75% (3,750 / 5,000 kg). Monitor closely.',
-    severity: 'WARNING', is_read: 0, related_entity_type: 'quota', related_entity_id: 1,
+    severity: 'WARNING',
+    is_read: 0,
+    related_entity_type: 'quota',
+    related_entity_id: 1,
     created_at: daysAgo(1),
   },
   {
-    type: 'ZONE_VIOLATION', title: 'Prohibited Zone Catch Detected',
-    message: 'Fisher Kebede Molla submitted a catch from the Core Protected Area (Prohibited Zone). Catch has been rejected.',
-    severity: 'CRITICAL', is_read: 0, related_entity_type: 'catch', related_entity_id: 18,
+    type: 'ZONE_VIOLATION',
+    title: 'Prohibited Zone Catch Detected',
+    message:
+      'Fisher Kebede Molla submitted a catch from the Core Protected Area (Prohibited Zone). Catch has been rejected.',
+    severity: 'CRITICAL',
+    is_read: 0,
+    related_entity_type: 'catch',
+    related_entity_id: 18,
     created_at: daysAgo(2),
   },
   {
-    type: 'ZONE_RESTRICTION', title: 'Restricted Zone Activity',
-    message: 'Fisher Sisay Negash submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.',
-    severity: 'WARNING', is_read: 1, related_entity_type: 'catch', related_entity_id: 7,
+    type: 'ZONE_RESTRICTION',
+    title: 'Restricted Zone Activity',
+    message:
+      'Fisher Sisay Negash submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.',
+    severity: 'WARNING',
+    is_read: 1,
+    related_entity_type: 'catch',
+    related_entity_id: 7,
     created_at: daysAgo(5),
   },
   {
-    type: 'ZONE_RESTRICTION', title: 'Restricted Zone Activity',
-    message: 'Fisher Mekonnen Hailu submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.',
-    severity: 'WARNING', is_read: 1, related_entity_type: 'catch', related_entity_id: 12,
+    type: 'ZONE_RESTRICTION',
+    title: 'Restricted Zone Activity',
+    message:
+      'Fisher Mekonnen Hailu submitted a catch from Lake Tana – West Zone (Mecha), a restricted zone. Review required.',
+    severity: 'WARNING',
+    is_read: 1,
+    related_entity_type: 'catch',
+    related_entity_id: 12,
     created_at: daysAgo(4),
   },
   {
-    type: 'QUOTA_WARNING', title: 'Catfish Quota at 70%',
-    message: 'Monthly Catfish quota has reached 70% (1,400 / 2,000 kg). Approaching warning threshold.',
-    severity: 'INFO', is_read: 1, related_entity_type: 'quota', related_entity_id: 2,
+    type: 'QUOTA_WARNING',
+    title: 'Catfish Quota at 70%',
+    message:
+      'Monthly Catfish quota has reached 70% (1,400 / 2,000 kg). Approaching warning threshold.',
+    severity: 'INFO',
+    is_read: 1,
+    related_entity_type: 'quota',
+    related_entity_id: 2,
     created_at: daysAgo(3),
   },
 ];
@@ -418,25 +1019,35 @@ const insertNotif = db.prepare(`
 // Notifications for Tesfaye (demo fisher)
 const tesfayeUserId = fisherUserIds['tesfaye@fisher.et'];
 insertNotif.run({
-  user_id: tesfayeUserId, type: 'CATCH_APPROVED',
+  user_id: tesfayeUserId,
+  type: 'CATCH_APPROVED',
   title: 'Catch Approved',
-  message: 'Your catch CATCH-' + dateOnly(daysAgo(7)).replace(/-/g,'-') + '-0001 has been approved and is now listed in the marketplace.',
-  is_read: 1, created_at: daysAgo(7),
+  message:
+    'Your catch CATCH-' +
+    dateOnly(daysAgo(7)).replace(/-/g, '-') +
+    '-0001 has been approved and is now listed in the marketplace.',
+  is_read: 1,
+  created_at: daysAgo(7),
 });
 insertNotif.run({
-  user_id: tesfayeUserId, type: 'CATCH_APPROVED',
+  user_id: tesfayeUserId,
+  type: 'CATCH_APPROVED',
   title: 'Catch Approved',
   message: 'Your catch has been approved and is now listed in the marketplace.',
-  is_read: 1, created_at: daysAgo(2),
+  is_read: 1,
+  created_at: daysAgo(2),
 });
 
 // Notification for Kebede (rejected)
 const kebedeUserId = fisherUserIds['kebede@fisher.et'];
 insertNotif.run({
-  user_id: kebedeUserId, type: 'CATCH_REJECTED',
+  user_id: kebedeUserId,
+  type: 'CATCH_REJECTED',
   title: 'Catch Not Approved',
-  message: 'Your catch was not approved. Reason: Catch submitted from a prohibited zone (Core Protected Area). Fishing is strictly prohibited in this area.',
-  is_read: 0, created_at: daysAgo(2),
+  message:
+    'Your catch was not approved. Reason: Catch submitted from a prohibited zone (Core Protected Area). Fishing is strictly prohibited in this area.',
+  is_read: 0,
+  created_at: daysAgo(2),
 });
 
 console.log('✅ Notifications seeded');
@@ -472,11 +1083,25 @@ const insertPosition = db.prepare(`
   VALUES (@boat_id, @trip_id, @lat, @lng, @status, @recorded_at)
 `);
 
-const fleetStatuses = ['FISHING', 'FISHING', 'RETURNING', 'DOCKED', 'FISHING', 'OFFLINE', 'DOCKED', 'FISHING'];
+const fleetStatuses = [
+  'FISHING',
+  'FISHING',
+  'RETURNING',
+  'DOCKED',
+  'FISHING',
+  'OFFLINE',
+  'DOCKED',
+  'FISHING',
+];
 const fleetCoords = [
-  { lat: 12.21, lng: 37.28 }, { lat: 11.92, lng: 37.70 }, { lat: 11.58, lng: 37.36 },
-  { lat: 11.80, lng: 37.05 }, { lat: 11.68, lng: 37.32 }, { lat: 12.05, lng: 37.45 },
-  { lat: 11.57, lng: 37.38 }, { lat: 11.95, lng: 37.55 },
+  { lat: 12.21, lng: 37.28 },
+  { lat: 11.92, lng: 37.7 },
+  { lat: 11.58, lng: 37.36 },
+  { lat: 11.8, lng: 37.05 },
+  { lat: 11.68, lng: 37.32 },
+  { lat: 12.05, lng: 37.45 },
+  { lat: 11.57, lng: 37.38 },
+  { lat: 11.95, lng: 37.55 },
 ];
 
 boatIds.slice(0, 8).forEach((boatId, i) => {
@@ -512,7 +1137,13 @@ const insertPrice = db.prepare(`
   VALUES (@species, @zone_id, @price_per_kg, @recorded_at, @source)
 `);
 
-const speciesPrices = { Tilapia: 140, Catfish: 130, 'Nile Perch': 200, Carp: 95, 'Barbus (Ganfo)': 110 };
+const speciesPrices = {
+  Tilapia: 140,
+  Catfish: 130,
+  'Nile Perch': 200,
+  Carp: 95,
+  'Barbus (Ganfo)': 110,
+};
 Object.entries(speciesPrices).forEach(([species, base]) => {
   for (let d = 0; d < 7; d++) {
     insertPrice.run({
@@ -549,10 +1180,12 @@ for (let d = 0; d < 14; d++) {
 console.log('✅ Market snapshots seeded');
 
 // ── 9d. ZONE SEASON RULES ─────────────────────────────────────────────────────
-db.prepare(`
+db.prepare(
+  `
   INSERT INTO zone_season_rules (zone_id, species, season_start, season_end, rule_type, max_kg, notes)
   VALUES (?, ?, ?, ?, ?, ?, ?)
-`).run(
+`,
+).run(
   zoneIds['Lake Tana – West Zone (Mecha)'],
   'Tilapia',
   '03-01',
@@ -561,10 +1194,12 @@ db.prepare(`
   500,
   'Spawning season reduced catch limit',
 );
-db.prepare(`
+db.prepare(
+  `
   INSERT INTO zone_season_rules (zone_id, species, season_start, season_end, rule_type, max_kg, notes)
   VALUES (?, ?, ?, ?, ?, ?, ?)
-`).run(
+`,
+).run(
   zoneIds['Zege Peninsula Waters'],
   'Nile Perch',
   '01-01',
@@ -573,10 +1208,12 @@ db.prepare(`
   null,
   'Ecotourism protection — no commercial Nile Perch',
 );
-db.prepare(`
+db.prepare(
+  `
   INSERT INTO zone_season_rules (zone_id, species, season_start, season_end, rule_type, max_kg, notes)
   VALUES (?, ?, ?, ?, ?, ?, ?)
-`).run(
+`,
+).run(
   zoneIds['Lake Tana – North Zone (Gorgora)'],
   'Catfish',
   '07-01',
@@ -595,31 +1232,169 @@ const insertAudit = db.prepare(`
 
 const adminId = adminIds['dawit@fisheries.gov.et'];
 const auditSamples = [
-  { action: 'catch.approved', entity_type: 'catch', entity_id: 1, payload: { reference_id: 'CATCH-demo-0001' }, daysBack: 7 },
-  { action: 'catch.approved', entity_type: 'catch', entity_id: 2, payload: { reference_id: 'CATCH-demo-0002' }, daysBack: 6 },
-  { action: 'catch.rejected', entity_type: 'catch', entity_id: 18, payload: { reason: 'Prohibited zone' }, daysBack: 2 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { order_reference: 'ORD-demo-0001', species: 'Tilapia' }, daysBack: 5 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { order_reference: 'ORD-demo-0002', species: 'Catfish' }, daysBack: 4 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { order_reference: 'ORD-demo-0003', species: 'Nile Perch' }, daysBack: 3 },
-  { action: 'catch.submitted', entity_type: 'catch', entity_id: 20, payload: { species: 'Tilapia', quantity_kg: 22 }, daysBack: 1 },
-  { action: 'quota.updated', entity_type: 'quota', entity_id: 1, payload: { monthly_limit_kg: 5000 }, daysBack: 10 },
-  { action: 'catch.approved', entity_type: 'catch', entity_id: 5, payload: { reference_id: 'CATCH-demo-0005' }, daysBack: 3 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { order_reference: 'ORD-demo-0010', species: 'Tilapia' }, daysBack: 0 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { order_reference: 'ORD-demo-0011', species: 'Carp' }, daysBack: 0 },
-  { action: 'catch.submitted', entity_type: 'catch', entity_id: 21, payload: { species: 'Catfish', quantity_kg: 15 }, daysBack: 0 },
-  { action: 'catch.approved', entity_type: 'catch', entity_id: 10, payload: { reference_id: 'CATCH-demo-0010' }, daysBack: 2 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { order_reference: 'ORD-demo-0008' }, daysBack: 1 },
-  { action: 'catch.rejected', entity_type: 'catch', entity_id: 15, payload: { reason: 'Incomplete documentation' }, daysBack: 4 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { species: 'Barbus (Ganfo)' }, daysBack: 2 },
-  { action: 'catch.submitted', entity_type: 'catch', entity_id: 22, payload: { species: 'Tilapia' }, daysBack: 0 },
+  {
+    action: 'catch.approved',
+    entity_type: 'catch',
+    entity_id: 1,
+    payload: { reference_id: 'CATCH-demo-0001' },
+    daysBack: 7,
+  },
+  {
+    action: 'catch.approved',
+    entity_type: 'catch',
+    entity_id: 2,
+    payload: { reference_id: 'CATCH-demo-0002' },
+    daysBack: 6,
+  },
+  {
+    action: 'catch.rejected',
+    entity_type: 'catch',
+    entity_id: 18,
+    payload: { reason: 'Prohibited zone' },
+    daysBack: 2,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { order_reference: 'ORD-demo-0001', species: 'Tilapia' },
+    daysBack: 5,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { order_reference: 'ORD-demo-0002', species: 'Catfish' },
+    daysBack: 4,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { order_reference: 'ORD-demo-0003', species: 'Nile Perch' },
+    daysBack: 3,
+  },
+  {
+    action: 'catch.submitted',
+    entity_type: 'catch',
+    entity_id: 20,
+    payload: { species: 'Tilapia', quantity_kg: 22 },
+    daysBack: 1,
+  },
+  {
+    action: 'quota.updated',
+    entity_type: 'quota',
+    entity_id: 1,
+    payload: { monthly_limit_kg: 5000 },
+    daysBack: 10,
+  },
+  {
+    action: 'catch.approved',
+    entity_type: 'catch',
+    entity_id: 5,
+    payload: { reference_id: 'CATCH-demo-0005' },
+    daysBack: 3,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { order_reference: 'ORD-demo-0010', species: 'Tilapia' },
+    daysBack: 0,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { order_reference: 'ORD-demo-0011', species: 'Carp' },
+    daysBack: 0,
+  },
+  {
+    action: 'catch.submitted',
+    entity_type: 'catch',
+    entity_id: 21,
+    payload: { species: 'Catfish', quantity_kg: 15 },
+    daysBack: 0,
+  },
+  {
+    action: 'catch.approved',
+    entity_type: 'catch',
+    entity_id: 10,
+    payload: { reference_id: 'CATCH-demo-0010' },
+    daysBack: 2,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { order_reference: 'ORD-demo-0008' },
+    daysBack: 1,
+  },
+  {
+    action: 'catch.rejected',
+    entity_type: 'catch',
+    entity_id: 15,
+    payload: { reason: 'Incomplete documentation' },
+    daysBack: 4,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { species: 'Barbus (Ganfo)' },
+    daysBack: 2,
+  },
+  {
+    action: 'catch.submitted',
+    entity_type: 'catch',
+    entity_id: 22,
+    payload: { species: 'Tilapia' },
+    daysBack: 0,
+  },
   { action: 'catch.approved', entity_type: 'catch', entity_id: 8, payload: {}, daysBack: 5 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { total_price: 1450 }, daysBack: 1 },
-  { action: 'quota.updated', entity_type: 'quota', entity_id: 2, payload: { monthly_limit_kg: 2000 }, daysBack: 8 },
-  { action: 'catch.submitted', entity_type: 'catch', entity_id: 23, payload: { zone_flag: 'RESTRICTED_ZONE' }, daysBack: 0 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { buyer: 'Mesfin Hailu' }, daysBack: 0 },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { total_price: 1450 },
+    daysBack: 1,
+  },
+  {
+    action: 'quota.updated',
+    entity_type: 'quota',
+    entity_id: 2,
+    payload: { monthly_limit_kg: 2000 },
+    daysBack: 8,
+  },
+  {
+    action: 'catch.submitted',
+    entity_type: 'catch',
+    entity_id: 23,
+    payload: { zone_flag: 'RESTRICTED_ZONE' },
+    daysBack: 0,
+  },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { buyer: 'Mesfin Hailu' },
+    daysBack: 0,
+  },
   { action: 'catch.approved', entity_type: 'catch', entity_id: 12, payload: {}, daysBack: 1 },
-  { action: 'order.placed', entity_type: 'order', entity_id: null, payload: { quantity_kg: 10 }, daysBack: 0 },
-  { action: 'catch.submitted', entity_type: 'catch', entity_id: 24, payload: { fisher: 'Abebe Girma' }, daysBack: 0 },
+  {
+    action: 'order.placed',
+    entity_type: 'order',
+    entity_id: null,
+    payload: { quantity_kg: 10 },
+    daysBack: 0,
+  },
+  {
+    action: 'catch.submitted',
+    entity_type: 'catch',
+    entity_id: 24,
+    payload: { fisher: 'Abebe Girma' },
+    daysBack: 0,
+  },
 ];
 
 auditSamples.forEach((a) => {
@@ -641,9 +1416,17 @@ const insertEvent = db.prepare(`
 `);
 
 const domainEventSamples = [
-  { event_type: 'catch.submitted', payload: { reference_id: 'CATCH-seed-0020', species: 'Tilapia' }, daysBack: 0 },
+  {
+    event_type: 'catch.submitted',
+    payload: { reference_id: 'CATCH-seed-0020', species: 'Tilapia' },
+    daysBack: 0,
+  },
   { event_type: 'order.placed', payload: { species: 'Tilapia', total_price: 1400 }, daysBack: 0 },
-  { event_type: 'listing.created', payload: { species: 'Catfish', price_per_kg: 130 }, daysBack: 1 },
+  {
+    event_type: 'listing.created',
+    payload: { species: 'Catfish', price_per_kg: 130 },
+    daysBack: 1,
+  },
   { event_type: 'catch.approved', payload: { reference_id: 'CATCH-seed-0010' }, daysBack: 2 },
   { event_type: 'quota.warning', payload: { species: 'Tilapia', usage_pct: 75 }, daysBack: 1 },
   { event_type: 'order.placed', payload: { species: 'Nile Perch' }, daysBack: 1 },
@@ -684,31 +1467,44 @@ const kebedeFisherId = fisherIds['kebede@fisher.et'];
 const workuFisherId = fisherIds['worku@fisher.et'];
 const hailuFisherId = fisherIds['hailu@fisher.et'];
 
-db.prepare(`
+db.prepare(
+  `
   INSERT INTO violations
     (reference_id, fisher_id, zone_id, type, severity, description, status, fine_amount, fine_status, reported_by_user_id, created_at)
   VALUES
     ('VIO-20250521-0001', ?, ?, 'ZONE_VIOLATION', 'CRITICAL',
      'Catch submitted from Core Protected Area. Fishing strictly prohibited.', 'RESOLVED', 2500, 'PENDING',
      ?, ?)
-`).run(kebedeFisherId, zoneIds['Lake Tana – Core Protected Area'], inspectorIds['solomon@fisheries.gov.et'], daysAgo(2));
+`,
+).run(
+  kebedeFisherId,
+  zoneIds['Lake Tana – Core Protected Area'],
+  inspectorIds['solomon@fisheries.gov.et'],
+  daysAgo(2),
+);
 
-db.prepare(`
+db.prepare(
+  `
   INSERT INTO violations
     (reference_id, fisher_id, type, severity, description, status, reported_by_user_id, created_at)
   VALUES
     ('VIO-20250521-0002', ?, 'LICENSE_EXPIRED', 'HIGH', 'Fishing with expired license FSH-2023-00089.', 'OPEN', ?, ?)
-`).run(hailuFisherId, inspectorIds['hanna@fisheries.gov.et'], daysAgo(5));
+`,
+).run(hailuFisherId, inspectorIds['hanna@fisheries.gov.et'], daysAgo(5));
 
-db.prepare(`
+db.prepare(
+  `
   INSERT INTO violations
     (reference_id, fisher_id, type, severity, description, status, fine_amount, fine_status, reported_by_user_id, created_at)
   VALUES
     ('VIO-20250521-0003', ?, 'QUOTA_EVASION', 'MEDIUM', 'Under-reported catch quantity vs market listing.', 'UNDER_REVIEW', 800, 'PENDING', ?, ?)
-`).run(workuFisherId, adminIds['dawit@fisheries.gov.et'], daysAgo(1));
+`,
+).run(workuFisherId, adminIds['dawit@fisheries.gov.et'], daysAgo(1));
 
 const complianceService = require('../services/compliance.service');
-[kebedeFisherId, workuFisherId, hailuFisherId].forEach((fid) => complianceService.recalculateCompliance(db, fid));
+[kebedeFisherId, workuFisherId, hailuFisherId].forEach((fid) =>
+  complianceService.recalculateCompliance(db, fid),
+);
 fisherData.forEach((f) => {
   const fid = fisherIds[f.email];
   if (fid) complianceService.recalculateCompliance(db, fid);

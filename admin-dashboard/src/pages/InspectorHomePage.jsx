@@ -1,44 +1,46 @@
-import { useState, useCallback } from 'react'
-import { Link } from 'react-router-dom'
-import api from '../services/api'
-import { usePolling } from '../hooks/usePolling'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../services/api';
+import { usePolling } from '../hooks/usePolling';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 const statusVariant = {
   ASSIGNED: 'secondary',
   IN_PROGRESS: 'default',
   COMPLETED: 'outline',
   CANCELLED: 'destructive',
-}
+};
 
 export default function InspectorHomePage() {
-  const [assignments, setAssignments] = useState([])
-  const [suspicious, setSuspicious] = useState([])
+  const [assignments, setAssignments] = useState([]);
+  const [suspicious, setSuspicious] = useState([]);
 
   const fetchAll = useCallback(async () => {
     try {
       const [aRes, sRes] = await Promise.all([
         api.get('/inspector/assignments'),
         api.get('/inspector/suspicious-fishers'),
-      ])
-      setAssignments(aRes.data.assignments)
-      setSuspicious(sRes.data.fishers)
+      ]);
+      setAssignments(aRes.data.assignments);
+      setSuspicious(sRes.data.fishers);
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }, [])
+  }, []);
 
-  usePolling(fetchAll, 15000)
+  usePolling(fetchAll, 15000);
 
-  const active = assignments.filter((a) => ['ASSIGNED', 'IN_PROGRESS'].includes(a.status))
+  const active = assignments.filter((a) => ['ASSIGNED', 'IN_PROGRESS'].includes(a.status));
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Field Operations</h2>
-        <p className="text-sm text-muted-foreground">Your inspection assignments and patrol targets</p>
+        <p className="text-sm text-muted-foreground">
+          Your inspection assignments and patrol targets
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -65,15 +67,17 @@ export default function InspectorHomePage() {
                       Fisher: {a.fisher_name} · {a.license_status}
                     </p>
                   )}
-                  {a.zone_name && <p className="text-xs text-muted-foreground">Zone: {a.zone_name}</p>}
+                  {a.zone_name && (
+                    <p className="text-xs text-muted-foreground">Zone: {a.zone_name}</p>
+                  )}
                   <div className="flex gap-2 mt-2">
                     {a.status === 'ASSIGNED' && (
                       <Button
                         size="sm"
                         variant="secondary"
                         onClick={async () => {
-                          await api.put(`/inspector/assignments/${a.id}/start`)
-                          fetchAll()
+                          await api.put(`/inspector/assignments/${a.id}/start`);
+                          fetchAll();
                         }}
                       >
                         Start
@@ -87,17 +91,13 @@ export default function InspectorHomePage() {
                             await api.put(`/inspector/assignments/${a.id}/complete`, {
                               outcome: 'PASS',
                               notes: 'Routine check passed',
-                            })
-                            fetchAll()
+                            });
+                            fetchAll();
                           }}
                         >
                           Pass
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          asChild
-                        >
+                        <Button size="sm" variant="destructive" asChild>
                           <Link to="/violations">Violation</Link>
                         </Button>
                       </>
@@ -123,7 +123,8 @@ export default function InspectorHomePage() {
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {f.license_status} · {f.open_violations} open violations · {f.flagged_catches_30d} flagged catches
+                  {f.license_status} · {f.open_violations} open violations · {f.flagged_catches_30d}{' '}
+                  flagged catches
                 </p>
                 <Button size="sm" variant="link" className="px-0 h-auto mt-1" asChild>
                   <Link to={`/fishermen`}>Verify license →</Link>
@@ -137,5 +138,5 @@ export default function InspectorHomePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

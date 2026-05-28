@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const SPECIES_COLORS = {
   Tilapia: 'var(--chart-1)',
@@ -6,7 +6,7 @@ const SPECIES_COLORS = {
   'Nile Perch': 'var(--chart-3)',
   Carp: 'var(--chart-2)',
   'Barbus (Ganfo)': 'var(--chart-5)',
-}
+};
 
 export default function SpeciesDonutChart({ data }) {
   if (!data || data.length === 0) {
@@ -14,7 +14,7 @@ export default function SpeciesDonutChart({ data }) {
       <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
         No verified catches today
       </div>
-    )
+    );
   }
 
   return (
@@ -30,12 +30,15 @@ export default function SpeciesDonutChart({ data }) {
           outerRadius={80}
         >
           {data.map((entry) => (
-            <Cell key={entry.species} fill={SPECIES_COLORS[entry.species] || 'var(--muted-foreground)'} />
+            <Cell
+              key={entry.species}
+              fill={SPECIES_COLORS[entry.species] || 'var(--muted-foreground)'}
+            />
           ))}
         </Pie>
         <Tooltip formatter={(v) => [`${v} kg`]} />
         <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
       </PieChart>
     </ResponsiveContainer>
-  )
+  );
 }

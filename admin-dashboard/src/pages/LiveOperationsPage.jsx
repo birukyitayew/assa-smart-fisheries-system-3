@@ -1,16 +1,16 @@
-import { useState, useCallback, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Fish, Clock, Package, Banknote } from 'lucide-react'
-import api from '../services/api'
-import { useRegion } from '../context/RegionContext'
-import PageHeader from '../components/layout/PageHeader'
-import { usePolling } from '../hooks/usePolling'
-import { useRealtime } from '../context/RealtimeContext'
-import LiveActivityFeed from '../components/command/LiveActivityFeed'
-import StatusBadge from '../components/StatusBadge'
-import KpiCard from '../components/cards/KpiCard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useState, useCallback, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Fish, Clock, Package, Banknote } from 'lucide-react';
+import api from '../services/api';
+import { useRegion } from '../context/RegionContext';
+import PageHeader from '../components/layout/PageHeader';
+import { usePolling } from '../hooks/usePolling';
+import { useRealtime } from '../context/RealtimeContext';
+import LiveActivityFeed from '../components/command/LiveActivityFeed';
+import StatusBadge from '../components/StatusBadge';
+import KpiCard from '../components/cards/KpiCard';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -18,14 +18,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 
 export default function LiveOperationsPage() {
-  const { events, connected } = useRealtime()
-  const { selectedRegionId } = useRegion()
-  const [liveStats, setLiveStats] = useState(null)
-  const [pending, setPending] = useState([])
-  const [transactions, setTransactions] = useState([])
+  const { events, connected } = useRealtime();
+  const { selectedRegionId } = useRegion();
+  const [liveStats, setLiveStats] = useState(null);
+  const [pending, setPending] = useState([]);
+  const [transactions, setTransactions] = useState([]);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -33,27 +33,27 @@ export default function LiveOperationsPage() {
         api.get('/admin/command/live-stats'),
         api.get('/admin/catches?status=PENDING&limit=15'),
         api.get('/admin/market/transactions?limit=20'),
-      ])
-      setLiveStats(liveRes.data)
-      setPending(catchesRes.data.catches)
-      setTransactions(txRes.data.transactions)
+      ]);
+      setLiveStats(liveRes.data);
+      setPending(catchesRes.data.catches);
+      setTransactions(txRes.data.transactions);
     } catch (err) {
-      console.error('Live ops fetch error:', err)
+      console.error('Live ops fetch error:', err);
     }
-  }, [selectedRegionId])
+  }, [selectedRegionId]);
 
-  usePolling(fetchAll, 8000, !connected)
+  usePolling(fetchAll, 8000, !connected);
 
   useEffect(() => {
     const orderEvents = events.filter((e) =>
       ['catch.submitted', 'catch.approved', 'order.placed'].includes(e.type),
-    )
+    );
     if (orderEvents.length > 0) {
-      fetchAll()
+      fetchAll();
     }
-  }, [events, fetchAll])
+  }, [events, fetchAll]);
 
-  const orderEvents = events.filter((e) => e.type === 'order.placed')
+  const orderEvents = events.filter((e) => e.type === 'order.placed');
 
   return (
     <div className="space-y-6">
@@ -192,5 +192,5 @@ export default function LiveOperationsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

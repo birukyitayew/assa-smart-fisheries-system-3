@@ -1,34 +1,34 @@
-import { useState, useCallback } from 'react'
-import api from '../services/api'
-import { usePolling } from '../hooks/usePolling'
-import NotificationItem from '../components/NotificationItem'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { useState, useCallback } from 'react';
+import api from '../services/api';
+import { usePolling } from '../hooks/usePolling';
+import NotificationItem from '../components/NotificationItem';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState([])
-  const [unread, setUnread] = useState(0)
+  const [notifications, setNotifications] = useState([]);
+  const [unread, setUnread] = useState(0);
 
   const fetchNotifs = useCallback(async () => {
     try {
-      const res = await api.get('/notifications')
-      setNotifications(res.data.notifications)
-      setUnread(res.data.unreadCount)
+      const res = await api.get('/notifications');
+      setNotifications(res.data.notifications);
+      setUnread(res.data.unreadCount);
     } catch {
       /* ignore */
     }
-  }, [])
+  }, []);
 
-  usePolling(fetchNotifs, 10000)
+  usePolling(fetchNotifs, 10000);
 
   async function markRead(id) {
-    await api.put(`/notifications/${id}/read`)
-    fetchNotifs()
+    await api.put(`/notifications/${id}/read`);
+    fetchNotifs();
   }
 
   async function markAllRead() {
-    await api.put('/notifications/read-all')
-    fetchNotifs()
+    await api.put('/notifications/read-all');
+    fetchNotifs();
   }
 
   return (
@@ -60,5 +60,5 @@ export default function NotificationsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

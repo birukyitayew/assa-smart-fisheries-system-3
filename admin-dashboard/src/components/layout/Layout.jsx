@@ -1,7 +1,7 @@
-import { Outlet } from 'react-router-dom'
-import Sidebar from './Sidebar'
-import Header from './Header'
-import { RealtimeProvider } from '../../context/RealtimeContext'
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import { RealtimeProvider } from '../../context/RealtimeContext';
 
 function LayoutShell() {
   return (
@@ -14,7 +14,7 @@ function LayoutShell() {
         </main>
       </div>
     </div>
-  )
+  );
 }
 
 export default function Layout() {
@@ -22,5 +22,5 @@ export default function Layout() {
     <RealtimeProvider>
       <LayoutShell />
     </RealtimeProvider>
-  )
+  );
 }

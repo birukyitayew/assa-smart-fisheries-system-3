@@ -1,18 +1,18 @@
 - generic [ref=e4]:
-  - generic [ref=e5]:
-    - generic [ref=e6]: 🐟
-    - heading "ASSA" [level=1] [ref=e7]
-    - paragraph [ref=e8]: Fisher App
-  - generic [ref=e9]:
-    - heading "Sign In" [level=2] [ref=e10]
-    - generic [ref=e11]:
-      - generic [ref=e12]:
-        - generic [ref=e13]: Email
-        - textbox [ref=e14]: tesfaye@fisher.et
-      - generic [ref=e15]:
-        - generic [ref=e16]: Password
-        - textbox [ref=e17]: fisher123
-      - button "Sign In" [ref=e18] [cursor=pointer]
-    - generic [ref=e19]:
-      - strong [ref=e20]: "Demo:"
-      - text: tesfaye@fisher.et / fisher123
+    - generic [ref=e5]:
+        - generic [ref=e6]: 🐟
+        - heading "ASSA" [level=1] [ref=e7]
+        - paragraph [ref=e8]: Fisher App
+    - generic [ref=e9]:
+        - heading "Sign In" [level=2] [ref=e10]
+        - generic [ref=e11]:
+            - generic [ref=e12]:
+                - generic [ref=e13]: Email
+                - textbox [ref=e14]: tesfaye@fisher.et
+            - generic [ref=e15]:
+                - generic [ref=e16]: Password
+                - textbox [ref=e17]: fisher123
+            - button "Sign In" [ref=e18] [cursor=pointer]
+        - generic [ref=e19]:
+            - strong [ref=e20]: 'Demo:'
+            - text: tesfaye@fisher.et / fisher123

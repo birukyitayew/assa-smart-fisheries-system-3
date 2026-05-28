@@ -1,24 +1,24 @@
-import { useState } from 'react'
-import { Outlet, Link, NavLink } from 'react-router-dom'
-import { Menu } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import AppLogo from './brand/AppLogo'
-import { Button } from '@/components/ui/button'
-import ThemeToggle from './ThemeToggle'
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
-import { cn } from '@/lib/utils'
+import { useState } from 'react';
+import { Outlet, Link, NavLink } from 'react-router-dom';
+import { Menu } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import AppLogo from './brand/AppLogo';
+import { Button } from '@/components/ui/button';
+import ThemeToggle from './ThemeToggle';
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
 
 const navLinks = [
   { to: '/', label: 'Home', end: true },
   { to: '/browse', label: 'Marketplace' },
   { to: '/my-orders', label: 'My Orders', auth: true },
-]
+];
 
 export default function MarketLayout() {
-  const { user, logout } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false)
+  const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const visibleLinks = navLinks.filter((l) => !l.auth || user)
+  const visibleLinks = navLinks.filter((l) => !l.auth || user);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -104,10 +104,13 @@ export default function MarketLayout() {
 
       <footer className="bg-card border-t border-border mt-12 py-8">
         <div className="max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>ASSA Fish Market — All listings are government-verified by the Ministry of Fisheries, Ethiopia</p>
+          <p>
+            ASSA Fish Market — All listings are government-verified by the Ministry of Fisheries,
+            Ethiopia
+          </p>
           <p className="mt-1">Lake Tana, Amhara Region · Fresh. Legal. Verified.</p>
         </div>
       </footer>
     </div>
-  )
+  );
 }

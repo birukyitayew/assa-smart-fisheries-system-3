@@ -40,12 +40,15 @@ async function createListing(catchRow, tx = prisma) {
     },
   });
 
-  await priceHistoryService.recordPrice({
-    species: catchRow.species,
-    zoneId: catchRow.zone_id ?? catchRow.zoneId,
-    pricePerKg,
-    source: 'listing',
-  }, tx);
+  await priceHistoryService.recordPrice(
+    {
+      species: catchRow.species,
+      zoneId: catchRow.zone_id ?? catchRow.zoneId,
+      pricePerKg,
+      source: 'listing',
+    },
+    tx,
+  );
 
   eventBus.emit('listing.created', {
     listing_id: listing.id,

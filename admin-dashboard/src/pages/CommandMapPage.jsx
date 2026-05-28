@@ -1,37 +1,37 @@
-import { useState, useCallback } from 'react'
-import api from '../services/api'
-import { useRegion } from '../context/RegionContext'
-import { usePolling } from '../hooks/usePolling'
-import CommandMap from '../components/command/CommandMap'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useState, useCallback } from 'react';
+import api from '../services/api';
+import { useRegion } from '../context/RegionContext';
+import { usePolling } from '../hooks/usePolling';
+import CommandMap from '../components/command/CommandMap';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const zoneLegend = [
   { type: 'ALLOWED', color: 'bg-success' },
   { type: 'RESTRICTED', color: 'bg-warning' },
   { type: 'PROHIBITED', color: 'bg-red-500' },
-]
+];
 
 const boatLegend = [
   { status: 'FISHING', color: 'bg-blue-500' },
   { status: 'RETURNING', color: 'bg-violet-500' },
   { status: 'DOCKED', color: 'bg-gray-500' },
-]
+];
 
 export default function CommandMapPage() {
-  const { selectedRegionId, mapCenter } = useRegion()
-  const [layers, setLayers] = useState({ zones: [], fleet: [], catches: [] })
+  const { selectedRegionId, mapCenter } = useRegion();
+  const [layers, setLayers] = useState({ zones: [], fleet: [], catches: [] });
 
   const fetchLayers = useCallback(async () => {
     try {
-      const res = await api.get('/admin/map/layers')
-      setLayers(res.data)
+      const res = await api.get('/admin/map/layers');
+      setLayers(res.data);
     } catch (err) {
-      console.error('Map layers error:', err)
+      console.error('Map layers error:', err);
     }
-  }, [selectedRegionId])
+  }, [selectedRegionId]);
 
-  usePolling(fetchLayers, 10000)
+  usePolling(fetchLayers, 10000);
 
   return (
     <div className="space-y-6">
@@ -122,5 +122,5 @@ export default function CommandMapPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

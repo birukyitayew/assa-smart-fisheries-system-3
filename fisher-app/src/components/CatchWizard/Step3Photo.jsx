@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Camera, Image, Loader2, X, CheckCircle2 } from 'lucide-react'
-import api from '@/services/api'
+import { useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Camera, Image, Loader2, X, CheckCircle2 } from 'lucide-react';
+import api from '@/services/api';
 
 /**
  * Step3Photo — real file upload with progress indicator.
@@ -13,41 +13,41 @@ import api from '@/services/api'
  *   onRemove    {fn}        — called with (index) to remove a photo
  */
 export default function Step3Photo({ photos, onAddPhoto, onRemove }) {
-  const fileRef = useRef(null)
-  const [uploading, setUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [error, setError] = useState(null)
+  const fileRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState(null);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
     // Reset input so same file can be re-selected after removal
-    e.target.value = ''
-    setError(null)
-    setUploading(true)
-    setProgress(0)
+    e.target.value = '';
+    setError(null);
+    setUploading(true);
+    setProgress(0);
 
     try {
-      const formData = new FormData()
-      formData.append('photo', file)
+      const formData = new FormData();
+      formData.append('photo', file);
 
       const res = await api.post('/catches/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         onUploadProgress: (evt) => {
-          if (evt.total) setProgress(Math.round((evt.loaded / evt.total) * 100))
+          if (evt.total) setProgress(Math.round((evt.loaded / evt.total) * 100));
         },
-      })
+      });
 
-      const url = res.data?.url || res.data?.secure_url
-      if (url) onAddPhoto(url)
-      else setError('Upload succeeded but no URL returned.')
+      const url = res.data?.url || res.data?.secure_url;
+      if (url) onAddPhoto(url);
+      else setError('Upload succeeded but no URL returned.');
     } catch (err) {
-      setError(err.response?.data?.error || 'Upload failed. Please try again.')
+      setError(err.response?.data?.error || 'Upload failed. Please try again.');
     } finally {
-      setUploading(false)
-      setProgress(0)
+      setUploading(false);
+      setProgress(0);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -103,9 +103,7 @@ export default function Step3Photo({ photos, onAddPhoto, onRemove }) {
         )}
       </div>
 
-      {error && (
-        <p className="text-xs text-destructive">{error}</p>
-      )}
+      {error && <p className="text-xs text-destructive">{error}</p>}
 
       {photos.length === 0 && !uploading && (
         <p className="text-xs text-muted-foreground">
@@ -113,5 +111,5 @@ export default function Step3Photo({ photos, onAddPhoto, onRemove }) {
         </p>
       )}
     </div>
-  )
+  );
 }

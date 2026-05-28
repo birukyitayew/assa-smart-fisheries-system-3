@@ -1,54 +1,56 @@
-import { useState, useCallback } from 'react'
-import api from '../services/api'
-import { useRegion } from '../context/RegionContext'
-import { usePolling } from '../hooks/usePolling'
-import CatchesTable from '../components/tables/CatchesTable'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useCallback } from 'react';
+import api from '../services/api';
+import { useRegion } from '../context/RegionContext';
+import { usePolling } from '../hooks/usePolling';
+import CatchesTable from '../components/tables/CatchesTable';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const TABS = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED']
+const TABS = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED'];
 
 export default function DailyCatchesPage() {
-  const { selectedRegionId } = useRegion()
-  const [catches, setCatches] = useState([])
-  const [total, setTotal] = useState(0)
-  const [activeTab, setActiveTab] = useState('PENDING')
-  const [search, setSearch] = useState('')
-  const [date, setDate] = useState('')
-  const [page, setPage] = useState(1)
-  const [selectedIds, setSelectedIds] = useState([])
+  const { selectedRegionId } = useRegion();
+  const [catches, setCatches] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [activeTab, setActiveTab] = useState('PENDING');
+  const [search, setSearch] = useState('');
+  const [date, setDate] = useState('');
+  const [page, setPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const fetchCatches = useCallback(async () => {
     try {
-      const params = new URLSearchParams({ page, limit: 20 })
-      if (activeTab !== 'ALL') params.set('status', activeTab)
-      if (search) params.set('search', search)
-      if (date) params.set('date', date)
-      const res = await api.get(`/admin/catches?${params}`)
-      setCatches(res.data.catches)
-      setTotal(res.data.total)
-      setSelectedIds([]) // Reset selections when data changes
+      const params = new URLSearchParams({ page, limit: 20 });
+      if (activeTab !== 'ALL') params.set('status', activeTab);
+      if (search) params.set('search', search);
+      if (date) params.set('date', date);
+      const res = await api.get(`/admin/catches?${params}`);
+      setCatches(res.data.catches);
+      setTotal(res.data.total);
+      setSelectedIds([]); // Reset selections when data changes
     } catch (err) {
-      console.error(err)
+      console.error(err);
     }
-  }, [activeTab, search, date, page, selectedRegionId])
+  }, [activeTab, search, date, page, selectedRegionId]);
 
-  usePolling(fetchCatches, 10000)
+  usePolling(fetchCatches, 10000);
 
   const handleBulkApprove = async () => {
-    if (selectedIds.length === 0) return
-    const confirmApprove = window.confirm(`Are you sure you want to approve ${selectedIds.length} selected catches?`)
-    if (!confirmApprove) return
+    if (selectedIds.length === 0) return;
+    const confirmApprove = window.confirm(
+      `Are you sure you want to approve ${selectedIds.length} selected catches?`,
+    );
+    if (!confirmApprove) return;
     try {
-      await Promise.all(selectedIds.map(id => api.put(`/admin/catches/${id}/approve`)))
-      setSelectedIds([])
-      fetchCatches()
+      await Promise.all(selectedIds.map((id) => api.put(`/admin/catches/${id}/approve`)));
+      setSelectedIds([]);
+      fetchCatches();
     } catch (err) {
-      alert('Error approving some catches: ' + (err.response?.data?.error || err.message))
+      alert('Error approving some catches: ' + (err.response?.data?.error || err.message));
     }
-  }
+  };
 
   return (
     <div className="space-y-5">
@@ -60,7 +62,14 @@ export default function DailyCatchesPage() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setPage(1) }} className="w-full sm:w-auto overflow-x-auto">
+            <Tabs
+              value={activeTab}
+              onValueChange={(v) => {
+                setActiveTab(v);
+                setPage(1);
+              }}
+              className="w-full sm:w-auto overflow-x-auto"
+            >
               <TabsList className="w-full sm:w-auto">
                 {TABS.map((tab) => (
                   <TabsTrigger key={tab} value={tab} className="text-xs">
@@ -74,19 +83,33 @@ export default function DailyCatchesPage() {
               type="text"
               placeholder="Search fisher, species, reference..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="w-full sm:flex-1 sm:min-w-[200px]"
             />
 
             <Input
               type="date"
               value={date}
-              onChange={(e) => { setDate(e.target.value); setPage(1) }}
+              onChange={(e) => {
+                setDate(e.target.value);
+                setPage(1);
+              }}
               className="w-full sm:w-auto"
             />
 
             {(search || date) && (
-              <Button variant="ghost" size="sm" onClick={() => { setSearch(''); setDate(''); setPage(1) }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch('');
+                  setDate('');
+                  setPage(1);
+                }}
+              >
                 Clear
               </Button>
             )}
@@ -101,9 +124,7 @@ export default function DailyCatchesPage() {
           </span>
           {selectedIds.length > 0 && (
             <div className="flex items-center gap-3 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-lg border border-emerald-500/20">
-              <span className="text-xs font-semibold">
-                {selectedIds.length} selected
-              </span>
+              <span className="text-xs font-semibold">{selectedIds.length} selected</span>
               <Button
                 size="sm"
                 onClick={handleBulkApprove}
@@ -123,10 +144,10 @@ export default function DailyCatchesPage() {
           )}
         </div>
 
-        <CatchesTable 
-          catches={catches} 
-          selectedIds={selectedIds} 
-          onSelectChange={setSelectedIds} 
+        <CatchesTable
+          catches={catches}
+          selectedIds={selectedIds}
+          onSelectChange={setSelectedIds}
           onRefresh={fetchCatches}
         />
 
@@ -157,5 +178,5 @@ export default function DailyCatchesPage() {
         )}
       </Card>
     </div>
-  )
+  );
 }

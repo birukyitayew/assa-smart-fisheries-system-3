@@ -35,9 +35,10 @@ async function tick() {
 
   for (let i = 0; i < boats.length; i++) {
     const b = boats[i];
-    const base = b.lat != null
-      ? { lat: Number(b.lat), lng: Number(b.lng) }
-      : { lat: CENTER.lat + i * 0.03, lng: CENTER.lng + i * 0.02 };
+    const base =
+      b.lat != null
+        ? { lat: Number(b.lat), lng: Number(b.lng) }
+        : { lat: CENTER.lat + i * 0.03, lng: CENTER.lng + i * 0.02 };
     const pos = nudge(base.lat, base.lng);
     const status = STATUSES[i % STATUSES.length];
     await prisma.boatPosition.create({
@@ -51,11 +52,15 @@ async function tick() {
     });
   }
 
-  console.log(`[simulate-boats] Updated ${boats.length} boats (active trips) at ${new Date().toISOString()}`);
+  console.log(
+    `[simulate-boats] Updated ${boats.length} boats (active trips) at ${new Date().toISOString()}`,
+  );
 }
 
 async function main() {
-  console.log('[simulate-boats] Starting — updates every 10s for ACTIVE trips only (Ctrl+C to stop)');
+  console.log(
+    '[simulate-boats] Starting — updates every 10s for ACTIVE trips only (Ctrl+C to stop)',
+  );
   await tick();
   setInterval(() => {
     tick().catch((err) => console.error('[simulate-boats]', err.message));

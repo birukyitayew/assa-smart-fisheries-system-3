@@ -1,8 +1,8 @@
-import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts'
-import { Anchor } from 'lucide-react'
-import ActivityFeed from './ActivityFeed'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
+import { Anchor } from 'lucide-react';
+import ActivityFeed from './ActivityFeed';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function MarketSidebar({ stats, activity }) {
   return (
@@ -16,7 +16,13 @@ export default function MarketSidebar({ stats, activity }) {
             <>
               <ResponsiveContainer width="100%" height={60}>
                 <LineChart data={stats.weeklyTrend}>
-                  <Line type="monotone" dataKey="kg" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                  <Line
+                    type="monotone"
+                    dataKey="kg"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    dot={false}
+                  />
                   <Tooltip formatter={(v) => [`${v} kg`]} />
                 </LineChart>
               </ResponsiveContainer>
@@ -69,5 +75,5 @@ export default function MarketSidebar({ stats, activity }) {
         </CardContent>
       </Card>
     </aside>
-  )
+  );
 }

@@ -1,15 +1,15 @@
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 
-const SPECIES = ['Tilapia', 'Catfish', 'Nile Perch', 'Carp', 'Barbus (Ganfo)']
-const GEARS = ['Gill Net', 'Hook & Line', 'Cast Net', 'Trap', 'Seine Net']
+const SPECIES = ['Tilapia', 'Catfish', 'Nile Perch', 'Carp', 'Barbus (Ganfo)'];
+const GEARS = ['Gill Net', 'Hook & Line', 'Cast Net', 'Trap', 'Seine Net'];
 
 export default function Step1Details({ form, errors, onChange }) {
   return (
@@ -95,5 +95,5 @@ export default function Step1Details({ form, errors, onChange }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
