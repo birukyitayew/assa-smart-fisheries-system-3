@@ -237,7 +237,6 @@
   height: 8px;
   border-radius: 9999px;
   margin-left: auto;
-  pointer-events: none;
 }
 
 /* Critical — red pulse with subtle glow */
