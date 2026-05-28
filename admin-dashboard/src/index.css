@@ -228,3 +228,67 @@
     z-index: 0;
   }
 }
+
+/* ── Sidebar notification indicators ───────────────────────────── */
+
+.sidebar-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  margin-left: auto;
+  pointer-events: none;
+}
+
+/* Critical — red pulse with subtle glow */
+.sidebar-dot-critical {
+  background-color: #ef4444;
+  box-shadow: 0 0 6px 1px rgba(239, 68, 68, 0.45);
+  animation: soc-pulse-critical 2s ease-in-out infinite;
+}
+
+/* Active — soft blue/cyan pulse */
+.sidebar-dot-active {
+  background-color: #38bdf8;
+  animation: soc-pulse-active 3s ease-in-out infinite;
+}
+
+/* Unread — static red dot, no animation */
+.sidebar-dot-unread {
+  background-color: #ef4444;
+}
+
+@keyframes soc-pulse-critical {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 6px 1px rgba(239, 68, 68, 0.45);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.25);
+    box-shadow: 0 0 10px 3px rgba(239, 68, 68, 0.3);
+  }
+}
+
+@keyframes soc-pulse-active {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+/* Dark-mode refinements */
+.dark .sidebar-dot-critical {
+  box-shadow: 0 0 8px 2px rgba(239, 68, 68, 0.55);
+}
+
+.dark .sidebar-dot-active {
+  background-color: #22d3ee;
+}

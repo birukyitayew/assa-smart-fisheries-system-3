@@ -2,6 +2,13 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { RealtimeProvider } from '../../context/RealtimeContext';
+import { NotificationProvider } from '../../context/NotificationContext';
+import useDemoNotifications from '../../hooks/useDemoNotifications';
+
+function DemoNotificationLoader() {
+  useDemoNotifications();
+  return null;
+}
 
 function LayoutShell() {
   return (
@@ -20,7 +27,10 @@ function LayoutShell() {
 export default function Layout() {
   return (
     <RealtimeProvider>
-      <LayoutShell />
+      <NotificationProvider>
+        <DemoNotificationLoader />
+        <LayoutShell />
+      </NotificationProvider>
     </RealtimeProvider>
   );
 }
