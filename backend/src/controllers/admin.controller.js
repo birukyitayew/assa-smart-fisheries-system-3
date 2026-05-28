@@ -1178,6 +1178,8 @@ module.exports = {
   createUser: asyncHandler(createUser),
 };
 
+const ALLOWED_ROLES = ['admin', 'regional_admin', 'inspector', 'fisher', 'buyer'];
+
 async function createUser(req, res) {
   const {
     name,
@@ -1194,6 +1196,14 @@ async function createUser(req, res) {
 
   if (!name || !email || !password || !role) {
     return res.status(400).json({ error: 'Name, email, password, and role are required' });
+  }
+
+  if (!ALLOWED_ROLES.includes(role)) {
+    return res.status(400).json({ error: `Invalid role. Allowed: ${ALLOWED_ROLES.join(', ')}` });
+  }
+
+  if (typeof password !== 'string' || password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters long' });
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
