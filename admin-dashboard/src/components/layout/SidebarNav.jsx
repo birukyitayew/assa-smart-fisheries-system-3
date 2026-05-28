@@ -21,7 +21,6 @@ import {
   ClipboardCheck,
   AlertTriangle,
   UserPlus,
-  ShieldAlert,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import AppLogo from '../brand/AppLogo';
@@ -34,7 +33,6 @@ export const adminNav = [
   { to: '/map', labelKey: 'nav.lakeMap', icon: MapPin },
   { to: '/fleet', labelKey: 'nav.fleet', icon: Ship },
   { to: '/intelligence', labelKey: 'nav.intelligence', icon: Brain },
-  { to: '/security', label: 'Security SOC', icon: ShieldAlert },
   { to: '/market', labelKey: 'nav.market', icon: TrendingUp },
   { to: '/catches', labelKey: 'nav.catches', icon: Fish },
   { to: '/fishermen', labelKey: 'nav.fishers', icon: Users },

@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '../ThemeToggle';
 import MobileNav from './MobileNav';
-import RiskScore from '../security/RiskScore';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -48,9 +47,8 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full lg:w-auto flex-wrap">
+      <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4 w-full lg:w-auto flex-wrap">
         <ThemeToggle className="lg:hidden" />
-        <RiskScore score={67} />
         <div
           className={cn(
             'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border',
