@@ -1,0 +1,40 @@
+{
+  "name": "ASSA Fisher",
+  "short_name": "Fisher",
+  "description": "Catch reporting, fishing zones, and alerts for ASSA-certified fishers on Lake Tana.",
+  "id": "/fisher/",
+  "start_url": "/fisher/",
+  "scope": "/fisher/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1f3a5f",
+  "background_color": "#f8fafc",
+  "lang": "en",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/fisher/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/fisher/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/fisher/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/fisher/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
