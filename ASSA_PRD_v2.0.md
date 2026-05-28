@@ -2840,12 +2840,10 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     req.user = { id: user.id, role: user.role, email: user.email };
     next();
   } catch {
-    return res
-      .status(401)
-      .json({
-        success: false,
-        error: { code: 'UNAUTHORIZED', message: 'Token expired or invalid' },
-      });
+    return res.status(401).json({
+      success: false,
+      error: { code: 'UNAUTHORIZED', message: 'Token expired or invalid' },
+    });
   }
 };
 
