@@ -2,6 +2,8 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import LanguageToggle from '../LanguageToggle';
 import ThemeToggle from '../ThemeToggle';
+import SidebarNotification from './SidebarNotification';
+import { useNotifications } from '../../context/NotificationContext';
 import {
   LayoutDashboard,
   Fish,
@@ -51,6 +53,7 @@ export const inspectorNav = [
 export default function SidebarNav({ onNavigate, showFooter = true, className }) {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const { getStatus } = useNotifications();
   const isInspector = user?.role === 'inspector';
   const navItems = isInspector ? inspectorNav : adminNav;
 
@@ -80,6 +83,7 @@ export default function SidebarNav({ onNavigate, showFooter = true, className })
           >
             <item.icon className="h-4 w-4 shrink-0" />
             <span className="truncate">{item.labelKey ? t(item.labelKey) : item.label}</span>
+            <SidebarNotification status={getStatus(item.to)} />
           </NavLink>
         ))}
       </nav>
