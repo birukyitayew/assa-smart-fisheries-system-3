@@ -131,6 +131,27 @@ For more specific analysis, try asking about specific threats, risk levels, or m
   delay: 1800,
 };
 
+function renderInlineMarkdown(line) {
+  // Render **bold** as <strong> and leave everything else as plain text so
+  // React handles escaping. Never use dangerouslySetInnerHTML on AI output.
+  const parts = [];
+  const regex = /\*\*(.+?)\*\*/g;
+  let lastIndex = 0;
+  let match;
+  let key = 0;
+  while ((match = regex.exec(line)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<span key={key++}>{line.slice(lastIndex, match.index)}</span>);
+    }
+    parts.push(<strong key={key++}>{match[1]}</strong>);
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < line.length) {
+    parts.push(<span key={key++}>{line.slice(lastIndex)}</span>);
+  }
+  return parts.length > 0 ? parts : line;
+}
+
 function TypingIndicator() {
   return (
     <div className="flex items-center gap-1 px-3 py-2">
@@ -308,15 +329,12 @@ export default function AiSecurityAssistant() {
               )}
             >
               <div className="whitespace-pre-wrap break-words ai-message-content">
-                {msg.content.split('\n').map((line, j) => {
-                  const bold = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                  return (
-                    <span key={j}>
-                      <span dangerouslySetInnerHTML={{ __html: bold }} />
-                      {j < msg.content.split('\n').length - 1 && <br />}
-                    </span>
-                  );
-                })}
+                {msg.content.split('\n').map((line, j, arr) => (
+                  <span key={j}>
+                    {renderInlineMarkdown(line)}
+                    {j < arr.length - 1 && <br />}
+                  </span>
+                ))}
               </div>
             </div>
             {msg.role === 'user' && (
