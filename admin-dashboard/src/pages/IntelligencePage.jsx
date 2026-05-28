@@ -113,9 +113,7 @@ export default function IntelligencePage() {
       {loadError && (
         <Card className="border-destructive/40 bg-destructive/5">
           <CardContent className="pt-6 text-sm text-destructive">
-            Could not load market intelligence: {loadError}. Restart the backend (
-            <code className="text-xs">npm run dev --prefix backend</code>) so Phase 3 routes are
-            active.
+            Could not load market intelligence: {loadError}. Please check your connection and try again.
           </CardContent>
         </Card>
       )}

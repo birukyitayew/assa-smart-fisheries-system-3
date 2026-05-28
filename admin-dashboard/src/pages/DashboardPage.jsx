@@ -15,6 +15,8 @@ import AlertItem from '../components/cards/AlertItem';
 import CatchesLineChart from '../components/charts/CatchesLineChart';
 import SpeciesDonutChart from '../components/charts/SpeciesDonutChart';
 import StatusBadge from '../components/StatusBadge';
+import ThreatPanel from '../components/security/ThreatPanel';
+import DashboardSkeleton from '../components/skeletons/DashboardSkeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -108,6 +110,9 @@ export default function DashboardPage() {
     if (events.length > 0) fetchAll();
   }, [events.length, fetchAll]);
 
+  const isInitialLoad = !stats && !liveStats && !sectionErrors.stats && !sectionErrors.live;
+  if (isInitialLoad) return <DashboardSkeleton />;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -121,6 +126,8 @@ export default function DashboardPage() {
       />
 
       <CommandQuickLinks />
+
+      <ThreatPanel />
 
       {(liveStats?.pendingCatches ?? stats?.pendingCatches) > 0 && (
         <Card className="border-warning/30 bg-warning/5 overflow-hidden">
