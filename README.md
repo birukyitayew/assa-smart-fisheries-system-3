@@ -1,22 +1,23 @@
 # ASSA — Smart Fisheries Monitoring & Digital Fish Market System
 
-> University Internship Project | React + Tailwind CSS | Node.js + Express | SQLite
+> University Internship Project | React 18 + Vite + Tailwind | Node.js + Express + Prisma | PostgreSQL
 
-A three-module connected platform demonstrating a complete fisheries management ecosystem for Lake Tana, Ethiopia.
+A four-app platform — backend API plus three frontends (admin command center, fisher PWA, marketplace) — covering the end-to-end fisheries workflow on Lake Tana: catch reporting, quota enforcement, fleet tracking, market intelligence, and inspector enforcement.
 
 ---
 
 ## Modules & Ports
 
-| Module                     | Port | URL                              | Credentials                             |
-| -------------------------- | ---- | -------------------------------- | --------------------------------------- |
-| **Admin / Command Center** | 3001 | http://localhost:3001            | dawit@fisheries.gov.et / admin123       |
-| **Inspector (same app)**   | 3001 | http://localhost:3001            | solomon@fisheries.gov.et / inspector123 |
-| **Fisher App**             | 3002 | http://localhost:3002            | tesfaye@fisher.et / fisher123           |
-| **Fish Market**            | 3003 | http://localhost:3003            | mesfin@buyer.et / buyer123              |
-| **Backend API**            | 4000 | http://localhost:4000/api/health | —                                       |
+Each frontend is served under a Vite base path so a single domain can host all three apps in production (see Phase 4).
 
----
+| Module                            | Port | URL                                       | Credentials                             |
+| --------------------------------- | ---- | ----------------------------------------- | --------------------------------------- |
+| **Admin / Command Center**        | 3001 | http://localhost:3001/admin/              | dawit@fisheries.gov.et / admin123       |
+| **Inspector** (same app, limited) | 3001 | http://localhost:3001/admin/              | solomon@fisheries.gov.et / inspector123 |
+| **Fisher App** (installable PWA)  | 3002 | http://localhost:3002/fisher/             | tesfaye@fisher.et / fisher123           |
+| **Fish Market**                   | 3003 | http://localhost:3003/market/             | mesfin@buyer.et / buyer123              |
+| **Backend API**                   | 4000 | http://localhost:4000/api/health          | —                                       |
+| **Detailed diagnostics**          | 4000 | http://localhost:4000/api/health/detailed | —                                       |
 
 **All demo logins:** see [CREDENTIALS.md](CREDENTIALS.md) (not shown in app UI).
 
@@ -24,58 +25,50 @@ A three-module connected platform demonstrating a complete fisheries management 
 
 ## Quick Start
 
-From the project root:
-
 ```bash
-i
-```
+# 1. Postgres + Redis
+docker compose up -d
 
-### Environment variables
+# 2. Install all four workspaces
+npm run install:all
 
-- The backend uses environment variables (see `backend/.env.example`). For local dev, copy it to `backend/.env` and update values as needed.
-- Do not commit real secrets (like a production `JWT_SECRET`) to the repository.
+# 3. Backend env
+cp backend/.env.example backend/.env   # then edit JWT_SECRET
 
-That starts all four services:
-
-- Backend API: http://localhost:4000/api/health
-- Admin Dashboard: http://localhost:3001
-- Fisher App: http://localhost:3002
-- Fish Market: http://localhost:3003
-
-You can also run modules separately:
-
-### 1. Install & seed the database
-
-```bash
-cd backend
-npm install
+# 4. Migrate + seed the database
+npm run prisma:migrate
 npm run seed
-```
 
-### 2. Start the backend
-
-```bash
-cd backend
+# 5. Run everything (backend + 3 frontends) concurrently
 npm run dev
 ```
 
-### 3. Start each frontend (in separate terminals)
+That starts all four services concurrently with color-coded logs:
+
+- Backend API: http://localhost:4000/api/health
+- Admin Dashboard: http://localhost:3001/admin/
+- Fisher App (PWA): http://localhost:3002/fisher/
+- Fish Market: http://localhost:3003/market/
+
+### Environment variables
+
+- The backend reads `backend/.env` (see `backend/.env.example`). `JWT_SECRET` must be a 32+ char value before the server will start.
+- Optional integrations: `CLOUDINARY_URL` (catch photo uploads), `REDIS_URL` (SSE fan-out).
+- Do not commit real secrets (like a production `JWT_SECRET`) to the repository.
+
+### Run modules separately
 
 ```bash
-# Admin Dashboard
-cd admin-dashboard && npm run dev
-
-# Fisher App
-cd fisher-app && npm run dev
-
-# Marketplace
-cd marketplace && npm run dev
+npm run dev:backend     # API only
+npm run dev:admin       # Admin / Command Center
+npm run dev:fisher      # Fisher PWA
+npm run dev:market      # Marketplace
 ```
 
 ### Reset demo data
 
 ```bash
-npm run reset
+npm run reset            # prisma migrate reset --force + re-seed
 ```
 
 ---
@@ -167,28 +160,7 @@ Start a trip in the fisher app first, then run the simulator to see route histor
 | Testing     | Native Node test runner (`node --test tests/`) with Auth, Catches, Quotas, and E2E integration tests                                                        |
 | Deploy      | Vite `base` paths (`/admin/`, `/fisher/`, `/market/`), `backend/Dockerfile`, `render.yaml` with Starter tier database and daily backup crons, `vercel.json` |
 
-### Local PostgreSQL
-
-```bash
-docker compose up -d
-cd backend && cp .env.example .env
-npx prisma migrate dev
-npm run seed
-```
-
-### Run (same ports; use path prefixes in browser)
-
-| App         | URL                                       |
-| ----------- | ----------------------------------------- |
-| Admin       | http://localhost:3001/admin/              |
-| Fisher      | http://localhost:3002/fisher/             |
-| Market      | http://localhost:3003/market/             |
-| API         | http://localhost:4000/api/health          |
-| Diagnostics | http://localhost:4000/api/health/detailed |
-
-```bash
-npm run dev
-```
+The local Postgres + Redis stack is in `docker-compose.yml` (`docker compose up -d`).
 
 ### Auth refresh & reset
 
@@ -248,6 +220,34 @@ Admins can onboard new Cooperative members, port authorities, and marketplace bu
 
 ---
 
+## Phase 7: Fisher App as an Installable PWA
+
+The fisher app is a full Progressive Web App so fishers can install it to a home screen and keep working through patchy connectivity on the lake.
+
+| Area              | Detail                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Manifest          | `fisher-app/public/manifest.webmanifest` — `start_url`/`scope` = `/fisher/`, `display: standalone`, navy `#1f3a5f` |
+| Icons             | 192/512 PNG, 512 maskable, SVG sources, plus a 180×180 `apple-touch-icon.png`                                      |
+| Service worker    | `fisher-app/public/service-worker.js` — precaches the app shell, network-first nav, stale-while-revalidate assets  |
+| `/api` strategy   | **Never cached** — `/api/*` requests pass through to the network so authenticated calls never serve stale data     |
+| Install UX        | `InstallBanner.jsx` captures `beforeinstallprompt`, surfaces a dismissible CTA inside `AppShell`                   |
+| SW update toast   | Sonner toast on `controllerchange` so users get a one-tap reload to the new build                                  |
+| Registration gate | Service worker only registers when `import.meta.env.PROD` — `npm run dev:fisher` is unaffected                     |
+
+Verify a production build locally by serving `fisher-app/dist/` from the same origin as the API (e.g. behind nginx, the `vercel.json` rewrites, or any static-server + reverse proxy on one port) and visiting `/fisher/`.
+
+---
+
+## AI Security Assistant (admin dashboard)
+
+A floating chat assistant lives inside the admin command center (`admin-dashboard/src/components/security/AiSecurityAssistant.jsx`). It surfaces simulated threat analysis on demand — quota breaches, zone violations, license-expiry incidents, suspicious activity patterns — with quick-prompt buttons for the most common questions. The simulated responses use the same incident model as the dashboard so the narrative stays consistent with what an operator sees on the other pages.
+
+## Sidebar Notification Indicators
+
+The admin sidebar tracks per-route status via `NotificationContext`, with a debounced state machine that promotes routes through `unread → active → critical` based on recent realtime events. Hover-tooltips explain why a route is flagged. Demo notifications are seeded via `useDemoNotifications` so the UI is exercised even when no real events have fired.
+
+---
+
 ## Demo Workflow (7 minutes)
 
 Open 4 browser tabs:
@@ -280,14 +280,26 @@ assa-smart-fisheries-system/
 ├── backend/                  Node.js + Express + PostgreSQL (Prisma)
 │   ├── prisma/               schema, migrations, seed.js
 │   ├── src/
-│   │   ├── database/         prisma client
-│   │   ├── routes/           auth, catches, admin, marketplace
-│   │   ├── services/         quota, notification, listing
+│   │   ├── database/         Prisma client
+│   │   ├── routes/           auth, catches, admin, inspector, marketplace, realtime
+│   │   ├── services/         quota, notification, listing, region, market intel
 │   │   └── server.js
-│   └── package.json
-├── admin-dashboard/          React (Vite) — port 3001
-├── fisher-app/               React (Vite, mobile-first) — port 3002
-├── marketplace/              React (Vite) — port 3003
+│   ├── scripts/              simulate-boats.js, backup-db.sh, capture.js
+│   ├── tests/                node --test integration suites
+│   └── Dockerfile
+├── admin-dashboard/          React + Vite, base `/admin/`  — port 3001
+├── fisher-app/               React + Vite PWA, base `/fisher/` — port 3002
+│   └── public/               manifest.webmanifest, service-worker.js, icons/
+├── marketplace/              React + Vite, base `/market/` — port 3003
+├── e2e/                      Playwright specs (demo-workflow, regional)
+├── scripts/                  build-vercel.mjs, generate_pptx.py, capture.js
+├── Docs/                     design.md, requirements.md, uptime_monitoring.md
+├── docker-compose.yml        Postgres + Redis for local dev
+├── render.yaml               Render deploy + daily backup crons
+├── vercel.json               Vercel rewrites for the three frontends
+├── CREDENTIALS.md            All demo logins
+├── SECURITY.md               Disclosure + hardening policy
+├── DEPLOYMENT.md             Production deployment runbook
 └── README.md
 ```
 
@@ -350,4 +362,11 @@ assa-smart-fisheries-system/
 - `GET  /api/marketplace/stats` — Market overview stats
 - `GET  /api/marketplace/activity` — Recent activity feed
 
-# assa-smart-fisheries-system-3
+---
+
+## Further reading
+
+- [CREDENTIALS.md](CREDENTIALS.md) — every seeded demo account.
+- [DEPLOYMENT.md](DEPLOYMENT.md) — step-by-step Vercel + Render deploy notes.
+- [SECURITY.md](SECURITY.md) — disclosure policy and hardening guarantees.
+- [Docs/](Docs/) — design, requirements, uptime monitoring.
