@@ -13,9 +13,9 @@ export default function MyOrdersPage() {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5">
+    <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">My Orders</h2>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">My Orders</h2>
         <p className="text-sm text-muted-foreground">
           {orders.length} order{orders.length !== 1 ? 's' : ''}
         </p>

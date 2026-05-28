@@ -36,7 +36,9 @@ export default function CommandMapPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Lake Command Map</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+          Lake Command Map
+        </h2>
         <p className="text-sm text-muted-foreground">
           Fishing zones, fleet positions, and catch pins (last 24h)
         </p>

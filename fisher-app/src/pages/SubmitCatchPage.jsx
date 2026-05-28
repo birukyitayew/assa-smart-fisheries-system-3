@@ -211,7 +211,7 @@ export default function SubmitCatchPage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h2 className="font-bold text-foreground">Submit Catch</h2>
+          <h2 className="text-xl font-bold text-foreground">Submit Catch</h2>
           <p className="text-xs text-muted-foreground">
             Step {step} of 4 — {STEP_LABELS[step - 1]}
           </p>

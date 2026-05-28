@@ -73,7 +73,7 @@ export default function UsersPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground flex items-center gap-2">
           <UserPlus className="h-6 w-6 text-primary" />
           Onboard New Platform User
         </h2>

@@ -33,13 +33,13 @@ export default function KpiCard({ icon: Icon, label, value, sub, variant = 'prim
 
   if (to) {
     return (
-      <Link to={to} className="block group">
-        <Card className="transition-shadow group-hover:shadow-md group-hover:border-primary/30">
+      <Link to={to} className="block group h-full">
+        <Card className="h-full transition-shadow group-hover:shadow-md group-hover:border-primary/30">
           {content}
         </Card>
       </Link>
     );
   }
 
-  return <Card>{content}</Card>;
+  return <Card className="h-full">{content}</Card>;
 }

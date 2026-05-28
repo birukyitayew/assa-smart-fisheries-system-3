@@ -38,7 +38,9 @@ export default function AuditLogPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Audit Log</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+          Audit Log
+        </h2>
         <p className="text-sm text-muted-foreground">
           Government accountability trail — {total} records
         </p>

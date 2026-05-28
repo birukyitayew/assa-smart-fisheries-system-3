@@ -26,9 +26,11 @@ export default function ZonesPage() {
   }, {});
 
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Fishing Zones</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+          Fishing Zones
+        </h2>
         <p className="text-sm text-muted-foreground">
           Lake Tana, Amhara Region — Zone status and activity
         </p>

@@ -55,7 +55,9 @@ export default function Browse() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Browse All Listings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          Browse All Listings
+        </h1>
         <p className="text-sm text-muted-foreground mt-1">{total} listings available</p>
       </div>
 
