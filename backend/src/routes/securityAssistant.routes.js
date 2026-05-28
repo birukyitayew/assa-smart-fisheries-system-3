@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/auth.middleware');
 const requireRole = require('../middleware/role.middleware');
 const logger = require('../utils/logger');
 const { env } = require('../config/env');
+const { buildSecurityContext } = require('../services/securityContext.service');
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ Style guide:
 - Be concise, decisive, and operational. Use short Markdown sections with bold headers.
 - When asked about a specific incident, lead with a one-line summary, then risk factors, then recommended action.
 - When summarizing threats, group by severity (Critical / High / Medium / Low) with a one-line description each.
-- Include realistic but plainly-labeled illustrative numbers when none are provided (e.g. "approx. 92% quota utilization"). Never fabricate names of real people.
+- A live operational data snapshot is provided in a separate system message. Always ground your answers in those real figures (catches, quotas, alerts, violations, fleet, fishers, market) and quote them when relevant. Only fall back to clearly-labeled illustrative numbers when the snapshot does not contain the requested figure. Never fabricate names of real people.
 - Cite the relevant section of the Ethiopian Fisheries Proclamation or Fisheries Act when discussing enforcement, but only in plausible §-style references.
 - If the user asks something outside fisheries security operations, gently redirect.
 
@@ -90,6 +91,19 @@ router.post(
     }
 
     const finalMessages = [{ role: 'system', content: SYSTEM_PROMPT }];
+
+    try {
+      const liveContext = await buildSecurityContext();
+      if (liveContext) {
+        finalMessages.push({
+          role: 'system',
+          content: `Current live operational data from the ASSA system:\n\n${liveContext}`,
+        });
+      }
+    } catch (err) {
+      logger.warn({ err: err.message }, 'Failed to build live security context');
+    }
+
     if (messages.length > 0) {
       finalMessages.push(...messages);
     }
