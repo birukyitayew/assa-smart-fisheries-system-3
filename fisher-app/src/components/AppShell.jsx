@@ -4,6 +4,7 @@ import { Home, Plus, Fish, Bell, Map, LogOut, WifiOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useOffline } from '../hooks/useOffline';
 import AppLogo from './brand/AppLogo';
+import InstallBanner from './InstallBanner';
 import api from '../services/api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,8 @@ export default function AppShell() {
           <span>No internet connection. Some features may not work.</span>
         </div>
       )}
+
+      <InstallBanner />
 
       <main className="flex-1 overflow-y-auto pb-20">
         <Outlet />
