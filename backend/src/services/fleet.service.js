@@ -180,7 +180,7 @@ async function countTripsToday(fisherId) {
   const today = new Date().toISOString().split('T')[0];
   const rows = await prisma.$queryRaw`
     SELECT COUNT(*) as cnt FROM boat_trips
-    WHERE fisher_id = ${fisherId} AND date(started_at) = ${today}
+    WHERE fisher_id = ${fisherId} AND date(started_at) = ${today}::date
   `;
   return Number(rows[0]?.cnt ?? 0);
 }
