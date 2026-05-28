@@ -4,6 +4,7 @@ import Header from './Header';
 import { RealtimeProvider } from '../../context/RealtimeContext';
 import { NotificationProvider } from '../../context/NotificationContext';
 import useDemoNotifications from '../../hooks/useDemoNotifications';
+import AiSecurityAssistant from '../security/AiSecurityAssistant';
 
 function DemoNotificationLoader() {
   useDemoNotifications();
@@ -20,6 +21,7 @@ function LayoutShell() {
           <Outlet />
         </main>
       </div>
+      <AiSecurityAssistant />
     </div>
   );
 }

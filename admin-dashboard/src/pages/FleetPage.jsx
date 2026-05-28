@@ -102,9 +102,7 @@ export default function FleetPage() {
       {loadError && (
         <Card className="border-destructive/40 bg-destructive/5">
           <CardContent className="pt-6 text-sm text-destructive">
-            Could not load fleet data: {loadError}. Restart the backend after pulling Phase 3
-            changes (<code className="text-xs">npm run dev --prefix backend</code>
-            ).
+            Could not load fleet data: {loadError}. Please check your connection and try again.
           </CardContent>
         </Card>
       )}
