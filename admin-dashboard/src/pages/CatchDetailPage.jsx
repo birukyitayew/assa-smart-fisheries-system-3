@@ -78,7 +78,7 @@ export default function CatchDetailPage() {
     : null;
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="max-w-3xl space-y-6">
       <Link to="/catches" className="text-muted-foreground hover:text-foreground text-sm">
         ← Back to Catches
       </Link>
@@ -100,7 +100,7 @@ export default function CatchDetailPage() {
         <CardContent className="pt-6 flex items-start justify-between">
           <div>
             <div className="font-mono text-sm text-muted-foreground">{c.reference_id}</div>
-            <h2 className="text-xl font-bold text-foreground mt-1">
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground mt-1">
               {c.species} — {c.quantity_kg} kg
             </h2>
             <div className="text-sm text-muted-foreground mt-1">

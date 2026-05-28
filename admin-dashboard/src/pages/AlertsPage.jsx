@@ -36,10 +36,12 @@ export default function AlertsPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className="space-y-6 max-w-3xl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Alerts & Notifications</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+            Alerts & Notifications
+          </h2>
           <p className="text-sm text-muted-foreground">
             {unread} unread alert{unread !== 1 ? 's' : ''}
           </p>

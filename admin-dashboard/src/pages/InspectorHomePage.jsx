@@ -37,7 +37,9 @@ export default function InspectorHomePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Field Operations</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+          Field Operations
+        </h2>
         <p className="text-sm text-muted-foreground">
           Your inspection assignments and patrol targets
         </p>

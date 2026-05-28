@@ -17,9 +17,11 @@ export default function FishermanPage() {
   }, [page]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Fishermen</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+          Fishermen
+        </h2>
         <p className="text-sm text-muted-foreground">
           {total} registered fishers — Lake Tana, Amhara Region
         </p>

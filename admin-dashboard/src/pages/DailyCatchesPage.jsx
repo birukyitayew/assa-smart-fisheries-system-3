@@ -53,9 +53,11 @@ export default function DailyCatchesPage() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Daily Catches</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+          Daily Catches
+        </h2>
         <p className="text-sm text-muted-foreground">Review and process catch submissions</p>
       </div>
 

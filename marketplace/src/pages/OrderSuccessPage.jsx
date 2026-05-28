@@ -23,7 +23,7 @@ export default function OrderSuccessPage() {
     <div className="max-w-md mx-auto text-center py-12 space-y-6">
       <div className="text-7xl">✅</div>
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Order Placed!</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">Order Placed!</h1>
         <p className="text-muted-foreground mt-2">Your order has been confirmed.</p>
       </div>
 

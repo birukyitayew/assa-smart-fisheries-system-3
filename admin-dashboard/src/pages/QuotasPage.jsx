@@ -85,9 +85,11 @@ export default function QuotasPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-3xl">
+    <div className="space-y-6 max-w-3xl">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Quotas & Rules</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+          Quotas & Rules
+        </h2>
         <p className="text-sm text-muted-foreground">
           Monthly catch limits and seasonal zone rules — Lake Tana, Amhara Region
         </p>
