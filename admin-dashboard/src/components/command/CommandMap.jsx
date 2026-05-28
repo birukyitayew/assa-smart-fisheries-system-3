@@ -75,7 +75,7 @@ export default function CommandMap({
       id="command-map"
       style={height ? { height } : undefined}
       className={cn(
-        'rounded-lg overflow-hidden border border-border z-0 w-full min-h-[260px] h-[min(50vh,420px)] sm:min-h-[320px] sm:h-[min(55vh,520px)]',
+        'rounded-lg overflow-hidden border border-border isolate z-0 w-full min-h-[260px] h-[min(50vh,420px)] sm:min-h-[320px] sm:h-[min(55vh,520px)]',
         className,
       )}
     >
