@@ -140,27 +140,32 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api/health/detailed', async (req, res) => {
-  const health = {
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    db: 'unknown',
-    storage: process.env.CLOUDINARY_URL ? 'cloudinary' : 'local-disk',
-  };
+app.get(
+  '/api/health/detailed',
+  require('./middleware/auth.middleware'),
+  require('./middleware/role.middleware')('admin', 'superadmin'),
+  async (req, res) => {
+    const health = {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      db: 'unknown',
+      storage: process.env.CLOUDINARY_URL ? 'cloudinary' : 'local-disk',
+    };
 
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    health.db = 'connected';
-  } catch (err) {
-    health.status = 'error';
-    health.db = `error: ${err.message}`;
-  }
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      health.db = 'connected';
+    } catch {
+      health.status = 'error';
+      health.db = 'unreachable';
+    }
 
-  const statusCode = health.status === 'ok' ? 200 : 503;
-  res.status(statusCode).json(health);
-});
+    const statusCode = health.status === 'ok' ? 200 : 503;
+    res.status(statusCode).json(health);
+  },
+);
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
@@ -168,7 +173,12 @@ app.use((req, res) => {
 
 app.use((err, req, res, _next) => {
   req.log?.error({ err }, 'Unhandled error');
-  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
+  const status = err.status || 500;
+  const message =
+    status < 500 || env.NODE_ENV === 'development'
+      ? err.message || 'Internal server error'
+      : 'Internal server error';
+  res.status(status).json({ error: message });
 });
 
 let server;

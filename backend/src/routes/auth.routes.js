@@ -186,12 +186,11 @@ router.post(
       create: { email, token, expiresAt },
     });
 
-    req.log?.info({ email, token }, 'Password reset requested (simulated email)');
+    req.log?.info({ email }, 'Password reset token generated');
 
     res.json({
       success: true,
-      message: 'Password reset token generated successfully.',
-      token, // Return token for easy local/testing access
+      message: 'If a user with that email exists, a password reset link has been sent.',
     });
   }),
 );
@@ -204,8 +203,8 @@ router.post(
     if (!token || !password) {
       return res.status(400).json({ error: 'Token and password are required' });
     }
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    if (typeof password !== 'string' || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters long' });
     }
 
     const resetRecord = await prisma.passwordResetToken.findUnique({
@@ -238,33 +237,7 @@ router.post(
   }),
 );
 
-// POST /api/auth/seed-production-db
-router.post(
-  '/seed-production-db',
-  asyncHandler(async (req, res) => {
-    const userCount = await prisma.user.count();
-    if (userCount > 0 && req.body.token !== 'assa_force_seed_2026') {
-      return res.status(400).json({ error: 'Database is already seeded and contains users.' });
-    }
-
-    const { exec } = require('child_process');
-    const path = require('path');
-    const seedPath = path.join(__dirname, '../../prisma/seed.js');
-
-    exec(`node "${seedPath}"`, { env: process.env }, (error, stdout, stderr) => {
-      if (error) {
-        console.error('Database seeding failed:', error, stderr);
-        return;
-      }
-      console.log('Database seeded successfully:', stdout);
-    });
-
-    res.json({
-      success: true,
-      message:
-        'Database seeding triggered successfully in the background. It will take a few seconds.',
-    });
-  }),
-);
+// Seed endpoint removed — use the CLI (`npm run seed`) instead.
+// Exposing DB seeding over HTTP is a security risk.
 
 module.exports = router;
