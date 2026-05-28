@@ -1,27 +1,12 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const SPECIES_COLORS = {
-  Tilapia: '#38bdf8',
-  Catfish: '#a78bfa',
-  'Nile Perch': '#10b981',
-  Carp: '#f59e0b',
-  'Barbus (Ganfo)': '#f472b6',
+  Tilapia: 'var(--chart-1)',
+  Catfish: 'var(--chart-4)',
+  'Nile Perch': 'var(--chart-3)',
+  Carp: 'var(--chart-2)',
+  'Barbus (Ganfo)': 'var(--chart-5)',
 };
-
-const FALLBACK_COLORS = ['#38bdf8', '#a78bfa', '#10b981', '#f59e0b', '#f472b6', '#06b6d4'];
-
-function CustomTooltip({ active, payload }) {
-  if (!active || !payload?.length) return null;
-  const { species, total_kg } = payload[0].payload;
-  return (
-    <div className="rounded-lg border border-border bg-card/95 backdrop-blur-sm px-3 py-2 shadow-lg">
-      <p className="text-xs font-medium text-foreground">{species}</p>
-      <p className="text-xs text-muted-foreground">
-        <span className="font-semibold text-foreground">{Math.round(total_kg)} kg</span> caught
-      </p>
-    </div>
-  );
-}
 
 export default function SpeciesDonutChart({ data }) {
   if (!data || data.length === 0) {
@@ -33,7 +18,7 @@ export default function SpeciesDonutChart({ data }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={200}>
       <PieChart>
         <Pie
           data={data}
@@ -41,25 +26,18 @@ export default function SpeciesDonutChart({ data }) {
           nameKey="species"
           cx="50%"
           cy="50%"
-          innerRadius={55}
-          outerRadius={85}
-          paddingAngle={3}
-          cornerRadius={4}
-          strokeWidth={0}
+          innerRadius={50}
+          outerRadius={80}
         >
-          {data.map((entry, i) => (
+          {data.map((entry) => (
             <Cell
               key={entry.species}
-              fill={SPECIES_COLORS[entry.species] || FALLBACK_COLORS[i % FALLBACK_COLORS.length]}
+              fill={SPECIES_COLORS[entry.species] || 'var(--muted-foreground)'}
             />
           ))}
         </Pie>
-        <Tooltip content={<CustomTooltip />} />
-        <Legend
-          iconSize={8}
-          iconType="circle"
-          wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
-        />
+        <Tooltip formatter={(v) => [`${v} kg`]} />
+        <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
       </PieChart>
     </ResponsiveContainer>
   );

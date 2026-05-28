@@ -4,7 +4,6 @@ import { useNotifications } from '../context/NotificationContext';
 const DEMO_STATUSES = {
   '/alerts': 'critical',
   '/intelligence': 'critical',
-  '/security': 'critical',
   '/live': 'active',
   '/map': 'active',
   '/fleet': 'active',
