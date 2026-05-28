@@ -21,6 +21,7 @@ import ViolationsPage from './pages/ViolationsPage';
 import FleetPage from './pages/FleetPage';
 import IntelligencePage from './pages/IntelligencePage';
 import UsersPage from './pages/UsersPage';
+import SecurityPage from './pages/SecurityPage';
 
 function HomeRoute() {
   const { user } = useAuth();
@@ -85,6 +86,14 @@ export default function App() {
           element={
             <ErrorBoundary>
               <IntelligencePage />
+            </ErrorBoundary>
+          }
+        />
+        <Route
+          path="security"
+          element={
+            <ErrorBoundary>
+              <SecurityPage />
             </ErrorBoundary>
           }
         />
