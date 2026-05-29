@@ -42,6 +42,7 @@ router.get('/zones', ...isAdmin, controller.getZones);
 
 // ── Reports ───────────────────────────────────────────────────────────────────
 router.get('/reports/monthly', ...isAdmin, controller.getMonthlyReport);
+router.get('/reports/professional', ...isAdmin, controller.getProfessionalReport);
 
 // ── Command Center ────────────────────────────────────────────────────────────
 router.get('/command/live-stats', ...isAdmin, controller.getLiveStats);
