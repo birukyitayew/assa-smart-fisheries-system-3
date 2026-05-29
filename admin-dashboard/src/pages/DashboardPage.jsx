@@ -136,12 +136,7 @@ export default function DashboardPage() {
                   {t('dashboard.pendingCatches')}
                 </h4>
                 <p className="text-sm text-muted-foreground mt-0.5">
-                  There are{' '}
-                  <span className="font-bold text-warning-foreground">
-                    {liveStats?.pendingCatches ?? stats?.pendingCatches}
-                  </span>{' '}
-                  catches that need verification. Unapproved catches will not show as verified in
-                  statistics or listings.
+                  {t('dashboard.pendingCatchesDesc', { count: liveStats?.pendingCatches ?? stats?.pendingCatches })}
                 </p>
               </div>
             </div>

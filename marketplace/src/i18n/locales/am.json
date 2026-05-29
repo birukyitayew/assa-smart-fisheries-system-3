@@ -82,7 +82,7 @@
   },
   "marketSidebar": {
     "marketStats": "የገበያ ስታቲስቲክስ",
-    "totalListings": "ጠቅላላ ዝርዝሮች",
+    "activeListings": "ንቁ ዝርዝሮች",
     "avgPrice": "አማካይ ዋጋ",
     "todayOrders": "የዛሬ ትዕዛዞች",
     "recentActivity": "የቅርብ ጊዜ እንቅስቃሴ",
