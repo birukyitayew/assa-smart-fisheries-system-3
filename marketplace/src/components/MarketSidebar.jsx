@@ -30,7 +30,7 @@ export default function MarketSidebar({ stats, activity }) {
               </ResponsiveContainer>
               <div className="mt-3 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t('marketSidebar.totalListings')}</span>
+                  <span className="text-muted-foreground">{t('marketSidebar.activeListings')}</span>
                   <span className="font-semibold">{stats.activeListings}</span>
                 </div>
                 <div className="flex justify-between">

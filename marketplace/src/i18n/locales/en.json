@@ -82,7 +82,7 @@
   },
   "marketSidebar": {
     "marketStats": "Market Stats",
-    "totalListings": "Total Listings",
+    "activeListings": "Active Listings",
     "avgPrice": "Avg. Price",
     "todayOrders": "Today's Orders",
     "recentActivity": "Recent Activity",
