@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 import { Anchor } from 'lucide-react';
 import ActivityFeed from './ActivityFeed';
@@ -5,11 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export default function MarketSidebar({ stats, activity }) {
+  const { t } = useTranslation();
   return (
     <aside className="w-56 flex-shrink-0 space-y-5 hidden xl:block">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Market Overview</CardTitle>
+          <CardTitle className="text-sm">{t('marketSidebar.marketStats')}</CardTitle>
         </CardHeader>
         <CardContent>
           {stats && (
@@ -28,7 +30,7 @@ export default function MarketSidebar({ stats, activity }) {
               </ResponsiveContainer>
               <div className="mt-3 space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Active Listings</span>
+                  <span className="text-muted-foreground">{t('marketSidebar.totalListings')}</span>
                   <span className="font-semibold">{stats.activeListings}</span>
                 </div>
                 <div className="flex justify-between">
@@ -40,7 +42,7 @@ export default function MarketSidebar({ stats, activity }) {
                   <span className="font-semibold text-primary">{Math.round(stats.fishSoldKg)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Avg Price</span>
+                  <span className="text-muted-foreground">{t('marketSidebar.avgPrice')}</span>
                   <span className="font-semibold">ETB {stats.avgPrice}/kg</span>
                 </div>
               </div>
@@ -51,7 +53,7 @@ export default function MarketSidebar({ stats, activity }) {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Recent Activity</CardTitle>
+          <CardTitle className="text-sm">{t('marketSidebar.recentActivity')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ActivityFeed activity={activity} />

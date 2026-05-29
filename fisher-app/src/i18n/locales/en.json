@@ -4,19 +4,113 @@
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",
-    "signingIn": "Signing in…"
+    "signingIn": "Signing in…",
+    "failed": "Login failed"
   },
   "home": {
     "title": "Today on the lake",
-    "submitCatch": "Submit catch",
+    "submitCatch": "Submit Catch",
     "license": "License",
-    "tripsToday": "Trips today"
+    "tripsToday": "Trips today",
+    "welcome": "Welcome, {{name}}",
+    "myCatches": "My Catches",
+    "notifications": "Notifications",
+    "fishingZones": "Fishing Zones",
+    "quickActions": "Quick Actions",
+    "marketplace": "Marketplace",
+    "couldNotLoadProfile": "Could not load your profile",
+    "checkConnection": "Check your connection and try again.",
+    "retry": "Retry",
+    "openViolations": "Open violations"
   },
   "trip": {
-    "start": "Start trip",
-    "end": "End trip",
-    "active": "Active trip",
-    "none": "No active trip"
+    "start": "Start Trip",
+    "end": "End Trip",
+    "active": "Active Trip",
+    "none": "No active trip",
+    "elapsed": "{{time}} elapsed",
+    "gpsTracking": "GPS tracking on",
+    "startDescription": "Start a trip before fishing so fleet ops can track your boat on the lake map.",
+    "registerBoat": "Register a boat with fisheries office first.",
+    "validLicenseRequired": "Valid license required to start a trip.",
+    "couldNotStart": "Could not start trip",
+    "couldNotEnd": "Could not end trip"
+  },
+  "catches": {
+    "title": "My Catches",
+    "submissions": "{{count}} submission",
+    "submissions_plural": "{{count}} submissions",
+    "noCatches": "No catches yet. Submit your first catch!",
+    "date": "Date",
+    "time": "Time",
+    "gear": "Gear",
+    "zone": "Zone",
+    "numberOfFish": "No. of Fish",
+    "rejectionReason": "Rejection Reason",
+    "verifiedMessage": "This catch has been approved and is now listed in the marketplace.",
+    "back": "← Back"
+  },
+  "submit": {
+    "title": "Submit Catch",
+    "stepDetails": "Details",
+    "stepLocation": "Location",
+    "stepPhoto": "Photo (Optional)",
+    "stepReview": "Review",
+    "species": "Species",
+    "selectSpecies": "Select species",
+    "quantity": "Quantity (kg)",
+    "numberOfFish": "Number of fish (optional)",
+    "fishingGear": "Fishing Gear",
+    "selectGear": "Select gear",
+    "fishingDate": "Fishing Date",
+    "fishingTime": "Fishing Time",
+    "zone": "Fishing Zone",
+    "selectZone": "Select zone",
+    "gpsCapture": "GPS Location",
+    "gpsLoading": "Getting your location...",
+    "gpsTakingLong": "Taking longer than expected. Make sure location is enabled.",
+    "gpsError": "Could not get location. Zone center will be used.",
+    "gpsNotAvailable": "GPS not available on this device",
+    "photo": "Catch Photo",
+    "addPhoto": "Add Photo",
+    "removePhoto": "Remove",
+    "review": "Review your catch",
+    "submitting": "Submitting...",
+    "submitCatch": "Submit Catch",
+    "success": "Catch Submitted!",
+    "successDesc": "Your catch has been submitted for review.",
+    "reference": "Reference",
+    "submitAnother": "Submit Another Catch",
+    "goHome": "Go Home",
+    "prev": "Previous",
+    "next": "Next",
+    "errorSpecies": "Select a species",
+    "errorQuantity": "Enter quantity between 0.1 and 500 kg",
+    "errorGear": "Select fishing gear",
+    "errorDate": "Select a date",
+    "errorTime": "Enter time",
+    "errorFutureDate": "Date cannot be in the future",
+    "errorZone": "Select a fishing zone",
+    "errorSubmit": "Submission failed. Please try again."
+  },
+  "zones": {
+    "title": "Fishing Zones",
+    "description": "Active zones on Lake Tana",
+    "noZones": "No zones available",
+    "open": "Open",
+    "closed": "Closed",
+    "seasonal": "Seasonal"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "No notifications yet",
+    "markRead": "Mark as read"
+  },
+  "license": {
+    "digitalFisherId": "Digital Fisher ID",
+    "validUntil": "Valid Until",
+    "complianceScore": "Compliance score",
+    "expiryWarning": "Your fishing license expires in {{days}} day(s). Please renew before it expires."
   },
   "theme": {
     "toggle": "Theme",
@@ -24,5 +118,17 @@
     "dark": "Dark",
     "system": "System"
   },
-  "lang": { "toggle": "Language" }
+  "lang": {
+    "toggle": "Language",
+    "en": "English",
+    "am": "አማርኛ"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
 }

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Fish, Clock, Users, Ship, Banknote, Bell, AlertTriangle } from 'lucide-react';
 import api from '../services/api';
 import { useRegion } from '../context/RegionContext';
@@ -27,6 +28,7 @@ import {
 } from '@/components/ui/table';
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { events, connected } = useRealtime();
   const { selectedRegionId, mapCenter } = useRegion();
   const [liveStats, setLiveStats] = useState(null);
@@ -111,11 +113,11 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Command Overview"
-        description="Lake Tana Fisheries — Live command center"
+        title={t('dashboard.title')}
+        description={t('dashboard.description')}
         actions={
           <Link to="/map" className="text-sm text-primary hover:underline">
-            Open full map →
+            {t('dashboard.openFullMap')}
           </Link>
         }
       />
@@ -131,7 +133,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h4 className="font-semibold text-warning-foreground">
-                  Pending Catches Awaiting Review
+                  {t('dashboard.pendingCatches')}
                 </h4>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   There are{' '}
@@ -147,7 +149,7 @@ export default function DashboardPage() {
               to="/catches"
               className="px-4 py-2 text-xs font-semibold rounded-md bg-warning text-warning-foreground hover:bg-warning/90 transition-colors shrink-0 shadow-sm"
             >
-              Review Catches Now
+              {t('dashboard.reviewNow')}
             </Link>
           </CardContent>
         </Card>

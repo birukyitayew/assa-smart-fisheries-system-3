@@ -54,9 +54,9 @@ export default function HomePage() {
       primary: true,
       disabled: !canSubmit,
     },
-    { to: '/catches', icon: Fish, label: 'My Catches' },
-    { to: '/notifications', icon: Bell, label: 'Notifications' },
-    { to: '/zones', icon: Map, label: 'Fishing Zones' },
+    { to: '/catches', icon: Fish, label: t('home.myCatches') },
+    { to: '/notifications', icon: Bell, label: t('home.notifications') },
+    { to: '/zones', icon: Map, label: t('home.fishingZones') },
   ];
 
   return (
@@ -65,7 +65,7 @@ export default function HomePage() {
         <div>
           <p className="text-muted-foreground text-sm">{today}</p>
           <h1 className="text-2xl font-bold text-foreground mt-1">
-            Welcome, {user?.name?.split(' ')[0]}
+            {t('home.welcome', { name: user?.name?.split(' ')[0] })}
           </h1>
         </div>
         <div className="flex items-center gap-1">
@@ -86,13 +86,13 @@ export default function HomePage() {
           <CardContent className="pt-6 flex flex-col items-center gap-3 text-center">
             <AlertTriangle className="h-8 w-8 text-destructive" />
             <div>
-              <p className="font-semibold text-foreground">Could not load your profile</p>
+              <p className="font-semibold text-foreground">{t('home.couldNotLoadProfile')}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                Check your connection and try again.
+                {t('home.checkConnection')}
               </p>
             </div>
             <Button size="sm" onClick={loadProfile}>
-              Retry
+              {t('home.retry')}
             </Button>
           </CardContent>
         </Card>
@@ -103,7 +103,7 @@ export default function HomePage() {
       {profile?.openViolations?.length > 0 && (
         <Card className="border-destructive/30">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-destructive">Open violations</CardTitle>
+            <CardTitle className="text-base text-destructive">{t('home.openViolations')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {profile.openViolations.map((v) => (
@@ -135,7 +135,7 @@ export default function HomePage() {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Quick Actions</CardTitle>
+          <CardTitle className="text-base">{t('home.quickActions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3">

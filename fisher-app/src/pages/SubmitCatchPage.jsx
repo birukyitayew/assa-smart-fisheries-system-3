@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import api from '../services/api';
 import Step1Details from '../components/CatchWizard/Step1Details';
@@ -10,9 +11,9 @@ import StatusBadge from '../components/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-const STEP_LABELS = ['Details', 'Location', 'Photo (Optional)', 'Review'];
-
 export default function SubmitCatchPage() {
+  const { t } = useTranslation();
+  const STEP_LABELS = [t('submit.stepDetails'), t('submit.stepLocation'), t('submit.stepPhoto'), t('submit.stepReview')];
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [zones, setZones] = useState([]);
@@ -43,7 +44,7 @@ export default function SubmitCatchPage() {
 
   function captureDeviceGps() {
     if (!navigator.geolocation) {
-      setGpsError('GPS not available on this device');
+      setGpsError(t('submit.gpsNotAvailable'));
       return;
     }
     setGpsLoading(true);
@@ -64,7 +65,7 @@ export default function SubmitCatchPage() {
       },
       () => {
         clearTimeout(timer);
-        setGpsError('Could not get location. Zone center will be used.');
+        setGpsError(t('submit.gpsError'));
         setGpsLoading(false);
         setGpsTakingTooLong(false);
       },
@@ -93,21 +94,21 @@ export default function SubmitCatchPage() {
 
   function validateStep1() {
     const e = {};
-    if (!form.species) e.species = 'Select a species';
+    if (!form.species) e.species = t('submit.errorSpecies');
     if (!form.quantity_kg || form.quantity_kg <= 0 || form.quantity_kg > 500)
-      e.quantity_kg = 'Enter quantity between 0.1 and 500 kg';
-    if (!form.fishing_gear) e.fishing_gear = 'Select fishing gear';
-    if (!form.fishing_date) e.fishing_date = 'Select a date';
-    if (!form.fishing_time) e.fishing_time = 'Enter time';
+      e.quantity_kg = t('submit.errorQuantity');
+    if (!form.fishing_gear) e.fishing_gear = t('submit.errorGear');
+    if (!form.fishing_date) e.fishing_date = t('submit.errorDate');
+    if (!form.fishing_time) e.fishing_time = t('submit.errorTime');
     if (form.fishing_date > new Date().toISOString().split('T')[0])
-      e.fishing_date = 'Date cannot be in the future';
+      e.fishing_date = t('submit.errorFutureDate');
     setErrors(e);
     return Object.keys(e).length === 0;
   }
 
   function validateStep2() {
     const e = {};
-    if (!form.zone_id) e.zone_id = 'Select a fishing zone';
+    if (!form.zone_id) e.zone_id = t('submit.errorZone');
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -143,7 +144,7 @@ export default function SubmitCatchPage() {
       const res = await api.post('/catches', payload);
       setResult(res.data);
     } catch (err) {
-      setErrors({ submit: err.response?.data?.error || 'Submission failed. Please try again.' });
+      setErrors({ submit: err.response?.data?.error || t('submit.errorSubmit') });
     } finally {
       setSubmitting(false);
     }
@@ -153,8 +154,8 @@ export default function SubmitCatchPage() {
     return (
       <div className="p-4 flex flex-col items-center justify-center min-h-[80vh] text-center">
         <div className="text-6xl mb-4">✅</div>
-        <h2 className="text-2xl font-bold text-foreground">Catch Submitted!</h2>
-        <p className="text-muted-foreground mt-2">Your catch has been submitted for review.</p>
+        <h2 className="text-2xl font-bold text-foreground">{t('submit.success')}</h2>
+        <p className="text-muted-foreground mt-2">{t('submit.successDesc')}</p>
         <Card className="mt-6 w-full text-left">
           <CardContent className="pt-6">
             <div className="text-xs text-muted-foreground mb-1">Reference ID</div>
@@ -170,7 +171,7 @@ export default function SubmitCatchPage() {
           </CardContent>
         </Card>
         <Button className="mt-6 w-full" onClick={() => navigate('/catches')}>
-          View My Catches
+          {t('catches.title')}
         </Button>
         <Button
           variant="outline"
@@ -192,7 +193,7 @@ export default function SubmitCatchPage() {
             });
           }}
         >
-          Submit Another
+          {t('submit.submitAnother')}
         </Button>
       </div>
     );
@@ -211,7 +212,7 @@ export default function SubmitCatchPage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h2 className="text-xl font-bold text-foreground">Submit Catch</h2>
+          <h2 className="text-xl font-bold text-foreground">{t('submit.title')}</h2>
           <p className="text-xs text-muted-foreground">
             Step {step} of 4 — {STEP_LABELS[step - 1]}
           </p>
@@ -261,16 +262,16 @@ export default function SubmitCatchPage() {
       <div className="flex gap-3 pt-2">
         {step > 1 && (
           <Button variant="outline" className="flex-1" onClick={() => setStep((s) => s - 1)}>
-            Back
+            {t('submit.prev')}
           </Button>
         )}
         {step < 4 ? (
           <Button className="flex-1" onClick={nextStep}>
-            Continue
+            {t('submit.next')}
           </Button>
         ) : (
           <Button className="flex-1" onClick={handleSubmit} disabled={submitting}>
-            {submitting ? 'Submitting...' : 'Submit Catch'}
+            {submitting ? t('submit.submitting') : t('submit.submitCatch')}
           </Button>
         )}
       </div>

@@ -36,7 +36,7 @@ export const adminNav = [
   { to: '/market', labelKey: 'nav.market', icon: TrendingUp },
   { to: '/catches', labelKey: 'nav.catches', icon: Fish },
   { to: '/fishermen', labelKey: 'nav.fishers', icon: Users },
-  { to: '/users/create', label: 'Onboard User', icon: UserPlus },
+  { to: '/users/create', labelKey: 'nav.onboardUser', icon: UserPlus },
   { to: '/quotas', labelKey: 'nav.quotas', icon: Ruler },
   { to: '/zones', labelKey: 'nav.zones', icon: Map },
   { to: '/alerts', labelKey: 'nav.alerts', icon: Bell },
@@ -44,10 +44,10 @@ export const adminNav = [
 ];
 
 export const inspectorNav = [
-  { to: '/', label: 'My Assignments', icon: ClipboardCheck, end: true },
-  { to: '/violations', label: 'Violations', icon: AlertTriangle },
-  { to: '/map', label: 'Patrol Map', icon: MapPin },
-  { to: '/fishermen', label: 'Verify Fishers', icon: Users },
+  { to: '/', labelKey: 'nav.myAssignments', icon: ClipboardCheck, end: true },
+  { to: '/violations', labelKey: 'nav.violations', icon: AlertTriangle },
+  { to: '/map', labelKey: 'nav.patrolMap', icon: MapPin },
+  { to: '/fishermen', labelKey: 'nav.verifyFishers', icon: Users },
 ];
 
 export default function SidebarNav({ onNavigate, showFooter = true, className }) {
@@ -62,7 +62,7 @@ export default function SidebarNav({ onNavigate, showFooter = true, className })
       className={cn('flex h-full min-h-0 flex-col bg-sidebar text-sidebar-foreground', className)}
     >
       <div className="px-5 py-5 border-b border-sidebar-border shrink-0">
-        <AppLogo size="sm" subtitle="Ministry of Fisheries" />
+        <AppLogo size="sm" subtitle={t('sidebar.ministrySubtitle')} />
       </div>
 
       <nav className="flex-1 min-h-0 px-3 py-4 space-y-1 overflow-y-auto">

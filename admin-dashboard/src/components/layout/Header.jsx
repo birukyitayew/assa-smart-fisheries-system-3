@@ -42,7 +42,7 @@ export default function Header() {
             </p>
           </div>
           <span className="text-xs font-medium text-primary px-2 py-1 rounded-md bg-primary/10 w-fit max-w-full truncate shrink-0">
-            Lake Tana
+            {t('header.lakeTana')}
           </span>
         </div>
       </div>
@@ -59,7 +59,7 @@ export default function Header() {
           aria-live="polite"
         >
           <Radio className={cn('h-3 w-3 shrink-0', connected && 'animate-pulse')} />
-          <span className="whitespace-nowrap">{connected ? 'LIVE' : 'OFFLINE'}</span>
+          <span className="whitespace-nowrap">{connected ? t('header.live') : t('header.offline')}</span>
         </div>
         <Button variant="ghost" size="icon" asChild className="relative shrink-0">
           <Link to="/alerts">

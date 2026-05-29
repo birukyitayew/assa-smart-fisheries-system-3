@@ -62,11 +62,11 @@ export default function TripCard({ profile, activeTrip, onTripChange }) {
             <div className="flex items-center justify-between">
               <Badge>Active</Badge>
               <span className="text-sm text-muted-foreground">
-                {formatElapsed(activeTrip.started_at)} elapsed
+                {t('trip.elapsed', { time: formatElapsed(activeTrip.started_at) })}
               </span>
             </div>
             <p className="text-sm text-foreground">
-              {activeTrip.boat_name || profile?.boat_name} — GPS tracking on
+              {activeTrip.boat_name || profile?.boat_name} — {t('trip.gpsTracking')}
             </p>
             <Button className="w-full" variant="destructive" onClick={endTrip} disabled={loading}>
               <Square className="h-4 w-4 mr-2" />
@@ -76,13 +76,13 @@ export default function TripCard({ profile, activeTrip, onTripChange }) {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              Start a trip before fishing so fleet ops can track your boat on the lake map.
+              {t('trip.startDescription')}
             </p>
             {!profile?.boat_name && (
-              <p className="text-xs text-warning">Register a boat with fisheries office first.</p>
+              <p className="text-xs text-warning">{t('trip.registerBoat')}</p>
             )}
             {profile?.license_status !== 'VALID' && (
-              <p className="text-xs text-destructive">Valid license required to start a trip.</p>
+              <p className="text-xs text-destructive">{t('trip.validLicenseRequired')}</p>
             )}
             <Button className="w-full" onClick={startTrip} disabled={!canStart || loading}>
               <Play className="h-4 w-4 mr-2" />

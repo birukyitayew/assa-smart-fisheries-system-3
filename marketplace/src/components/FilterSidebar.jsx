@@ -1,6 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 
 const SPECIES_CATEGORIES = [
   'All Fish',
@@ -18,13 +18,14 @@ export default function FilterSidebar({
   onPriceChange,
   onClear,
 }) {
+  const { t } = useTranslation();
   const hasFilters = selectedSpecies !== 'All Fish' || priceRange[1] < 300;
 
   return (
     <aside className="w-56 flex-shrink-0 space-y-5 hidden lg:block">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Categories</CardTitle>
+          <CardTitle className="text-sm">{t('filter.categories')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-1">
           {SPECIES_CATEGORIES.map((s) => (
@@ -43,7 +44,7 @@ export default function FilterSidebar({
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Price Range (ETB/kg)</CardTitle>
+          <CardTitle className="text-sm">{t('filter.priceRange')}</CardTitle>
         </CardHeader>
         <CardContent>
           <input
@@ -63,7 +64,7 @@ export default function FilterSidebar({
 
       {hasFilters && (
         <Button variant="link" size="sm" className="w-full" onClick={onClear}>
-          Clear all filters
+          {t('filter.clearAll')}
         </Button>
       )}
     </aside>
