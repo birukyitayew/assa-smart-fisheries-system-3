@@ -5,7 +5,8 @@
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",
-    "signingIn": "Signing in…"
+    "signingIn": "Signing in…",
+    "failed": "Login failed"
   },
   "nav": {
     "menu": "Open menu",
@@ -21,7 +22,12 @@
     "zones": "Fishing Zones",
     "alerts": "Alerts",
     "reports": "Reports",
-    "logout": "Log out"
+    "logout": "Log out",
+    "onboardUser": "Onboard User",
+    "myAssignments": "My Assignments",
+    "violations": "Violations",
+    "patrolMap": "Patrol Map",
+    "verifyFishers": "Verify Fishers"
   },
   "theme": {
     "toggle": "Theme",
@@ -36,11 +42,186 @@
   },
   "header": {
     "title": "ASSA Command Center",
-    "subtitle": "National fisheries oversight — Ministry of Agriculture"
+    "subtitle": "National fisheries oversight — Ministry of Agriculture",
+    "live": "LIVE",
+    "offline": "OFFLINE",
+    "lakeTana": "Lake Tana"
   },
   "region": {
     "selectorLabel": "Select lake region",
     "allLakes": "All lakes (national)",
     "regionalScope": "Regional scope"
+  },
+  "sidebar": {
+    "ministrySubtitle": "Ministry of Fisheries"
+  },
+  "dashboard": {
+    "title": "Command Overview",
+    "description": "Lake Tana Fisheries — Live command center",
+    "openFullMap": "Open full map →",
+    "pendingCatches": "Pending Catches Awaiting Review",
+    "pendingCatchesDesc": "There are {{count}} catch submissions waiting for verification.",
+    "reviewNow": "Review now",
+    "kpiTodayCatches": "Today's Catches",
+    "kpiPendingReview": "Pending Review",
+    "kpiActiveFishers": "Active Fishers",
+    "kpiActiveBoats": "Active Boats",
+    "kpiRevenue": "Revenue (ETB)",
+    "kpiAlerts": "Alerts",
+    "catchesTrend": "Catches Trend (7 days)",
+    "speciesBreakdown": "Species Breakdown",
+    "quotaStatus": "Quota Status",
+    "recentAlerts": "Recent Alerts",
+    "viewAll": "View all",
+    "recentCatches": "Recent Catches",
+    "noCatches": "No catches yet",
+    "noAlerts": "No recent alerts",
+    "lakeCommandMap": "Lake Command Map"
+  },
+  "catches": {
+    "title": "Daily Catches",
+    "description": "Review and process catch submissions",
+    "searchPlaceholder": "Search fisher, species, reference...",
+    "clear": "Clear",
+    "results": "{{count}} result",
+    "results_plural": "{{count}} results",
+    "selected": "{{count}} selected",
+    "approveSelected": "Approve Selected",
+    "clearSelection": "Clear",
+    "confirmApprove": "Are you sure you want to approve {{count}} selected catches?",
+    "approveError": "Error approving some catches",
+    "tabAll": "All",
+    "tabPending": "Pending",
+    "tabVerified": "Verified",
+    "tabRejected": "Rejected",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page {{current}} of {{total}}"
+  },
+  "fleet": {
+    "title": "Fleet Operations",
+    "description": "Registered boats, active trips, and 24h route history (GC-05)",
+    "fullCommandMap": "Full command map",
+    "loadError": "Could not load fleet data",
+    "boats": "Boats",
+    "noBoats": "No boats registered yet.",
+    "onTrip": "On trip",
+    "fishing": "Fishing",
+    "returning": "Returning",
+    "docked": "Docked",
+    "lastSeen": "Last seen",
+    "selectedBoat": "Selected Boat",
+    "noSelection": "Select a boat to view details",
+    "route24h": "24h Route"
+  },
+  "fishermen": {
+    "title": "Fishermen Registry",
+    "description": "Licensed fishermen and compliance status",
+    "searchPlaceholder": "Search by name or license...",
+    "all": "All",
+    "valid": "Valid",
+    "expired": "Expired",
+    "suspended": "Suspended",
+    "noResults": "No fishermen found",
+    "name": "Name",
+    "license": "License",
+    "status": "Status",
+    "boat": "Boat",
+    "catches": "Catches",
+    "compliance": "Compliance"
+  },
+  "market": {
+    "title": "Market Monitor",
+    "description": "Buyer activity, prices, and supply chain",
+    "totalSales": "Total Sales",
+    "averagePrice": "Average Price",
+    "activeBuyers": "Active Buyers",
+    "listings": "Listings"
+  },
+  "intelligence": {
+    "title": "Market Intelligence",
+    "description": "Price trends, supply analysis, and shortage alerts (GC-10)",
+    "priceTrends": "Price Trends",
+    "supplyShortages": "Supply & Shortages",
+    "dailySnapshots": "Daily Snapshots"
+  },
+  "quotas": {
+    "title": "Quotas & Rules",
+    "description": "Species quotas, seasonal rules, and zone restrictions",
+    "species": "Species",
+    "limit": "Limit (kg)",
+    "used": "Used (kg)",
+    "usage": "Usage",
+    "status": "Status"
+  },
+  "zones": {
+    "title": "Fishing Zones",
+    "description": "Manage zone definitions and seasonal restrictions",
+    "name": "Name",
+    "coordinates": "Coordinates",
+    "season": "Season",
+    "active": "Active",
+    "closed": "Closed"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "description": "System alerts and notifications",
+    "noAlerts": "No alerts at this time",
+    "markRead": "Mark as read",
+    "dismiss": "Dismiss"
+  },
+  "reports": {
+    "title": "Reports",
+    "description": "Analytics and generated reports",
+    "generate": "Generate Report",
+    "export": "Export",
+    "dateRange": "Date Range"
+  },
+  "liveOps": {
+    "title": "Live Operations",
+    "description": "Real-time transaction ticker and pending queue",
+    "pendingQueue": "Pending Queue",
+    "transactionTicker": "Transaction Ticker",
+    "noTransactions": "No recent transactions"
+  },
+  "audit": {
+    "title": "Audit Log",
+    "description": "Government accountability trail",
+    "action": "Action",
+    "user": "User",
+    "timestamp": "Timestamp",
+    "details": "Details"
+  },
+  "users": {
+    "title": "Onboard User",
+    "description": "Register a new fisher or inspector",
+    "createFisher": "Create Fisher Account",
+    "createInspector": "Create Inspector Account"
+  },
+  "inspections": {
+    "title": "Inspections",
+    "description": "Field inspection assignments and reports"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "noData": "No data available",
+    "approve": "Approve",
+    "reject": "Reject",
+    "pending": "Pending",
+    "verified": "Verified",
+    "rejected": "Rejected"
   }
 }

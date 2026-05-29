@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import StatusBadge from './StatusBadge';
 import { cn } from '@/lib/utils';
 import { AlertTriangle } from 'lucide-react';
 
 export default function LicenseCard({ profile, compliance }) {
+  const { t } = useTranslation();
   const isValid = profile?.license_status === 'VALID';
 
   // Check if license expires within 30 days
@@ -27,15 +29,14 @@ export default function LicenseCard({ profile, compliance }) {
       {expiresoon && (
         <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border-b border-amber-400/30 rounded-t-xl text-amber-700 dark:text-amber-400 text-xs font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          Your fishing license expires in {daysUntilExpiry} day{daysUntilExpiry !== 1 ? 's' : ''}.
-          Please renew before it expires.
+          {t('license.expiryWarning', { days: daysUntilExpiry })}
         </div>
       )}
       <CardContent className="pt-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Digital Fisher ID
+              {t('license.digitalFisherId')}
             </div>
             <div className="mt-2">
               <StatusBadge status={profile?.license_status} />
@@ -45,7 +46,7 @@ export default function LicenseCard({ profile, compliance }) {
             </div>
             {compliance != null && (
               <div className="text-xs mt-2">
-                Compliance score:{' '}
+                {t('license.complianceScore')}:{' '}
                 <span
                   className={cn(
                     'font-semibold',
@@ -62,7 +63,7 @@ export default function LicenseCard({ profile, compliance }) {
             )}
           </div>
           <div className="text-right shrink-0">
-            <div className="text-xs text-muted-foreground">Valid Until</div>
+            <div className="text-xs text-muted-foreground">{t('license.validUntil')}</div>
             <div
               className={cn(
                 'font-semibold text-sm mt-0.5',

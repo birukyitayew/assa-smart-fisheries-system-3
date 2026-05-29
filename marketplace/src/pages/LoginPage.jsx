@@ -86,7 +86,7 @@ export default function LoginPage() {
       </Card>
       <div className="text-center">
         <Button variant="link" asChild>
-          <Link to="/">Continue as guest</Link>
+          <Link to="/">{t('login.continueAsGuest')}</Link>
         </Button>
       </div>
     </div>

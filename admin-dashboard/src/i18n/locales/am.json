@@ -5,7 +5,8 @@
     "email": "ኢሜይል",
     "password": "የይለፍ ቃል",
     "submit": "ግባ",
-    "signingIn": "በመግባት ላይ…"
+    "signingIn": "በመግባት ላይ…",
+    "failed": "መግባት አልተሳካም"
   },
   "nav": {
     "menu": "ምናሌ ክፈት",
@@ -21,7 +22,12 @@
     "zones": "የዓሣ ማጥመጃ ቦታዎች",
     "alerts": "ማስጠንቀቂያዎች",
     "reports": "ሪፖርቶች",
-    "logout": "ውጣ"
+    "logout": "ውጣ",
+    "onboardUser": "ተጠቃሚ ያስመዝግቡ",
+    "myAssignments": "የእኔ ተልዕኮዎች",
+    "violations": "ጥሰቶች",
+    "patrolMap": "የፍተሻ ካርታ",
+    "verifyFishers": "ዓሣ አጥማጆች ያረጋግጡ"
   },
   "theme": {
     "toggle": "ገጽታ",
@@ -36,11 +42,186 @@
   },
   "header": {
     "title": "ASSA የቀን መቆጣጠሪያ",
-    "subtitle": "ብሔራዊ የዓሣ ሀብት ክትትል — የግብርና ሚኒስትር"
+    "subtitle": "ብሔራዊ የዓሣ ሀብት ክትትል — የግብርና ሚኒስትር",
+    "live": "ቀጥታ",
+    "offline": "ከመስመር ውጭ",
+    "lakeTana": "ጣና ሐይቅ"
   },
   "region": {
     "selectorLabel": "የሐይቅ ክልል ይምረጡ",
     "allLakes": "ሁሉም ሐይቆች (ብሔራዊ)",
     "regionalScope": "ክልላዊ ክልል"
+  },
+  "sidebar": {
+    "ministrySubtitle": "የዓሣ ሀብት ሚኒስቴር"
+  },
+  "dashboard": {
+    "title": "የቀን መቆጣጠሪያ",
+    "description": "የጣና ሐይቅ ዓሣ ሀብት — ቀጥታ ማዕከል",
+    "openFullMap": "ሙሉ ካርታ ክፈት →",
+    "pendingCatches": "በመጠባበቅ ላይ ያሉ ዓሣዎች",
+    "pendingCatchesDesc": "{{count}} የዓሣ ማስረከቢያዎች ለማረጋገጥ ይጠባበቃሉ።",
+    "reviewNow": "አሁን ይገምግሙ",
+    "kpiTodayCatches": "የዛሬ ዓሣ",
+    "kpiPendingReview": "በመጠባበቅ ላይ",
+    "kpiActiveFishers": "ንቁ ዓሣ አጥማጆች",
+    "kpiActiveBoats": "ንቁ ጀልባዎች",
+    "kpiRevenue": "ገቢ (ብር)",
+    "kpiAlerts": "ማስጠንቀቂያዎች",
+    "catchesTrend": "የዓሣ አዝማሚያ (7 ቀናት)",
+    "speciesBreakdown": "የዝርያ ክፍፍል",
+    "quotaStatus": "የኮታ ሁኔታ",
+    "recentAlerts": "የቅርብ ማስጠንቀቂያዎች",
+    "viewAll": "ሁሉንም ይመልከቱ",
+    "recentCatches": "የቅርብ ጊዜ ዓሣዎች",
+    "noCatches": "ዓሣ ገና አልተመዘገበም",
+    "noAlerts": "ምንም ማስጠንቀቂያ የለም",
+    "lakeCommandMap": "የሐይቅ ካርታ"
+  },
+  "catches": {
+    "title": "ዕለታዊ ዓሣ",
+    "description": "የዓሣ ማስረከቢያዎችን ይገምግሙ እና ያስኬዱ",
+    "searchPlaceholder": "ዓሣ አጥማጅ፣ ዝርያ፣ ማጣቀሻ ይፈልጉ...",
+    "clear": "አጽዳ",
+    "results": "{{count}} ውጤት",
+    "results_plural": "{{count}} ውጤቶች",
+    "selected": "{{count}} ተመርጠዋል",
+    "approveSelected": "የተመረጡትን አጽድቅ",
+    "clearSelection": "አጽዳ",
+    "confirmApprove": "{{count}} የተመረጡ ዓሣዎችን ማጽደቅ እርግጠኛ ነዎት?",
+    "approveError": "አንዳንድ ዓሣዎችን ማጽደቅ ላይ ስህተት",
+    "tabAll": "ሁሉም",
+    "tabPending": "በመጠባበቅ",
+    "tabVerified": "የተረጋገጠ",
+    "tabRejected": "ውድቅ",
+    "prev": "ቀዳሚ",
+    "next": "ቀጣይ",
+    "page": "ገጽ {{current}} ከ {{total}}"
+  },
+  "fleet": {
+    "title": "የጀልባ ክወና",
+    "description": "የተመዘገቡ ጀልባዎች፣ ንቁ ጉዞዎች፣ እና 24 ሰዓት ጉዞ ታሪክ",
+    "fullCommandMap": "ሙሉ የትዕዛዝ ካርታ",
+    "loadError": "የጀልባ መረጃ ማግኘት አልተቻለም",
+    "boats": "ጀልባዎች",
+    "noBoats": "ገና ጀልባ አልተመዘገበም።",
+    "onTrip": "በጉዞ ላይ",
+    "fishing": "ዓሣ በማጥመድ ላይ",
+    "returning": "በመመለስ ላይ",
+    "docked": "ወደቡ",
+    "lastSeen": "ለመጨረሻ ጊዜ የታየ",
+    "selectedBoat": "የተመረጠ ጀልባ",
+    "noSelection": "ዝርዝር ለማየት ጀልባ ይምረጡ",
+    "route24h": "የ24 ሰዓት መንገድ"
+  },
+  "fishermen": {
+    "title": "የዓሣ አጥማጆች ማዝገቢያ",
+    "description": "ፈቃድ ያላቸው ዓሣ አጥማጆች እና ተገዢነት ሁኔታ",
+    "searchPlaceholder": "በስም ወይም ፈቃድ ይፈልጉ...",
+    "all": "ሁሉም",
+    "valid": "ዋጋ ያለው",
+    "expired": "ጊዜው ያለፈ",
+    "suspended": "ታግዶ",
+    "noResults": "ዓሣ አጥማጅ አልተገኘም",
+    "name": "ስም",
+    "license": "ፈቃድ",
+    "status": "ሁኔታ",
+    "boat": "ጀልባ",
+    "catches": "ዓሣ",
+    "compliance": "ተገዢነት"
+  },
+  "market": {
+    "title": "የገበያ ክትትል",
+    "description": "የገዢ እንቅስቃሴ፣ ዋጋዎች፣ እና የአቅርቦት ሰንሰለት",
+    "totalSales": "ጠቅላላ ሽያጭ",
+    "averagePrice": "አማካይ ዋጋ",
+    "activeBuyers": "ንቁ ገዢዎች",
+    "listings": "ዝርዝሮች"
+  },
+  "intelligence": {
+    "title": "የገበያ መረጃ",
+    "description": "የዋጋ አዝማሚያዎች፣ የአቅርቦት ትንታኔ፣ እና የእጥረት ማስጠንቀቂያዎች",
+    "priceTrends": "የዋጋ አዝማሚያዎች",
+    "supplyShortages": "አቅርቦት እና እጥረቶች",
+    "dailySnapshots": "ዕለታዊ ቅጽበታዊ ምስሎች"
+  },
+  "quotas": {
+    "title": "ኮታ እና ህጎች",
+    "description": "የዝርያ ኮታ፣ ወቅታዊ ደንቦች፣ እና የቀጠና ገደቦች",
+    "species": "ዝርያ",
+    "limit": "ገደብ (ኪ.ግ)",
+    "used": "ጥቅም ላይ የዋለ (ኪ.ግ)",
+    "usage": "አጠቃቀም",
+    "status": "ሁኔታ"
+  },
+  "zones": {
+    "title": "የዓሣ ማጥመጃ ቦታዎች",
+    "description": "የቦታ ትርጉሞችን እና ወቅታዊ ገደቦችን ያስተዳድሩ",
+    "name": "ስም",
+    "coordinates": "መጋጠሚያዎች",
+    "season": "ወቅት",
+    "active": "ንቁ",
+    "closed": "ተዘግቷል"
+  },
+  "alerts": {
+    "title": "ማስጠንቀቂያዎች",
+    "description": "የስርዓት ማስጠንቀቂያዎች እና ማሳወቂያዎች",
+    "noAlerts": "በአሁኑ ጊዜ ማስጠንቀቂያ የለም",
+    "markRead": "እንደተነበበ ምልክት አድርግ",
+    "dismiss": "አስወግድ"
+  },
+  "reports": {
+    "title": "ሪፖርቶች",
+    "description": "ትንታኔዎች እና የተፈጠሩ ሪፖርቶች",
+    "generate": "ሪፖርት ፍጠር",
+    "export": "ላክ",
+    "dateRange": "የቀን ክልል"
+  },
+  "liveOps": {
+    "title": "ቀጥታ ክወና",
+    "description": "ቀጥታ የግብይት ዝርዝር እና በመጠባበቅ ላይ ያሉ",
+    "pendingQueue": "በመጠባበቅ ላይ ያሉ",
+    "transactionTicker": "የግብይት ዝርዝር",
+    "noTransactions": "ምንም የቅርብ ግብይቶች የሉም"
+  },
+  "audit": {
+    "title": "የክትትል ዝርዝር",
+    "description": "የመንግስት ተጠያቂነት ዱካ",
+    "action": "ድርጊት",
+    "user": "ተጠቃሚ",
+    "timestamp": "ጊዜ",
+    "details": "ዝርዝር"
+  },
+  "users": {
+    "title": "ተጠቃሚ ያስመዝግቡ",
+    "description": "አዲስ ዓሣ አጥማጅ ወይም ተቆጣጣሪ ያስመዝግቡ",
+    "createFisher": "የዓሣ አጥማጅ መለያ ፍጠር",
+    "createInspector": "የተቆጣጣሪ መለያ ፍጠር"
+  },
+  "inspections": {
+    "title": "ፍተሻዎች",
+    "description": "የመስክ ፍተሻ ተልዕኮዎች እና ሪፖርቶች"
+  },
+  "common": {
+    "loading": "በመጫን ላይ...",
+    "error": "ስህተት ተከስቷል",
+    "retry": "ድገም",
+    "save": "አስቀምጥ",
+    "cancel": "ሰርዝ",
+    "delete": "ሰርዝ",
+    "edit": "አርትዕ",
+    "close": "ዝጋ",
+    "confirm": "አረጋግጥ",
+    "back": "ተመለስ",
+    "next": "ቀጣይ",
+    "submit": "አስገባ",
+    "search": "ፈልግ",
+    "filter": "አጣራ",
+    "noData": "ምንም መረጃ የለም",
+    "approve": "አጽድቅ",
+    "reject": "ውድቅ አድርግ",
+    "pending": "በመጠባበቅ",
+    "verified": "የተረጋገጠ",
+    "rejected": "ውድቅ"
   }
 }

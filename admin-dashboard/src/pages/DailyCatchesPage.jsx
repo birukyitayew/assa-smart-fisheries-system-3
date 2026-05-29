@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { useRegion } from '../context/RegionContext';
 import { usePolling } from '../hooks/usePolling';
@@ -11,6 +12,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const TABS = ['ALL', 'PENDING', 'VERIFIED', 'REJECTED'];
 
 export default function DailyCatchesPage() {
+  const { t } = useTranslation();
   const { selectedRegionId } = useRegion();
   const [catches, setCatches] = useState([]);
   const [total, setTotal] = useState(0);
@@ -56,9 +58,9 @@ export default function DailyCatchesPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
-          Daily Catches
+          {t('catches.title')}
         </h2>
-        <p className="text-sm text-muted-foreground">Review and process catch submissions</p>
+        <p className="text-sm text-muted-foreground">{t('catches.description')}</p>
       </div>
 
       <Card>
@@ -83,7 +85,7 @@ export default function DailyCatchesPage() {
 
             <Input
               type="text"
-              placeholder="Search fisher, species, reference..."
+              placeholder={t('catches.searchPlaceholder')}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

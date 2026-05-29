@@ -1,15 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import ListingCard from '../components/ListingCard';
 import FilterSidebar from '../components/FilterSidebar';
 import MarketSidebar from '../components/MarketSidebar';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Fish } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function HomePage() {
+  const { t } = useTranslation();
   const [listings, setListings] = useState([]);
   const [stats, setStats] = useState(null);
   const [activity, setActivity] = useState([]);
@@ -62,18 +63,18 @@ export default function HomePage() {
       <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
         <Badge variant="outline" className="mb-4 border-success/40 text-success">
           <span className="w-2 h-2 bg-success rounded-full mr-2 inline-block" />
-          All fish are legally caught and ASSA verified
+          {t('home.heroBadge')}
         </Badge>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Fresh. Legal. Verified.
+          {t('home.heroTitle')}
         </h1>
         <p className="text-muted-foreground mt-2 max-w-xl">
-          Buy quality fish, support sustainable fishing in Lake Tana.
+          {t('home.heroSubtitle')}
         </p>
         <div className="mt-5 flex gap-2 max-w-lg">
           <Input
             type="text"
-            placeholder="Search fish, species, seller..."
+            placeholder={t('browse.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1"
@@ -82,7 +83,7 @@ export default function HomePage() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {['Verified Legal Catch', 'Fresh & Quality', 'Fair Price', 'Secure', 'Fast Delivery'].map(
+        {[t('home.badges.verified'), t('home.badges.fresh'), t('home.badges.fairPrice'), t('home.badges.secure'), t('home.badges.fastDelivery')].map(
           (b) => (
             <Badge key={b} variant="outline">
               {b}
@@ -103,9 +104,9 @@ export default function HomePage() {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-foreground">
-              {selectedSpecies === 'All Fish' ? 'Featured Listings' : selectedSpecies}
+              {selectedSpecies === 'All Fish' ? t('browse.featuredListings') : selectedSpecies}
               <span className="text-muted-foreground font-normal text-sm ml-2">
-                ({filtered.length} available)
+                {t('browse.available_count', { count: filtered.length })}
               </span>
             </h2>
           </div>
@@ -114,9 +115,9 @@ export default function HomePage() {
             <Card>
               <CardContent className="py-16 text-center">
                 <Fish className="h-12 w-12 mx-auto mb-3 text-muted-foreground/40" aria-hidden />
-                <p className="text-muted-foreground">No listings available right now.</p>
+                <p className="text-muted-foreground">{t('browse.noListingsNow')}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Check back soon — new catches are approved daily.
+                  {t('browse.checkBackSoon')}
                 </p>
               </CardContent>
             </Card>

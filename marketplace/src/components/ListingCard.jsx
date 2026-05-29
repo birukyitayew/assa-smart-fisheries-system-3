@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 import PriceSparkline from './PriceSparkline';
 
 const FISH_COLORS = {
@@ -18,15 +17,15 @@ function formatKg(value) {
   return Number(value).toLocaleString('en-ET', { maximumFractionDigits: 1 });
 }
 
-function ListingBadge({ listing }) {
-  if (listing.status === 'SOLD_OUT') return <Badge variant="secondary">Sold Out</Badge>;
+function ListingBadge({ listing, t }) {
+  if (listing.status === 'SOLD_OUT') return <Badge variant="secondary">{t('listing.soldOut')}</Badge>;
   if (listing.shortage_flags?.includes('quota')) {
-    return <Badge variant="destructive">Shortage</Badge>;
+    return <Badge variant="destructive">{t('listing.shortage')}</Badge>;
   }
   if (listing.shortage_flags?.includes('low_stock') || listing.quantity_available_kg < 10) {
-    return <Badge variant="outline">Limited</Badge>;
+    return <Badge variant="outline">{t('listing.limited')}</Badge>;
   }
-  return <Badge>Fresh</Badge>;
+  return <Badge>{t('listing.fresh')}</Badge>;
 }
 
 export default function ListingCard({ listing }) {
@@ -45,7 +44,7 @@ export default function ListingCard({ listing }) {
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute top-3 left-3">
-            <ListingBadge listing={listing} />
+            <ListingBadge listing={listing} t={t} />
           </div>
           <div className="absolute bottom-3 left-3">
             <Badge variant="secondary" className="bg-background/90">
@@ -72,7 +71,7 @@ export default function ListingCard({ listing }) {
               <PriceSparkline data={listing.price_trend} />
             </div>
             <span className="text-xs text-muted-foreground shrink-0">
-              {formatKg(listing.quantity_available_kg)} kg left
+              {t('listing.kgLeft', { amount: formatKg(listing.quantity_available_kg) })}
             </span>
           </div>
           <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">

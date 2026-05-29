@@ -4,19 +4,131 @@
     "email": "ኢሜይል",
     "password": "የይለፍ ቃል",
     "submit": "ግባ",
-    "signingIn": "በመግባት ላይ…"
+    "signingIn": "በመግባት ላይ…",
+    "failed": "መግባት አልተሳካም"
   },
   "home": {
     "title": "ዛሬ በሐይቅ ላይ",
     "submitCatch": "ዓሣ አስገባ",
     "license": "ፈቃድ",
-    "tripsToday": "የዛሬ ጉዞዎች"
+    "tripsToday": "የዛሬ ጉዞዎች",
+    "welcome": "እንኳን ደህና መጡ፣ {{name}}",
+    "myCatches": "የእኔ ዓሣዎች",
+    "notifications": "ማሳወቂያዎች",
+    "fishingZones": "የዓሣ ማጥመጃ ቦታዎች",
+    "quickActions": "ፈጣን ተግባራት",
+    "marketplace": "የገበያ ቦታ",
+    "couldNotLoadProfile": "መገለጫዎን መጫን አልተቻለም",
+    "checkConnection": "ግንኙነትዎን ያረጋግጡ እና ድገም ይሞክሩ።",
+    "retry": "ድገም",
+    "openViolations": "ክፍት ጥሰቶች"
   },
   "trip": {
     "start": "ጉዞ ጀምር",
     "end": "ጉዞ አቁም",
     "active": "ንቁ ጉዞ",
-    "none": "ንቁ ጉዞ የለም"
+    "none": "ንቁ ጉዞ የለም",
+    "elapsed": "{{time}} አልፏል",
+    "gpsTracking": "GPS ክትትል ተጀምሯል",
+    "startDescription": "ከዓሣ ማጥመድ በፊት ጉዞ ይጀምሩ — ጀልባዎ በካርታ ላይ ይታያል።",
+    "registerBoat": "መጀመሪያ ጀልባ በዓሣ ሀብት ቢሮ ያስመዝግቡ።",
+    "validLicenseRequired": "ጉዞ ለመጀመር ዋጋ ያለው ፈቃድ ያስፈልጋል።",
+    "couldNotStart": "ጉዞ ማስጀመር አልተቻለም",
+    "couldNotEnd": "ጉዞ ማቆም አልተቻለም"
   },
-  "lang": { "toggle": "ቋንቋ" }
+  "catches": {
+    "title": "የእኔ ዓሣዎች",
+    "submissions": "{{count}} ማስረከቢያ",
+    "submissions_plural": "{{count}} ማስረከቢያዎች",
+    "noCatches": "ገና ዓሣ አልተመዘገበም። የመጀመሪያውን ዓሣ ያስገቡ!",
+    "date": "ቀን",
+    "time": "ሰዓት",
+    "gear": "መሳሪያ",
+    "zone": "ቦታ",
+    "numberOfFish": "የዓሣ ብዛት",
+    "rejectionReason": "ውድቅ የተደረገበት ምክንያት",
+    "verifiedMessage": "ይህ ዓሣ ጸድቋል እና በገበያ ላይ ተዘርግቷል።",
+    "back": "← ተመለስ"
+  },
+  "submit": {
+    "title": "ዓሣ አስገባ",
+    "stepDetails": "ዝርዝሮች",
+    "stepLocation": "ቦታ",
+    "stepPhoto": "ፎቶ (አማራጭ)",
+    "stepReview": "ግምገማ",
+    "species": "ዝርያ",
+    "selectSpecies": "ዝርያ ይምረጡ",
+    "quantity": "መጠን (ኪ.ግ)",
+    "numberOfFish": "የዓሣ ብዛት (አማራጭ)",
+    "fishingGear": "የማጥመጃ መሳሪያ",
+    "selectGear": "መሳሪያ ይምረጡ",
+    "fishingDate": "የማጥመጃ ቀን",
+    "fishingTime": "የማጥመጃ ሰዓት",
+    "zone": "የዓሣ ማጥመጃ ቦታ",
+    "selectZone": "ቦታ ይምረጡ",
+    "gpsCapture": "የGPS ቦታ",
+    "gpsLoading": "ቦታዎን በመፈለግ ላይ...",
+    "gpsTakingLong": "ከተጠበቀው በላይ ጊዜ እየወሰደ ነው። ቦታ ማግኛ መብራቱን ያረጋግጡ።",
+    "gpsError": "ቦታ ማግኘት አልተቻለም። የቦታ ማዕከል ጥቅም ላይ ይውላል።",
+    "gpsNotAvailable": "GPS በዚህ መሳሪያ ላይ አይገኝም",
+    "photo": "የዓሣ ፎቶ",
+    "addPhoto": "ፎቶ ጨምር",
+    "removePhoto": "አስወግድ",
+    "review": "ዓሣዎን ይገምግሙ",
+    "submitting": "በማስገባት ላይ...",
+    "submitCatch": "ዓሣ አስገባ",
+    "success": "ዓሣ ገብቷል!",
+    "successDesc": "ዓሣዎ ለግምገማ ቀርቧል።",
+    "reference": "ማጣቀሻ",
+    "submitAnother": "ሌላ ዓሣ አስገባ",
+    "goHome": "ወደ ቤት ሂድ",
+    "prev": "ቀዳሚ",
+    "next": "ቀጣይ",
+    "errorSpecies": "ዝርያ ይምረጡ",
+    "errorQuantity": "ከ0.1 እስከ 500 ኪ.ግ መጠን ያስገቡ",
+    "errorGear": "የማጥመጃ መሳሪያ ይምረጡ",
+    "errorDate": "ቀን ይምረጡ",
+    "errorTime": "ሰዓት ያስገቡ",
+    "errorFutureDate": "ቀን ወደ ፊት ሊሆን አይችልም",
+    "errorZone": "የዓሣ ማጥመጃ ቦታ ይምረጡ",
+    "errorSubmit": "ማስገባት አልተሳካም። እባክዎ ድገም ይሞክሩ።"
+  },
+  "zones": {
+    "title": "የዓሣ ማጥመጃ ቦታዎች",
+    "description": "በጣና ሐይቅ ላይ ንቁ ቦታዎች",
+    "noZones": "ምንም ቦታ አይገኝም",
+    "open": "ክፍት",
+    "closed": "ተዘግቷል",
+    "seasonal": "ወቅታዊ"
+  },
+  "notifications": {
+    "title": "ማሳወቂያዎች",
+    "noNotifications": "ገና ማሳወቂያ የለም",
+    "markRead": "እንደተነበበ ምልክት አድርግ"
+  },
+  "license": {
+    "digitalFisherId": "ዲጂታል የዓሣ አጥማጅ መታወቂያ",
+    "validUntil": "ዋጋ ያለው እስከ",
+    "complianceScore": "የተገዢነት ውጤት",
+    "expiryWarning": "የዓሣ ማጥመጃ ፈቃድዎ በ{{days}} ቀን(ዎች) ያበቃል። ከማበቃቱ በፊት ያድሱ።"
+  },
+  "theme": {
+    "toggle": "ገጽታ",
+    "light": "ብርሃን",
+    "dark": "ጨለማ",
+    "system": "ስርዓት"
+  },
+  "lang": {
+    "toggle": "ቋንቋ",
+    "en": "English",
+    "am": "አማርኛ"
+  },
+  "common": {
+    "loading": "በመጫን ላይ...",
+    "error": "ስህተት ተከስቷል",
+    "retry": "ድገም",
+    "back": "ተመለስ",
+    "cancel": "ሰርዝ",
+    "close": "ዝጋ"
+  }
 }

@@ -4,20 +4,89 @@
     "email": "ኢሜይል",
     "password": "የይለፍ ቃል",
     "submit": "ግባ",
-    "signingIn": "በመግባት ላይ…"
+    "signingIn": "በመግባት ላይ…",
+    "failed": "መግባት አልተሳካም",
+    "continueAsGuest": "እንደ እንግዳ ቀጥል"
   },
   "browse": {
     "title": "ትኩስ ዓሣ ገበያ",
     "available": "አሁን ይገኛል",
-    "order": "ትዕዛዝ አድርግ"
+    "order": "ትዕዛዝ አድርግ",
+    "browseAll": "ሁሉንም ዝርዝሮች ይመልከቱ",
+    "listingsAvailable": "{{count}} ዝርዝሮች ይገኛሉ",
+    "searchPlaceholder": "ዓሣ፣ ዝርያ፣ ሻጭ ይፈልጉ...",
+    "clear": "አጽዳ",
+    "clearFilters": "ማጣሪያዎችን አጽዳ",
+    "allListings": "ሁሉም ዝርዝሮች",
+    "featuredListings": "ተለይተው የቀረቡ",
+    "available_count": "({{count}} ይገኛል)",
+    "noListings": "ከማጣሪያዎ ጋር የሚዛመድ ዝርዝር የለም።",
+    "noListingsNow": "በአሁኑ ጊዜ ዝርዝር አይገኝም።",
+    "checkBackSoon": "በቅርብ ይመልሱ — አዳዲስ ዓሣዎች በየቀኑ ይጸድቃሉ።"
+  },
+  "home": {
+    "heroBadge": "ሁሉም ዓሣ በህጋዊ መንገድ የተያዘ እና በASSA የተረጋገጠ ነው",
+    "heroTitle": "ትኩስ። ህጋዊ። የተረጋገጠ።",
+    "heroSubtitle": "ጥራት ያለው ዓሣ ይግዙ፣ በጣና ሐይቅ ዘላቂ ዓሣ ማጥመድን ይደግፉ።",
+    "badges": {
+      "verified": "የተረጋገጠ ህጋዊ ዓሣ",
+      "fresh": "ትኩስ እና ጥራት ያለው",
+      "fairPrice": "ፍትሃዊ ዋጋ",
+      "secure": "ደህንነቱ የተጠበቀ",
+      "fastDelivery": "ፈጣን ማድረስ"
+    }
   },
   "listing": {
     "verified": "በመንግስት የተረጋገጠ",
-    "perKg": "በኪ.ግ"
+    "perKg": "በኪ.ግ",
+    "kgLeft": "{{amount}} ኪ.ግ ቀሪ",
+    "soldOut": "ተሽጧል",
+    "shortage": "እጥረት",
+    "limited": "ውስን",
+    "fresh": "ትኩስ",
+    "quantity": "መጠን (ኪ.ግ)",
+    "totalPrice": "ጠቅላላ ዋጋ",
+    "addToOrder": "ወደ ትዕዛዝ ጨምር",
+    "viewDetails": "ዝርዝር ይመልከቱ",
+    "seller": "ሻጭ",
+    "catchReference": "የዓሣ ማጣቀሻ",
+    "zone": "ቦታ",
+    "caughtOn": "የተያዘበት ቀን",
+    "description": "መግለጫ"
   },
   "order": {
+    "confirm": "ትዕዛዝ አረጋግጥ",
+    "reviewOrder": "ከማዘዝዎ በፊት ትዕዛዝዎን ይገምግሙ።",
+    "species": "ዝርያ",
+    "quantity": "መጠን",
+    "pricePerKg": "ዋጋ/ኪ.ግ",
+    "total": "ጠቅላላ",
+    "cancel": "ሰርዝ",
+    "placing": "በማዘዝ ላይ...",
+    "confirmOrder": "ትዕዛዝ አረጋግጥ",
     "success": "ትዕዛዝ ተረጋገጠ",
-    "thanks": "ስለ ግዢዎ እናመሰግናለን"
+    "thanks": "ስለ ግዢዎ እናመሰግናለን",
+    "orderRef": "የትዕዛዝ ማጣቀሻ",
+    "continueShopping": "ግዢ ቀጥል",
+    "myOrders": "የእኔ ትዕዛዞች",
+    "noOrders": "ገና ትዕዛዝ የለም",
+    "orderDate": "የትዕዛዝ ቀን",
+    "status": "ሁኔታ",
+    "totalAmount": "ጠቅላላ መጠን"
+  },
+  "filter": {
+    "categories": "ምድቦች",
+    "allFish": "ሁሉም ዓሣ",
+    "priceRange": "የዋጋ ክልል (ብር/ኪ.ግ)",
+    "clearAll": "ሁሉንም ማጣሪያዎች አጽዳ"
+  },
+  "marketSidebar": {
+    "marketStats": "የገበያ ስታቲስቲክስ",
+    "totalListings": "ጠቅላላ ዝርዝሮች",
+    "avgPrice": "አማካይ ዋጋ",
+    "todayOrders": "የዛሬ ትዕዛዞች",
+    "recentActivity": "የቅርብ ጊዜ እንቅስቃሴ",
+    "noActivity": "ምንም የቅርብ ጊዜ እንቅስቃሴ የለም"
   },
   "theme": {
     "toggle": "ገጽታ",
@@ -25,5 +94,17 @@
     "dark": "ጨለማ",
     "system": "ስርዓት"
   },
-  "lang": { "toggle": "ቋንቋ" }
+  "lang": {
+    "toggle": "ቋንቋ",
+    "en": "English",
+    "am": "አማርኛ"
+  },
+  "common": {
+    "loading": "በመጫን ላይ...",
+    "error": "ስህተት ተከስቷል",
+    "retry": "ድገም",
+    "back": "ተመለስ",
+    "cancel": "ሰርዝ",
+    "close": "ዝጋ"
+  }
 }

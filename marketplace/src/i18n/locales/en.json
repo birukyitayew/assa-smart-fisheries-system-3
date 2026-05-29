@@ -4,20 +4,89 @@
     "email": "Email",
     "password": "Password",
     "submit": "Sign in",
-    "signingIn": "Signing in…"
+    "signingIn": "Signing in…",
+    "failed": "Login failed",
+    "continueAsGuest": "Continue as guest"
   },
   "browse": {
     "title": "Fresh catch marketplace",
     "available": "Available now",
-    "order": "Place order"
+    "order": "Place order",
+    "browseAll": "Browse All Listings",
+    "listingsAvailable": "{{count}} listings available",
+    "searchPlaceholder": "Search fish, species, seller...",
+    "clear": "Clear",
+    "clearFilters": "Clear filters",
+    "allListings": "All Listings",
+    "featuredListings": "Featured Listings",
+    "available_count": "({{count}} available)",
+    "noListings": "No listings match your filters.",
+    "noListingsNow": "No listings available right now.",
+    "checkBackSoon": "Check back soon — new catches are approved daily."
+  },
+  "home": {
+    "heroBadge": "All fish are legally caught and ASSA verified",
+    "heroTitle": "Fresh. Legal. Verified.",
+    "heroSubtitle": "Buy quality fish, support sustainable fishing in Lake Tana.",
+    "badges": {
+      "verified": "Verified Legal Catch",
+      "fresh": "Fresh & Quality",
+      "fairPrice": "Fair Price",
+      "secure": "Secure",
+      "fastDelivery": "Fast Delivery"
+    }
   },
   "listing": {
     "verified": "Government verified",
-    "perKg": "per kg"
+    "perKg": "per kg",
+    "kgLeft": "{{amount}} kg left",
+    "soldOut": "Sold Out",
+    "shortage": "Shortage",
+    "limited": "Limited",
+    "fresh": "Fresh",
+    "quantity": "Quantity (kg)",
+    "totalPrice": "Total Price",
+    "addToOrder": "Add to Order",
+    "viewDetails": "View Details",
+    "seller": "Seller",
+    "catchReference": "Catch Reference",
+    "zone": "Zone",
+    "caughtOn": "Caught on",
+    "description": "Description"
   },
   "order": {
+    "confirm": "Confirm Order",
+    "reviewOrder": "Review your order before placing it.",
+    "species": "Species",
+    "quantity": "Quantity",
+    "pricePerKg": "Price/kg",
+    "total": "Total",
+    "cancel": "Cancel",
+    "placing": "Placing...",
+    "confirmOrder": "Confirm Order",
     "success": "Order confirmed",
-    "thanks": "Thank you for your purchase"
+    "thanks": "Thank you for your purchase",
+    "orderRef": "Order Reference",
+    "continueShopping": "Continue Shopping",
+    "myOrders": "My Orders",
+    "noOrders": "No orders yet",
+    "orderDate": "Order Date",
+    "status": "Status",
+    "totalAmount": "Total Amount"
+  },
+  "filter": {
+    "categories": "Categories",
+    "allFish": "All Fish",
+    "priceRange": "Price Range (ETB/kg)",
+    "clearAll": "Clear all filters"
+  },
+  "marketSidebar": {
+    "marketStats": "Market Stats",
+    "totalListings": "Total Listings",
+    "avgPrice": "Avg. Price",
+    "todayOrders": "Today's Orders",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity"
   },
   "theme": {
     "toggle": "Theme",
@@ -25,5 +94,17 @@
     "dark": "Dark",
     "system": "System"
   },
-  "lang": { "toggle": "Language" }
+  "lang": {
+    "toggle": "Language",
+    "en": "English",
+    "am": "አማርኛ"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "back": "Back",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
 }
