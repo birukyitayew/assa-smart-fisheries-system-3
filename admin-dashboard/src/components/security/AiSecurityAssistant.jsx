@@ -177,17 +177,55 @@ function TypingIndicator() {
 export default function AiSecurityAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content:
-        'Welcome to ASSA AI Security Assistant. I can help you analyze threats, assess risk levels, explain incidents, and suggest mitigations. How can I help?',
-      timestamp: new Date().toISOString(),
-    },
-  ]);
+  const [aiConfigured, setAiConfigured] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    api
+      .get('/admin/security-assistant/status')
+      .then(({ data }) => {
+        if (cancelled) return;
+        const live = Boolean(data?.configured);
+        setAiConfigured(live);
+        setMessages((prev) => {
+          if (prev.length > 0) return prev;
+          return [
+            {
+              role: 'assistant',
+              content: live
+                ? 'Welcome to ASSA AI Security Assistant. I have access to live system data — catches, quotas, alerts, violations, fleet, and market intel. Ask me anything.'
+                : 'Welcome to ASSA AI Security Assistant (Demo Mode). The AI service is not configured on this server. Responses shown are pre-recorded examples. To enable live AI analysis, set the GROQ_API_KEY environment variable on the backend.',
+              timestamp: new Date().toISOString(),
+              simulated: !live,
+            },
+          ];
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setAiConfigured(false);
+        setMessages((prev) => {
+          if (prev.length > 0) return prev;
+          return [
+            {
+              role: 'assistant',
+              content:
+                'Welcome to ASSA AI Security Assistant (Demo Mode). Could not reach the AI service. Responses below are pre-recorded examples.',
+              timestamp: new Date().toISOString(),
+              simulated: true,
+            },
+          ];
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -225,6 +263,11 @@ export default function AiSecurityAssistant() {
     setInput('');
     setIsTyping(true);
 
+    if (aiConfigured === false) {
+      appendSimulatedResponse(query);
+      return;
+    }
+
     try {
       const { data } = await api.post('/admin/security-assistant/chat', { messages: history });
       if (data?.content) {
@@ -244,7 +287,7 @@ export default function AiSecurityAssistant() {
     } catch (err) {
       const status = err?.response?.status;
       if (status === 503) {
-        // Backend says assistant isn't configured -> stay on canned responses.
+        setAiConfigured(false);
         appendSimulatedResponse(query);
         return;
       }
@@ -255,6 +298,7 @@ export default function AiSecurityAssistant() {
           content: "I couldn't reach the AI service just now. Showing a cached analysis instead.",
           timestamp: new Date().toISOString(),
           error: true,
+          simulated: true,
         },
       ]);
       appendSimulatedResponse(query);
@@ -286,8 +330,15 @@ export default function AiSecurityAssistant() {
             <Zap className="h-4 w-4 text-primary" />
           </div>
           ASSA AI Security Assistant
-          <Badge variant="outline" className="text-[10px] py-0">
-            AI
+          <Badge
+            variant="outline"
+            className={cn(
+              'text-[10px] py-0',
+              aiConfigured === false && 'border-amber-400 text-amber-500',
+              aiConfigured === true && 'border-emerald-400 text-emerald-500',
+            )}
+          >
+            {aiConfigured === null ? 'AI' : aiConfigured ? 'LIVE' : 'DEMO'}
           </Badge>
         </CardTitle>
         <div className="flex items-center gap-1">
@@ -328,6 +379,9 @@ export default function AiSecurityAssistant() {
                   : 'bg-muted/80 text-foreground',
               )}
             >
+              {msg.simulated && (
+                <div className="text-[10px] text-amber-500 font-medium mb-1">DEMO RESPONSE</div>
+              )}
               <div className="whitespace-pre-wrap break-words ai-message-content">
                 {msg.content.split('\n').map((line, j, arr) => (
                   <span key={j}>
