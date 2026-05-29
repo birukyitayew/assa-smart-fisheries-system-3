@@ -28,11 +28,6 @@ function fisherRegionSql(regionId) {
   )`;
 }
 
-function zoneRegionSql(regionId) {
-  if (regionId == null) return Prisma.empty;
-  return Prisma.sql`WHERE region_id = ${regionId}`;
-}
-
 function listingRegionSql(regionId) {
   if (regionId == null) return Prisma.empty;
   return Prisma.sql`AND EXISTS (
@@ -50,6 +45,56 @@ function orderRegionSql(regionId) {
     JOIN fishing_zones fz_r ON f_r.zone_id = fz_r.id
     WHERE ml_r.id = o.listing_id AND fz_r.region_id = ${regionId}
   )`;
+}
+
+function reportWindow(period = 'monthly') {
+  const now = new Date();
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
+
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+
+  if (period === 'weekly') {
+    start.setDate(start.getDate() - 6);
+  } else if (period === 'monthly') {
+    start.setDate(1);
+  } else if (period === 'yearly') {
+    start.setMonth(0, 1);
+  }
+
+  return { start, end };
+}
+
+function previousReportWindow(period = 'monthly', start) {
+  const previousEnd = new Date(start.getTime() - 1);
+  const previousStart = new Date(previousEnd);
+  previousStart.setHours(0, 0, 0, 0);
+
+  if (period === 'weekly') {
+    previousStart.setDate(previousStart.getDate() - 6);
+  } else if (period === 'monthly') {
+    previousStart.setDate(1);
+  } else if (period === 'yearly') {
+    previousStart.setMonth(0, 1);
+  }
+
+  return { start: previousStart, end: previousEnd };
+}
+
+function trendPct(current, previous) {
+  if (!previous) return current ? 100 : 0;
+  return Number((((current - previous) / previous) * 100).toFixed(1));
+}
+
+function reportTitle(period) {
+  const labels = {
+    daily: 'Daily',
+    weekly: 'Weekly',
+    monthly: 'Monthly',
+    yearly: 'Yearly',
+  };
+  return labels[period] || labels.monthly;
 }
 
 async function listRegions(req, res) {
@@ -621,6 +666,221 @@ async function getMonthlyReport(req, res) {
   });
 }
 
+async function getProfessionalReport(req, res) {
+  const { regionId, region } = await regionService.resolveRegionFilter(req);
+  const requestedPeriod = String(req.query.period || 'monthly').toLowerCase();
+  const allowedPeriods = ['daily', 'weekly', 'monthly', 'yearly'];
+  const period = allowedPeriods.includes(requestedPeriod) ? requestedPeriod : 'monthly';
+  const { start, end } = reportWindow(period);
+  const previous = previousReportWindow(period, start);
+
+  const [
+    catchTotals,
+    previousCatchTotals,
+    salesTotals,
+    previousSalesTotals,
+    speciesMix,
+    zonePerformance,
+    quotaStatus,
+    compliance,
+    marketPrices,
+    fleet,
+    activeAlerts,
+    openViolations,
+    recentCatches,
+  ] = await Promise.all([
+    prisma.$queryRaw`
+      SELECT
+        COALESCE(SUM(quantity_kg), 0) as total_kg,
+        COALESCE(SUM(CASE WHEN status = 'VERIFIED' THEN quantity_kg ELSE 0 END), 0) as verified_kg,
+        COALESCE(SUM(CASE WHEN status = 'PENDING' THEN quantity_kg ELSE 0 END), 0) as pending_kg,
+        COALESCE(SUM(CASE WHEN status = 'REJECTED' THEN quantity_kg ELSE 0 END), 0) as rejected_kg,
+        COUNT(*)::int as submissions,
+        COUNT(*) FILTER (WHERE status = 'VERIFIED')::int as verified_count,
+        COUNT(*) FILTER (WHERE status = 'PENDING')::int as pending_count,
+        COUNT(*) FILTER (WHERE status = 'REJECTED')::int as rejected_count
+      FROM catch_submissions cs
+      WHERE fishing_date BETWEEN ${start}::date AND ${end}::date ${catchRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(CASE WHEN status = 'VERIFIED' THEN quantity_kg ELSE 0 END), 0) as verified_kg
+      FROM catch_submissions cs
+      WHERE fishing_date BETWEEN ${previous.start}::date AND ${previous.end}::date ${catchRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT
+        COALESCE(SUM(total_price), 0) as revenue,
+        COALESCE(SUM(quantity_kg), 0) as kg_sold,
+        COUNT(*)::int as orders,
+        COALESCE(AVG(price_per_kg), 0) as avg_price
+      FROM orders o
+      WHERE status != 'CANCELLED' AND ordered_at BETWEEN ${start} AND ${end} ${orderRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT COALESCE(SUM(total_price), 0) as revenue
+      FROM orders o
+      WHERE status != 'CANCELLED' AND ordered_at BETWEEN ${previous.start} AND ${previous.end}
+      ${orderRegionSql(regionId)}
+    `,
+    prisma.$queryRaw`
+      SELECT species,
+             COALESCE(SUM(quantity_kg), 0) as total_kg,
+             COUNT(*)::int as submissions,
+             COUNT(*) FILTER (WHERE status = 'VERIFIED')::int as verified_count
+      FROM catch_submissions cs
+      WHERE fishing_date BETWEEN ${start}::date AND ${end}::date ${catchRegionSql(regionId)}
+      GROUP BY species ORDER BY total_kg DESC LIMIT 8
+    `,
+    prisma.$queryRaw`
+      SELECT fz.name as zone_name,
+             COALESCE(SUM(cs.quantity_kg), 0) as total_kg,
+             COUNT(cs.id)::int as submissions,
+             COUNT(cs.id) FILTER (WHERE cs.status = 'VERIFIED')::int as verified_count,
+             COUNT(cs.id) FILTER (WHERE cs.status = 'REJECTED')::int as rejected_count
+      FROM catch_submissions cs
+      JOIN fishing_zones fz ON cs.zone_id = fz.id
+      WHERE cs.fishing_date BETWEEN ${start}::date AND ${end}::date ${catchRegionSql(regionId)}
+      GROUP BY fz.name ORDER BY total_kg DESC LIMIT 6
+    `,
+    prisma.$queryRaw`
+      SELECT species, monthly_limit_kg, current_month_kg,
+             ROUND((current_month_kg * 100.0 / NULLIF(monthly_limit_kg, 0))::numeric, 1) as usage_pct
+      FROM species_quotas
+      WHERE month = ${start.getMonth() + 1} AND year = ${start.getFullYear()}
+      ORDER BY usage_pct DESC NULLS LAST LIMIT 8
+    `,
+    prisma.$queryRaw`
+      SELECT
+        COUNT(*) FILTER (WHERE status IN ('OPEN','UNDER_REVIEW'))::int as open_cases,
+        COUNT(*) FILTER (WHERE severity IN ('HIGH','CRITICAL') AND status IN ('OPEN','UNDER_REVIEW'))::int
+          as high_risk_cases,
+        COALESCE(SUM(CASE WHEN fine_status = 'PENDING' THEN fine_amount ELSE 0 END), 0) as pending_fines
+      FROM violations v
+      WHERE created_at BETWEEN ${start} AND ${end}
+      ${regionId != null ? Prisma.sql`AND EXISTS (
+        SELECT 1 FROM fishing_zones fz_r WHERE fz_r.id = v.zone_id AND fz_r.region_id = ${regionId}
+      )` : Prisma.empty}
+    `,
+    prisma.$queryRaw`
+      SELECT ml.species,
+             COALESCE(SUM(o.quantity_kg), 0) as kg_sold,
+             COALESCE(SUM(o.total_price), 0) as revenue,
+             COALESCE(AVG(o.price_per_kg), 0) as avg_price
+      FROM orders o
+      JOIN marketplace_listings ml ON o.listing_id = ml.id
+      WHERE o.status != 'CANCELLED' AND o.ordered_at BETWEEN ${start} AND ${end}
+      ${orderRegionSql(regionId)}
+      GROUP BY ml.species ORDER BY revenue DESC LIMIT 8
+    `,
+    fleetService.getFleetList(regionId),
+    prisma.alert.count({
+      where: {
+        isRead: false,
+      },
+    }),
+    prisma.$queryRaw`
+      SELECT COUNT(*)::int as count
+      FROM violations v
+      WHERE status IN ('OPEN','UNDER_REVIEW')
+      ${regionId != null ? Prisma.sql`AND EXISTS (
+        SELECT 1 FROM fishing_zones fz_r WHERE fz_r.id = v.zone_id AND fz_r.region_id = ${regionId}
+      )` : Prisma.empty}
+    `,
+    prisma.$queryRaw`
+      SELECT cs.reference_id, cs.species, cs.quantity_kg, cs.status, cs.fishing_date,
+             u.name as fisher_name, fz.name as zone_name
+      FROM catch_submissions cs
+      JOIN fishers f ON cs.fisher_id = f.id
+      JOIN users u ON f.user_id = u.id
+      JOIN fishing_zones fz ON cs.zone_id = fz.id
+      WHERE cs.fishing_date BETWEEN ${start}::date AND ${end}::date ${catchRegionSql(regionId)}
+      ORDER BY cs.submitted_at DESC LIMIT 8
+    `,
+  ]);
+
+  const totals = catchTotals[0] || {};
+  const sales = salesTotals[0] || {};
+  const previousVerifiedKg = num(previousCatchTotals[0]?.verified_kg);
+  const previousRevenue = num(previousSalesTotals[0]?.revenue);
+  const activeBoats = fleet.filter((boat) => boat.status === 'ACTIVE').length;
+
+  res.json({
+    title: `${reportTitle(period)} Fisheries Performance Report`,
+    period,
+    periodLabel: reportTitle(period),
+    generatedAt: new Date().toISOString(),
+    region: region ? { id: region.id, name: region.name, code: region.code } : null,
+    window: {
+      start: start.toISOString(),
+      end: end.toISOString(),
+      previousStart: previous.start.toISOString(),
+      previousEnd: previous.end.toISOString(),
+    },
+    executiveSummary: {
+      catchTrendPct: trendPct(num(totals.verified_kg), previousVerifiedKg),
+      revenueTrendPct: trendPct(num(sales.revenue), previousRevenue),
+      verificationRatePct: totals.submissions
+        ? Number(((num(totals.verified_count) / num(totals.submissions)) * 100).toFixed(1))
+        : 0,
+      riskLevel: num(compliance[0]?.high_risk_cases) > 2 ? 'High' : activeAlerts > 0 ? 'Moderate' : 'Normal',
+    },
+    kpis: {
+      totalCatchKg: num(totals.total_kg),
+      verifiedCatchKg: num(totals.verified_kg),
+      pendingCatchKg: num(totals.pending_kg),
+      rejectedCatchKg: num(totals.rejected_kg),
+      submissions: num(totals.submissions),
+      verifiedCount: num(totals.verified_count),
+      pendingCount: num(totals.pending_count),
+      rejectedCount: num(totals.rejected_count),
+      revenue: num(sales.revenue),
+      kgSold: num(sales.kg_sold),
+      orders: num(sales.orders),
+      avgPrice: num(sales.avg_price),
+      activeBoats,
+      totalBoats: fleet.length,
+      unreadAlerts: activeAlerts,
+      openViolations: num(openViolations[0]?.count),
+      pendingFines: num(compliance[0]?.pending_fines),
+      highRiskCases: num(compliance[0]?.high_risk_cases),
+    },
+    speciesMix: speciesMix.map((row) => ({
+      species: row.species,
+      total_kg: num(row.total_kg),
+      submissions: num(row.submissions),
+      verified_count: num(row.verified_count),
+    })),
+    zonePerformance: zonePerformance.map((row) => ({
+      zone_name: row.zone_name,
+      total_kg: num(row.total_kg),
+      submissions: num(row.submissions),
+      verified_count: num(row.verified_count),
+      rejected_count: num(row.rejected_count),
+    })),
+    quotaStatus: quotaStatus.map((row) => ({
+      species: row.species,
+      monthly_limit_kg: num(row.monthly_limit_kg),
+      current_month_kg: num(row.current_month_kg),
+      usage_pct: num(row.usage_pct),
+    })),
+    marketPrices: marketPrices.map((row) => ({
+      species: row.species,
+      kg_sold: num(row.kg_sold),
+      revenue: num(row.revenue),
+      avg_price: num(row.avg_price),
+    })),
+    recentCatches: recentCatches.map((row) => ({
+      reference_id: row.reference_id,
+      fisher_name: row.fisher_name,
+      species: row.species,
+      quantity_kg: num(row.quantity_kg),
+      status: row.status,
+      fishing_date: row.fishing_date,
+      zone_name: row.zone_name,
+    })),
+  });
+}
+
 async function getLiveStats(req, res) {
   const { regionId } = await regionService.resolveRegionFilter(req);
   const today = new Date().toISOString().split('T')[0];
@@ -1154,6 +1414,7 @@ module.exports = {
   markAllAlertsRead: asyncHandler(markAllAlertsRead),
   getZones: asyncHandler(getZones),
   getMonthlyReport: asyncHandler(getMonthlyReport),
+  getProfessionalReport: asyncHandler(getProfessionalReport),
   getLiveStats: asyncHandler(getLiveStats),
   getFleetPositions: asyncHandler(getFleetPositions),
   getFleet: asyncHandler(getFleet),
