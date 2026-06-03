@@ -50,7 +50,7 @@ export default function AppShell() {
       </header>
 
       {isOffline && (
-        <div className="flex items-center gap-2 bg-amber-500/90 text-white text-xs font-medium px-4 py-2">
+        <div className="flex items-center gap-2 bg-warning/90 text-white text-xs font-medium px-4 py-2">
           <WifiOff className="h-3.5 w-3.5 shrink-0" />
           <span>No internet connection. Some features may not work.</span>
         </div>

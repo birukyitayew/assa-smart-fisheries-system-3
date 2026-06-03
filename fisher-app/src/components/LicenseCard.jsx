@@ -25,9 +25,9 @@ export default function LicenseCard({ profile, compliance }) {
   );
 
   return (
-    <Card className={cn(!isValid && 'border-destructive/30', expiresoon && 'border-amber-400/50')}>
+    <Card className={cn(!isValid && 'border-destructive/30', expiresoon && 'border-warning/50')}>
       {expiresoon && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border-b border-amber-400/30 rounded-t-xl text-amber-700 dark:text-amber-400 text-xs font-medium">
+        <div className="flex items-center gap-2 px-4 py-2 bg-warning/10 border-b border-warning/30 rounded-t-xl text-warning text-xs font-medium">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
           {t('license.expiryWarning', { days: daysUntilExpiry })}
         </div>
@@ -67,7 +67,7 @@ export default function LicenseCard({ profile, compliance }) {
             <div
               className={cn(
                 'font-semibold text-sm mt-0.5',
-                expiresoon && 'text-amber-600 dark:text-amber-400',
+                expiresoon && 'text-warning',
               )}
             >
               {profile?.license_expiry}

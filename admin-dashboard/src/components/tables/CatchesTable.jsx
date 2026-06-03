@@ -10,6 +10,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import StatusBadge from '../StatusBadge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 
 function zoneFlagBadge(flag) {
   if (!flag) return null;
@@ -63,18 +65,16 @@ export default function CatchesTable({
         <TableRow>
           {onSelectChange && hasPending && (
             <TableHead className="w-12">
-              <input
-                type="checkbox"
-                className="rounded border-input text-primary focus:ring-ring h-4 w-4 cursor-pointer accent-primary"
+              <Checkbox
                 checked={
                   catches.length > 0 &&
                   catches
                     .filter((c) => c.status === 'PENDING')
                     .every((c) => selectedIds.includes(c.id))
                 }
-                onChange={(e) => {
+                onCheckedChange={(checked) => {
                   const pendingCatches = catches.filter((c) => c.status === 'PENDING');
-                  if (e.target.checked) {
+                  if (checked) {
                     const newSelected = [
                       ...new Set([...selectedIds, ...pendingCatches.map((c) => c.id)]),
                     ];
@@ -107,13 +107,11 @@ export default function CatchesTable({
             {onSelectChange && hasPending && (
               <TableCell className="w-12">
                 {c.status === 'PENDING' ? (
-                  <input
-                    type="checkbox"
-                    className="rounded border-input text-primary focus:ring-ring h-4 w-4 cursor-pointer accent-primary"
+                  <Checkbox
                     checked={selectedIds.includes(c.id)}
                     onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => {
-                      if (e.target.checked) {
+                    onCheckedChange={(checked) => {
+                      if (checked) {
                         onSelectChange([...selectedIds, c.id]);
                       } else {
                         onSelectChange(selectedIds.filter((id) => id !== c.id));
@@ -146,18 +144,20 @@ export default function CatchesTable({
               <div className="flex items-center justify-end gap-2">
                 {c.status === 'PENDING' && (
                   <>
-                    <button
+                    <Button
+                      size="sm"
                       onClick={(e) => handleApprove(c.id, e)}
-                      className="px-2 py-1 text-xs bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 font-semibold rounded transition-colors"
+                      className="h-7 px-2 text-xs bg-success/10 text-success hover:bg-success/20 font-semibold border-none rounded transition-colors shadow-none"
                     >
                       Approve
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      size="sm"
                       onClick={(e) => handleReject(c.id, e)}
-                      className="px-2 py-1 text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 font-semibold rounded transition-colors"
+                      className="h-7 px-2 text-xs bg-destructive/10 text-destructive hover:bg-destructive/20 font-semibold border-none rounded transition-colors shadow-none"
                     >
                       Reject
-                    </button>
+                    </Button>
                   </>
                 )}
                 <Link

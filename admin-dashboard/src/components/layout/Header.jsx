@@ -61,7 +61,7 @@ export default function Header() {
           <Radio className={cn('h-3 w-3 shrink-0', connected && 'animate-pulse')} />
           <span className="whitespace-nowrap">{connected ? t('header.live') : t('header.offline')}</span>
         </div>
-        <Button variant="ghost" size="icon" asChild className="relative shrink-0">
+        <Button variant="ghost" size="icon" asChild className="relative shrink-0" aria-label="View alerts">
           <Link to="/alerts">
             <Bell className="h-5 w-5" />
             {alertCount > 0 && (

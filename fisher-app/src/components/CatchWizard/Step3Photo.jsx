@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Camera, Image, Loader2, X, CheckCircle2 } from 'lucide-react';
+import { Camera, Loader2, X, CheckCircle2 } from 'lucide-react';
 import api from '@/services/api';
 
 /**
@@ -70,7 +70,7 @@ export default function Step3Photo({ photos, onAddPhoto, onRemove }) {
             >
               <X className="h-3 w-3" />
             </button>
-            <CheckCircle2 className="absolute bottom-1 right-1 h-4 w-4 text-green-400 drop-shadow" />
+            <CheckCircle2 className="absolute bottom-1 right-1 h-4 w-4 text-success drop-shadow" />
           </div>
         ))}
 

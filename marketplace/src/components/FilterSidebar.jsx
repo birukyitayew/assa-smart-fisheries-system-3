@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 
 const SPECIES_CATEGORIES = [
   'All Fish',
@@ -47,13 +49,17 @@ export default function FilterSidebar({
           <CardTitle className="text-sm">{t('filter.priceRange')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <input
-            type="range"
-            min="0"
-            max="300"
+          <Label htmlFor="price-slider" className="sr-only">
+            {t('filter.priceRange')}
+          </Label>
+          <Slider
+            id="price-slider"
+            min={0}
+            max={300}
             value={priceRange[1]}
-            onChange={(e) => onPriceChange([0, Number(e.target.value)])}
-            className="w-full accent-primary"
+            onValueChange={(val) => onPriceChange([0, val])}
+            className="w-full"
+            aria-label={t('filter.priceRange')}
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-2">
             <span>ETB 0</span>

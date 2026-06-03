@@ -10,7 +10,7 @@ import {
 import api from '../services/api';
 import PageHeader from '../components/layout/PageHeader';
 import KpiCard from '../components/cards/KpiCard';
-import { generateProfessionalReportPdf } from '../lib/reportPdf';
+import { generateProfessionalReportPdf } from '../lib/report-pdf';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
