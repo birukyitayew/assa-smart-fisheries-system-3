@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from './context/AuthContext';
 import MarketLayout from './components/MarketLayout';
 import LoginPage from './pages/LoginPage';
@@ -11,7 +12,8 @@ import MyOrdersPage from './pages/MyOrdersPage';
 export default function App() {
   const { user } = useAuth();
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<MarketLayout />}>
         <Route index element={<HomePage />} />
@@ -23,7 +25,9 @@ export default function App() {
           element={user ? <MyOrdersPage /> : <Navigate to="/login" replace />}
         />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <Analytics />
+    </>
   );
 }

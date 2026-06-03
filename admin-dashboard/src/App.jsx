@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import InspectorHomePage from './pages/InspectorHomePage';
@@ -38,7 +39,8 @@ export default function App() {
   const { user } = useAuth();
 
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route
         path="/"
@@ -185,7 +187,9 @@ export default function App() {
           }
         />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <Analytics />
+    </>
   );
 }
