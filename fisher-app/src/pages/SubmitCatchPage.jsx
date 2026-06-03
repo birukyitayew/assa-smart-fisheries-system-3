@@ -208,6 +208,7 @@ export default function SubmitCatchPage() {
           variant="ghost"
           size="icon"
           onClick={() => (step > 1 ? setStep((s) => s - 1) : navigate('/'))}
+          aria-label="Go back"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>

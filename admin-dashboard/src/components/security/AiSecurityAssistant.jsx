@@ -311,6 +311,7 @@ export default function AiSecurityAssistant() {
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all"
         size="icon"
+        aria-label="Open AI Security Assistant"
       >
         <Zap className="h-6 w-6" />
       </Button>
@@ -334,8 +335,8 @@ export default function AiSecurityAssistant() {
             variant="outline"
             className={cn(
               'text-[10px] py-0',
-              aiConfigured === false && 'border-amber-400 text-amber-500',
-              aiConfigured === true && 'border-emerald-400 text-emerald-500',
+              aiConfigured === false && 'border-warning text-warning',
+              aiConfigured === true && 'border-success text-success',
             )}
           >
             {aiConfigured === null ? 'AI' : aiConfigured ? 'LIVE' : 'DEMO'}
@@ -347,6 +348,7 @@ export default function AiSecurityAssistant() {
             size="icon"
             className="h-7 w-7"
             onClick={() => setIsExpanded(!isExpanded)}
+            aria-label={isExpanded ? 'Collapse panel' : 'Expand panel'}
           >
             {isExpanded ? (
               <Minimize2 className="h-3.5 w-3.5" />
@@ -354,7 +356,7 @@ export default function AiSecurityAssistant() {
               <Maximize2 className="h-3.5 w-3.5" />
             )}
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)} aria-label="Close AI Security Assistant">
             <X className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -380,7 +382,7 @@ export default function AiSecurityAssistant() {
               )}
             >
               {msg.simulated && (
-                <div className="text-[10px] text-amber-500 font-medium mb-1">DEMO RESPONSE</div>
+                <div className="text-[10px] text-warning font-medium mb-1">DEMO RESPONSE</div>
               )}
               <div className="whitespace-pre-wrap break-words ai-message-content">
                 {msg.content.split('\n').map((line, j, arr) => (
@@ -434,6 +436,7 @@ export default function AiSecurityAssistant() {
             size="icon"
             disabled={!input.trim() || isTyping}
             className="shrink-0"
+            aria-label="Send message"
           >
             {isTyping ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>

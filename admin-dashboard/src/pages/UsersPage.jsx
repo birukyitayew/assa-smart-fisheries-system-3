@@ -4,6 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCircle2, AlertCircle, UserPlus, Info } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function UsersPage() {
   const [name, setName] = useState('');
@@ -113,9 +121,9 @@ export default function UsersPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Full Name
-                </label>
+                </Label>
                 <Input
                   type="text"
                   placeholder="e.g. Abebe Kebede"
@@ -126,9 +134,9 @@ export default function UsersPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Email Address
-                </label>
+                </Label>
                 <Input
                   type="email"
                   placeholder="e.g. abebe@fisher.et"
@@ -141,9 +149,9 @@ export default function UsersPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Password
-                </label>
+                </Label>
                 <Input
                   type="password"
                   placeholder="Min 6 characters"
@@ -154,9 +162,9 @@ export default function UsersPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Phone Number
-                </label>
+                </Label>
                 <Input
                   type="tel"
                   placeholder="e.g. +251912345678"
@@ -167,19 +175,20 @@ export default function UsersPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Platform Role
-              </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <option value="fisher">Fisherman / Co-op Member</option>
-                <option value="inspector">Inspector / Port Authority</option>
-                <option value="buyer">Marketplace Buyer / Restaurant</option>
-                <option value="admin">Administrator</option>
-              </select>
+              </Label>
+              <Select value={role} onValueChange={(value) => setRole(value)}>
+                <SelectTrigger className="w-full h-8 bg-transparent">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="fisher">Fisherman / Co-op Member</SelectItem>
+                  <SelectItem value="inspector">Inspector / Port Authority</SelectItem>
+                  <SelectItem value="buyer">Marketplace Buyer / Restaurant</SelectItem>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Fisher Specific Profile Section */}
@@ -192,9 +201,9 @@ export default function UsersPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       License Number
-                    </label>
+                    </Label>
                     <Input
                       type="text"
                       placeholder="e.g. LIC-998822 (auto-generated if empty)"
@@ -204,9 +213,9 @@ export default function UsersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Boat Name
-                    </label>
+                    </Label>
                     <Input
                       type="text"
                       placeholder="e.g. Tanash-1"
@@ -218,9 +227,9 @@ export default function UsersPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Vessel Reg Number
-                    </label>
+                    </Label>
                     <Input
                       type="text"
                       placeholder="e.g. REG-08241 (auto-generated if empty)"
@@ -230,9 +239,9 @@ export default function UsersPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Vessel Capacity (kg)
-                    </label>
+                    </Label>
                     <Input
                       type="number"
                       placeholder="e.g. 500"
@@ -253,9 +262,9 @@ export default function UsersPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Marketplace Location / City
-                  </label>
+                  </Label>
                   <Input
                     type="text"
                     placeholder="e.g. Bahir Dar, Gondar, Woreta"

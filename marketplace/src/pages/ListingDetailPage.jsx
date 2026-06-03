@@ -141,6 +141,7 @@ export default function ListingDetailPage() {
                     variant="outline"
                     size="icon"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    aria-label="Decrease quantity"
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -169,6 +170,7 @@ export default function ListingDetailPage() {
                     onClick={() =>
                       setQuantity((q) => Math.min(q + 1, listing.quantity_available_kg))
                     }
+                    aria-label="Increase quantity"
                   >
                     <Plus className="h-4 w-4" />
                   </Button>

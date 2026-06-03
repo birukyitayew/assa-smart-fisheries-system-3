@@ -127,12 +127,12 @@ export default function DailyCatchesPage() {
             {total} result{total !== 1 ? 's' : ''}
           </span>
           {selectedIds.length > 0 && (
-            <div className="flex items-center gap-3 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-lg border border-emerald-500/20">
+            <div className="flex items-center gap-3 bg-success/10 text-success px-3 py-1 rounded-lg border border-success/20">
               <span className="text-xs font-semibold">{selectedIds.length} selected</span>
               <Button
                 size="sm"
                 onClick={handleBulkApprove}
-                className="bg-emerald-600 text-white hover:bg-emerald-700 px-2.5 py-1 text-[11px] h-auto font-bold"
+                className="bg-success text-success-foreground hover:bg-success/90 px-2.5 py-1 text-xs h-auto font-bold"
               >
                 Approve Selected
               </Button>
@@ -140,7 +140,7 @@ export default function DailyCatchesPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedIds([])}
-                className="text-muted-foreground hover:text-foreground text-[11px] px-1 py-1 h-auto"
+                className="text-muted-foreground hover:text-foreground text-xs px-1 py-1 h-auto"
               >
                 Clear
               </Button>

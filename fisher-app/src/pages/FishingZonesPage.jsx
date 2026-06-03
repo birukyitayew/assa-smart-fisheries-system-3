@@ -169,7 +169,7 @@ export default function FishingZonesPage() {
               </Badge>
             ))}
           </div>
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
             <Compass className="h-3 w-3 animate-spin-slow" /> Tap a zone card to locate
           </span>
         </CardContent>
@@ -183,7 +183,7 @@ export default function FishingZonesPage() {
             className={cn(
               'transition-all duration-300 active:scale-[0.99] cursor-pointer',
               z.type === 'PROHIBITED' && 'border-destructive/20 hover:border-destructive/40',
-              z.type === 'RESTRICTED' && 'border-orange-500/20 hover:border-orange-500/40',
+              z.type === 'RESTRICTED' && 'border-warning/20 hover:border-warning/40',
               selectedZoneId === z.id &&
                 'ring-2 ring-primary border-primary/45 shadow-md bg-accent/30',
             )}
@@ -198,7 +198,7 @@ export default function FishingZonesPage() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">{z.description}</p>
-                <div className="text-[10px] text-muted-foreground/80 flex items-center gap-1 pt-1">
+                <div className="text-xs text-muted-foreground/80 flex items-center gap-1 pt-1">
                   <span>
                     {z.gps_lat?.toFixed(4)}° N, {z.gps_lng?.toFixed(4)}° E
                   </span>
@@ -210,7 +210,7 @@ export default function FishingZonesPage() {
               </div>
               <Badge
                 variant={TYPE_VARIANT[z.type] || 'outline'}
-                className="flex-shrink-0 uppercase text-[10px]"
+                className="flex-shrink-0 uppercase text-xs"
               >
                 {z.type}
               </Badge>
