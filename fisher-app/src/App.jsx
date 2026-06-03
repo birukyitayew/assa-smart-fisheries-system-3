@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from './context/AuthContext';
 import AppShell from './components/AppShell';
 import LoginPage from './pages/LoginPage';
@@ -16,7 +17,8 @@ function Protected({ children }) {
 export default function App() {
   const { user } = useAuth();
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route
         path="/"
@@ -32,7 +34,9 @@ export default function App() {
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="zones" element={<FishingZonesPage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <Analytics />
+    </>
   );
 }
